@@ -220,27 +220,71 @@ async function importDashboardFile(file){
  else if(ext==='xlsx'||ext==='xlsm')tables=await xlsxSheets(await file.arrayBuffer());
  else throw new Error('Formato não aceito. Use XLSX, XLSM, CSV ou TXT.');
  if(!tables.length)throw new Error('O arquivo não possui abas legíveis.');
- const target=workbookTargetMonth(tables,file.name),candidates=[],errors=[];
+ if(!window.firebaseIsAdmin||!window.firebaseIsAdmin())throw new Error('Entre como administrador antes de importar.');
+
+ const candidates=[],errors=[];
  for(const t of tables){
   if(!t.rows||!t.rows.length)continue;
   try{
-   const mapped=mapTable(t.rows);let rows=mapped.rows;let p=target||inferMonth(rows,file.name,t.name);
-   if(target){const dated=rows.filter(r=>rowMonth(r));const filtered=rows.filter(r=>{const rm=rowMonth(r);return rm&&rm[0]===target[0]&&rm[1]===target[1]});if(filtered.length)rows=filtered;else if(dated.length)throw new Error(`A aba não contém registros de ${monthLabel(target[0],target[1])}.`)}
-   if(!rows.length)continue;
-   const detail=rows.filter(r=>r.patrimonio).length,dateDetail=rows.filter(r=>r.inicio||r.fim).length,contracts=rows.filter(r=>r.contrato).length;
-   const score=detail*100000+dateDetail*1000+contracts*100+rows.length;
-   candidates.push({rows,p,score,sheet:t.name,headerRow:mapped.headerRow,ignored:mapped.ignored,detail})
+   const mapped=mapTable(t.rows),allRows=mapped.rows;
+   const datedRows=allRows.filter(r=>rowMonth(r));
+   const groups=new Map();
+
+   if(datedRows.length){
+    for(const r of allRows){
+     const p=rowMonth(r);
+     if(!p||p[0]<1||p[0]>12)continue;
+     const key=monthKey(p[0],p[1]);
+     if(!groups.has(key))groups.set(key,{p,rows:[]});
+     groups.get(key).rows.push(r);
+    }
+   }else{
+    let p=monthFromText(`${t.name} ${file.name}`);
+    if(!p&&tables.length===1)p=inferMonth(allRows,file.name,t.name);
+    if(!p)throw new Error('Não foi possível identificar o mês pela aba, pelo arquivo ou pelas datas dos registros.');
+    groups.set(monthKey(p[0],p[1]),{p,rows:allRows});
+   }
+
+   for(const {p,rows} of groups.values()){
+    if(!rows.length)continue;
+    const detail=rows.filter(r=>r.patrimonio).length,dateDetail=rows.filter(r=>r.inicio||r.fim).length,contracts=rows.filter(r=>r.contrato).length;
+    const score=detail*100000+dateDetail*1000+contracts*100+rows.length;
+    candidates.push({rows,p,score,sheet:t.name,headerRow:mapped.headerRow,ignored:mapped.ignored,detail});
+   }
   }catch(e){errors.push(`Aba ${t.name}: ${e.message||e}`)}
  }
  if(!candidates.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada no arquivo.');
- candidates.sort((a,b)=>b.score-a.score);const chosen=candidates[0],rows=chosen.rows,[m,y]=chosen.p,key=monthKey(m,y);
- if(!window.firebaseIsAdmin||!window.firebaseIsAdmin())throw new Error('Entre como administrador antes de importar.');
- if(P.data[key]&&!confirm(`${monthLabel(m,y)} já existe. Deseja substituir esse mês no Firebase?`))return;
- const monthData=makeMonth(rows,m,y);
+
+ // Se mais de uma aba gerar o mesmo mês, conserva a candidata mais detalhada.
+ const bestByMonth=new Map();
+ for(const candidate of candidates){
+  const key=monthKey(candidate.p[0],candidate.p[1]);
+  const previous=bestByMonth.get(key);
+  if(!previous||candidate.score>previous.score)bestByMonth.set(key,candidate);
+ }
+ const selected=[...bestByMonth.values()].sort((a,b)=>(a.p[1]*12+a.p[0])-(b.p[1]*12+b.p[0]));
+
+ const preview=selected.map(c=>{
+  const [m,y]=c.p,key=monthKey(m,y),action=P.data[key]?'SUBSTITUIR':'CRIAR';
+  return `• ${monthLabel(m,y)} — ${c.rows.length} registros — aba “${c.sheet}” — ${action}`;
+ }).join('\n');
+ const ignoredErrors=errors.length?`\n\nAbas ignoradas:\n${errors.slice(0,8).map(x=>`• ${x}`).join('\n')}${errors.length>8?`\n• +${errors.length-8} ocorrência(s)`:''}`:'';
+ if(!confirm(`Foram identificados ${selected.length} mês(es) para sincronização:\n\n${preview}${ignoredErrors}\n\nDeseja gravar todos no Firebase?`))return;
+
  if(!window.firebaseSaveMonth)throw new Error('A conexão com o Firebase ainda não foi carregada. Aguarde alguns segundos e tente novamente.');
- await window.firebaseSaveMonth(key,monthData,{fileName:file.name,sheet:chosen.sheet,ignored:chosen.ignored});
- P.data[key]=monthData;if(!P.months.includes(key))P.months.push(key);rebuildGlobal();current=key;monthSelect.value=current;renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='management')renderManagement();if(currentView==='companies')renderCompanies();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='alerts')renderAlerts();if(currentView==='report')renderReport();
- notifyImport(`${P.data[key].label} salvo no Firebase com sucesso pela aba ${chosen.sheet}: ${P.data[key].rows.length} registros, ${P.data[key].clients.length} clientes${chosen.ignored?` e ${chosen.ignored} linhas ignoradas`:''}.`)
+ const saved=[];
+ for(let i=0;i<selected.length;i++){
+  const chosen=selected[i],[m,y]=chosen.p,key=monthKey(m,y),monthData=makeMonth(chosen.rows,m,y);
+  importBtn.textContent=`Salvando ${i+1}/${selected.length}...`;
+  await window.firebaseSaveMonth(key,monthData,{fileName:file.name,sheet:chosen.sheet,ignored:chosen.ignored});
+  P.data[key]=monthData;if(!P.months.includes(key))P.months.push(key);
+  saved.push({key,label:monthData.label,rows:monthData.rows.length,clients:monthData.clients.length,sheet:chosen.sheet,ignored:chosen.ignored});
+ }
+
+ rebuildGlobal();current=saved[saved.length-1].key;monthSelect.value=current;
+ renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='management')renderManagement();if(currentView==='companies')renderCompanies();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='alerts')renderAlerts();if(currentView==='report')renderReport();
+ const summary=saved.map(x=>`${x.label}: ${x.rows} registros e ${x.clients} clientes`).join(' • ');
+ notifyImport(`${saved.length} mês(es) sincronizado(s) com sucesso. ${summary}`);
 }
 importBtn.onclick=()=>importFile.click();importFile.onchange=async()=>{const f=importFile.files&&importFile.files[0];if(!f)return;importBtn.disabled=true;importBtn.textContent='Importando...';try{await importDashboardFile(f)}catch(e){console.error(e);notifyImport(e&&e.message?e.message:'Falha ao importar o arquivo.',true)}finally{importBtn.disabled=false;importBtn.textContent='Importar Excel / TXT';importFile.value=''}};
 // ===== FIM DO IMPORTADOR =====
