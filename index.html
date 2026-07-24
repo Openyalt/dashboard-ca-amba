@@ -118,13 +118,94 @@ function xmlText(bytes){return new TextDecoder('utf-8').decode(bytes)}
 function colNum(ref){let n=0;for(const c of (ref.match(/[A-Z]+/i)||['A'])[0].toUpperCase())n=n*26+c.charCodeAt(0)-64;return n-1}
 async function xlsxSheets(buf){const f=await unzipXlsx(buf),parser=new DOMParser(),shared=[];if(f['xl/sharedStrings.xml']){const d=parser.parseFromString(xmlText(f['xl/sharedStrings.xml']),'text/xml');d.querySelectorAll('si').forEach(si=>shared.push(si.textContent||''))}let dateStyles=new Set();if(f['xl/styles.xml']){const d=parser.parseFromString(xmlText(f['xl/styles.xml']),'text/xml'),custom={};d.querySelectorAll('numFmts numFmt').forEach(x=>custom[x.getAttribute('numFmtId')]=x.getAttribute('formatCode')||'');d.querySelectorAll('cellXfs xf').forEach((x,i)=>{const id=+x.getAttribute('numFmtId');const fmt=custom[id]||'';if([14,15,16,17,22,45,46,47].includes(id)||/[dmy]/i.test(fmt))dateStyles.add(i)})}
 const out=[];for(const name of Object.keys(f).filter(x=>/^xl\/worksheets\/sheet\d+\.xml$/.test(x)).sort()){const d=parser.parseFromString(xmlText(f[name]),'text/xml'),rows=[];d.querySelectorAll('sheetData row').forEach(rr=>{const row=[];rr.querySelectorAll('c').forEach(c=>{const ix=colNum(c.getAttribute('r')||'A'),t=c.getAttribute('t'),st=+(c.getAttribute('s')||-1),vn=c.querySelector('v')?.textContent??'',inline=c.querySelector('is')?.textContent??'';let v=t==='s'?shared[+vn]:(t==='inlineStr'?inline:(t==='b'?(vn==='1'):vn));if(t!=='s'&&t!=='inlineStr'&&v!==''&&!isNaN(v))v=+v;if(typeof v==='number'&&dateStyles.has(st))v=excelDate(v);row[ix]=v});rows.push(row)});out.push({name:name.match(/sheet(\d+)/)[1],rows})}return out}
-const ALIASES={mes:['MES','MES ANO','COMPETENCIA','PERIODO'],cod:['COD','CODIGO','COD CLIENTE','CODIGO CLIENTE'],cnpj:['CNPJ','CPF CNPJ','DOCUMENTO'],cliente:['CLIENTE','RAZAO SOCIAL','NOME CLIENTE','EMPRESA'],patrimonio:['PATRIMONIO','NUMERO PATRIMONIO','N PATRIMONIO','EQUIPAMENTO','CACAMBA'],contrato:['CONTRATO','NUMERO CONTRATO','N CONTRATO'],inicio:['INICIO','DATA INICIO','DT INICIO'],fim:['FIM','FINAL','DATA FIM','DT FIM'],dias:['DIAS','QTD DIAS','QUANTIDADE DIAS'],valor_loc:['VALOR LOC','VALOR LOCACAO','VALOR MENSAL','PRECO LOCACAO'],valor:['VALOR','FATURAMENTO','VALOR FATURADO','TOTAL','VALOR TOTAL'],qt:['QT','QTD','QUANTIDADE','CACAMBAS'],vencimento:['VENCIMENTO','DIA VENCIMENTO','VENC'],obs:['OBS','OBSERVACAO','OBSERVACOES'],pat_corrigir:['PAT CORRIGIR','PATRIMONIO CORRIGIR','CORRIGIR','INCONSISTENCIA','PENDENCIA']};
-function mapTable(matrix){let hi=-1,map={};for(let i=0;i<Math.min(25,matrix.length);i++){const hs=(matrix[i]||[]).map(normKey);let score=0,tmp={};for(const[k,als]of Object.entries(ALIASES)){const ix=hs.findIndex(h=>als.some(a=>h===a||h.includes(a)));if(ix>=0){tmp[k]=ix;score++}}if(score>Object.keys(map).length){hi=i;map=tmp}}if(hi<0||map.cliente===undefined||map.valor===undefined)throw new Error('Não encontrei as colunas Cliente e Valor. Use a planilha no mesmo padrão do relatório.');const rows=[];for(const r of matrix.slice(hi+1)){if(!r||!r.some(x=>textVal(x)))continue;const g=k=>r[map[k]];const cliente=textVal(g('cliente'));if(!cliente)continue;const valor=numBR(g('valor'));const qt=map.qt===undefined?1:(numBR(g('qt'))||1);rows.push({mes:textVal(g('mes')),cod:textVal(g('cod')),cnpj:textVal(g('cnpj')),cliente,patrimonio:textVal(g('patrimonio')),contrato:textVal(g('contrato')),inicio:excelDate(g('inicio')),fim:excelDate(g('fim')),dias:numBR(g('dias')),valor_loc:numBR(g('valor_loc'))||valor,valor,qt,vencimento:textVal(g('vencimento')),obs:textVal(g('obs')),pat_corrigir:textVal(g('pat_corrigir')),rating:0})}if(!rows.length)throw new Error('Nenhum registro válido encontrado.');return rows}
-function inferMonth(rows,fileName,sheetName){for(const r of rows){let p=monthFromText(r.mes)||parseDateParts(r.inicio)||parseDateParts(r.fim);if(p&&p[0]>=1&&p[0]<=12)return p}let p=monthFromText(`${sheetName} ${fileName}`);if(p)return p;const ans=prompt('Não consegui identificar o mês. Informe mês e ano, por exemplo: 08/2026');p=parseDateParts(ans);if(!p||p[0]<1||p[0]>12)throw new Error('Mês/ano não informado corretamente.');return p}
+const ALIASES={
+mes:['MES ANO','MES_ANO','COMPETENCIA','PERIODO','MES'],
+cod:['COD','CODIGO','COD CLIENTE','CODIGO CLIENTE'],
+cnpj:['CNPJ','CPF CNPJ','DOCUMENTO','CPF/CNPJ'],
+cliente:['CLIENTE','RAZAO SOCIAL','NOME CLIENTE','EMPRESA'],
+patrimonio:['N PATRIMONIO','NUMERO PATRIMONIO','Nº PATRIMONIO','PATRIMONIO','EQUIPAMENTO','CACAMBA'],
+contrato:['N CONTRATO','NUMERO CONTRATO','Nº CONTRATO','Nº_CONTRATO','CONTRATO'],
+inicio:['INICIO','FAT INICIO','FAT. INICIO','DATA INICIO','DT INICIO'],
+fim:['FIM','FAT FINAL','FAT. FINAL','DATA FIM','DT FIM'],
+dias:['DIAS','QTD DIAS','QUANTIDADE DIAS'],
+valor_loc:['VALOR LOC','VALOR_LOC','VALOR LOCACAO','VALOR MENSAL','PRECO LOCACAO'],
+valor:['VALOR PER','VALOR_PER','SOMA DE VALOR PER','VALOR PROPORCIONAL','VALOR FATURADO','FATURAMENTO','VALOR TOTAL','TOTAL','VALOR'],
+qt:['QT CACAMBAS','QT_CACAMBAS','SOMA DE QT CACAMBAS','QTD CACAMBAS','QUANTIDADE CACAMBAS','QT','QTD','QUANTIDADE','CACAMBAS'],
+vencimento:['VENCIMENTO','DIA VENCIMENTO','VENC'],
+obs:['OBS','OBSERVACAO','OBSERVACOES'],
+pat_corrigir:['PATRIMONIO A CORRIGIR','PAT CORRIGIR','PATRIMONIO CORRIGIR','CORRIGIR','INCONSISTENCIA','PENDENCIA']
+};
+function aliasIndex(headers,aliases){
+ const hs=(headers||[]).map(h=>normKey(h));
+ const als=(aliases||[]).map(a=>normKey(a)).filter(Boolean);
+ for(const a of als){const i=hs.findIndex(h=>h===a);if(i>=0)return i}
+ for(const a of als){const i=hs.findIndex(h=>h&&a&&(h.startsWith(a+' ')||h.endsWith(' '+a)));if(i>=0)return i}
+ return-1
+}
+function headerMap(row){const hs=(row||[]).map(normKey),map={};let score=0;for(const[k,als]of Object.entries(ALIASES)){const ix=aliasIndex(hs,als);if(ix>=0){map[k]=ix;score++}}return{hs,map,score}}
+function isTotalRow(cliente,row){const c=normKey(cliente),joined=normKey((row||[]).map(textVal).join(' '));return !c||c==='TOTAL'||c==='TOTAL GERAL'||c.startsWith('TOTAL ')||joined==='TOTAL GERAL'}
+function mapTable(matrix){
+ if(!Array.isArray(matrix)||!matrix.length)throw new Error('A aba está vazia.');
+ let hi=-1,map={},best=-1;
+ for(let i=0;i<Math.min(60,matrix.length);i++){
+  const test=headerMap(matrix[i]);
+  let weighted=test.score;
+  if(test.map.cliente!==undefined)weighted+=5;
+  if(test.map.valor!==undefined)weighted+=5;
+  if(test.map.patrimonio!==undefined)weighted+=3;
+  if(test.map.inicio!==undefined||test.map.fim!==undefined)weighted+=2;
+  if(weighted>best){hi=i;map=test.map;best=weighted}
+ }
+ if(hi<0||map.cliente===undefined||map.valor===undefined)throw new Error('Não encontrei um cabeçalho compatível com CLIENTE e VALOR_PER./VALOR.');
+ const rows=[];let ignored=0;
+ for(const r of matrix.slice(hi+1)){
+  if(!Array.isArray(r)||!r.some(x=>textVal(x))){ignored++;continue}
+  const g=k=>map[k]===undefined?'':r[map[k]];
+  const cliente=textVal(g('cliente'));
+  if(isTotalRow(cliente,r)){ignored++;continue}
+  const valor=numBR(g('valor')),valorLoc=numBR(g('valor_loc'));
+  let qt=map.qt===undefined?1:numBR(g('qt'));if(!qt)qt=1;
+  const patrimonio=textVal(g('patrimonio'));
+  const inicio=excelDate(g('inicio')),fim=excelDate(g('fim'));
+  if(!cliente||(!valor&&!patrimonio&&!inicio&&!fim)){ignored++;continue}
+  rows.push({mes:textVal(g('mes')),cod:textVal(g('cod')),cnpj:textVal(g('cnpj')),cliente:cliente.trim(),patrimonio,contrato:textVal(g('contrato')),inicio,fim,dias:numBR(g('dias')),valor_loc:valorLoc||valor,valor,qt,vencimento:textVal(g('vencimento')),obs:textVal(g('obs')),pat_corrigir:textVal(g('pat_corrigir')),rating:0})
+ }
+ if(!rows.length)throw new Error('Nenhum registro válido encontrado após a validação da aba.');
+ return{rows,headerRow:hi+1,map,ignored}
+}
+function workbookTargetMonth(tables,fileName){
+ for(const t of tables||[]){for(const r of (t.rows||[]).slice(0,40)){for(let i=0;i<(r||[]).length;i++){const k=normKey(r[i]);if(k==='MES ANO'||k==='MES_ANO'||k==='COMPETENCIA'){const p=monthFromText(r[i+1]);if(p)return p}}}}
+ return monthFromText(fileName)
+}
+function rowMonth(r){return monthFromText(r.mes)||parseDateParts(r.inicio)||parseDateParts(r.fim)}
+function inferMonth(rows,fileName,sheetName){for(const r of rows){const p=rowMonth(r);if(p&&p[0]>=1&&p[0]<=12)return p}let p=monthFromText(`${sheetName} ${fileName}`);if(p)return p;const ans=prompt('Não consegui identificar o mês. Informe mês e ano, por exemplo: 08/2026');p=parseDateParts(ans);if(!p||p[0]<1||p[0]>12)throw new Error('Mês/ano não informado corretamente.');return p}
 function makeMonth(rows,m,y){const key=monthKey(m,y);rows.forEach(r=>{r.mes=key;r.ano=y;r.mes_num=m});const groups=new Map();for(const r of rows){const k=r.cliente;let c=groups.get(k);if(!c)c={cliente:r.cliente,cod:r.cod,cnpj:r.cnpj,vencimento:r.vencimento,qtd:0,valor:0,patrimonios:[],contratos:[],obs:[],corrigir:[]};c.qtd+=r.qt||1;c.valor+=r.valor||0;if(r.patrimonio&&!c.patrimonios.includes(r.patrimonio))c.patrimonios.push(r.patrimonio);if(r.contrato&&!c.contratos.includes(r.contrato))c.contratos.push(r.contrato);if(r.obs&&!c.obs.includes(r.obs))c.obs.push(r.obs);if(r.pat_corrigir&&!c.corrigir.includes(r.pat_corrigir))c.corrigir.push(r.pat_corrigir);if(!c.cod&&r.cod)c.cod=r.cod;if(!c.cnpj&&r.cnpj)c.cnpj=r.cnpj;if(!c.vencimento&&r.vencimento)c.vencimento=r.vencimento;groups.set(k,c)}const clients=[...groups.values()].map(c=>({...c,ticket:c.qtd?c.valor/c.qtd:0})).sort((a,b)=>b.valor-a.valor);const valor=clients.reduce((s,c)=>s+c.valor,0),qtd=clients.reduce((s,c)=>s+c.qtd,0);let ac=0;const pareto=clients.map(c=>{ac+=c.valor;return{cliente:c.cliente,valor:c.valor,acumulado:valor?ac/valor*100:0}});const dm=new Map();clients.forEach(c=>{const k=c.vencimento||'Não informado',d=dm.get(k)||{label:k,valor:0,qtd:0,clientes:0};d.valor+=c.valor;d.qtd+=c.qtd;d.clientes++;dm.set(k,d)});const due=[...dm.values()].sort((a,b)=>(parseInt(a.label)||99)-(parseInt(b.label)||99));const alerts=[];clients.forEach(c=>{if(c.corrigir.length)alerts.push({tipo:'Patrimônio',nivel:'alto',cliente:c.cliente,texto:c.corrigir.join(' | ')});if(c.obs.length)alerts.push({tipo:'Observação',nivel:'médio',cliente:c.cliente,texto:c.obs.join(' | ')})});const top=n=>valor?clients.slice(0,n).reduce((s,c)=>s+c.valor,0)/valor*100:0;return{label:monthLabel(m,y),rows,clients,pareto,due,alerts,totals:{valor,qtd,clientes:clients.length,ticket:qtd?valor/qtd:0,media:clients.length?valor/clients.length:0,top3:top(3),top5:top(5)}}}
 function rebuildGlobal(){P.months.sort((a,b)=>{const A=P.data[a].rows[0],B=P.data[b].rows[0];return(A.ano*12+A.mes_num)-(B.ano*12+B.mes_num)});P.annual=P.months.map(m=>({mes:m,label:P.data[m].label.slice(0,3),valor:P.data[m].totals.valor,qtd:P.data[m].totals.qtd,clientes:P.data[m].totals.clientes}));P.grand={valor:P.annual.reduce((s,x)=>s+x.valor,0),qtd:P.annual.reduce((s,x)=>s+x.qtd,0),clientes_unicos:new Set(P.months.flatMap(m=>P.data[m].clients.map(c=>c.cnpj||c.cliente))).size};monthSelect.innerHTML=P.months.map(m=>`<option value="${m}">${P.data[m].label}</option>`).join('');monthSelect.value=current}
-async function importDashboardFile(file){let tables=[];const ext=(file.name.split('.').pop()||'').toLowerCase();if(ext==='csv'||ext==='txt')tables=[{name:'Arquivo',rows:csvRows(await file.text())}];else if(ext==='xlsx'||ext==='xlsm')tables=await xlsxSheets(await file.arrayBuffer());else throw new Error('Formato não aceito. Use XLSX, XLSM, CSV ou TXT.');let imported=0,lastKey=null;for(const t of tables){if(!t.rows.length)continue;let rows;try{rows=mapTable(t.rows)}catch(e){continue}const[m,y]=inferMonth(rows,file.name,t.name),key=monthKey(m,y);if(P.data[key]&&!confirm(`${monthLabel(m,y)} já existe. Deseja substituir esse mês?`))continue;P.data[key]=makeMonth(rows,m,y);if(!P.months.includes(key))P.months.push(key);lastKey=key;imported++}if(!imported)throw new Error('Nenhuma aba compatível foi encontrada no arquivo.');rebuildGlobal();current=lastKey;monthSelect.value=current;renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='management')renderManagement();if(currentView==='companies')renderCompanies();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='alerts')renderAlerts();if(currentView==='report')renderReport();notifyImport(`${P.data[lastKey].label} importado com sucesso: ${P.data[lastKey].rows.length} registros e ${P.data[lastKey].clients.length} clientes.`)}
-importBtn.onclick=()=>importFile.click();importFile.onchange=async()=>{const f=importFile.files[0];if(!f)return;importBtn.disabled=true;importBtn.textContent='Importando...';try{await importDashboardFile(f)}catch(e){console.error(e);notifyImport(e.message||'Falha ao importar o arquivo.',true)}finally{importBtn.disabled=false;importBtn.textContent='Importar Excel / TXT';importFile.value=''}};
+async function importDashboardFile(file){
+ let tables=[];const ext=(file.name.split('.').pop()||'').toLowerCase();
+ if(ext==='csv'||ext==='txt')tables=[{name:'Arquivo',rows:csvRows(await file.text())}];
+ else if(ext==='xlsx'||ext==='xlsm')tables=await xlsxSheets(await file.arrayBuffer());
+ else throw new Error('Formato não aceito. Use XLSX, XLSM, CSV ou TXT.');
+ if(!tables.length)throw new Error('O arquivo não possui abas legíveis.');
+ const target=workbookTargetMonth(tables,file.name),candidates=[],errors=[];
+ for(const t of tables){
+  if(!t.rows||!t.rows.length)continue;
+  try{
+   const mapped=mapTable(t.rows);let rows=mapped.rows;let p=target||inferMonth(rows,file.name,t.name);
+   if(target){const dated=rows.filter(r=>rowMonth(r));const filtered=rows.filter(r=>{const rm=rowMonth(r);return rm&&rm[0]===target[0]&&rm[1]===target[1]});if(filtered.length)rows=filtered;else if(dated.length)throw new Error(`A aba não contém registros de ${monthLabel(target[0],target[1])}.`)}
+   if(!rows.length)continue;
+   const detail=rows.filter(r=>r.patrimonio).length,dateDetail=rows.filter(r=>r.inicio||r.fim).length,contracts=rows.filter(r=>r.contrato).length;
+   const score=detail*100000+dateDetail*1000+contracts*100+rows.length;
+   candidates.push({rows,p,score,sheet:t.name,headerRow:mapped.headerRow,ignored:mapped.ignored,detail})
+  }catch(e){errors.push(`Aba ${t.name}: ${e.message||e}`)}
+ }
+ if(!candidates.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada no arquivo.');
+ candidates.sort((a,b)=>b.score-a.score);const chosen=candidates[0],rows=chosen.rows,[m,y]=chosen.p,key=monthKey(m,y);
+ if(P.data[key]&&!confirm(`${monthLabel(m,y)} já existe. Deseja substituir esse mês?`))return;
+ P.data[key]=makeMonth(rows,m,y);if(!P.months.includes(key))P.months.push(key);rebuildGlobal();current=key;monthSelect.value=current;renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='management')renderManagement();if(currentView==='companies')renderCompanies();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='alerts')renderAlerts();if(currentView==='report')renderReport();
+ notifyImport(`${P.data[key].label} importado com sucesso pela aba ${chosen.sheet}: ${P.data[key].rows.length} registros, ${P.data[key].clients.length} clientes${chosen.ignored?` e ${chosen.ignored} linhas ignoradas`:''}.`)
+}
+importBtn.onclick=()=>importFile.click();importFile.onchange=async()=>{const f=importFile.files&&importFile.files[0];if(!f)return;importBtn.disabled=true;importBtn.textContent='Importando...';try{await importDashboardFile(f)}catch(e){console.error(e);notifyImport(e&&e.message?e.message:'Falha ao importar o arquivo.',true)}finally{importBtn.disabled=false;importBtn.textContent='Importar Excel / TXT';importFile.value=''}};
 // ===== FIM DO IMPORTADOR =====
 
 P.months.forEach(m=>monthSelect.insertAdjacentHTML('beforeend',`<option value="${m}">${P.data[m].label}</option>`));monthSelect.value=current;monthSelect.onchange=e=>{current=e.target.value;renderMonthly();if(currentView==='management')renderManagement();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='report')renderReport()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));searchClient.oninput=renderMonthlyTable;dueFilter.onchange=renderMonthlyTable;searchCompany.oninput=renderCompanies;closeModal.onclick=()=>companyModal.classList.remove('open');companyModal.onclick=e=>{if(e.target===companyModal)companyModal.classList.remove('open')};fullscreenBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();let rt;window.onresize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(currentView==='monthly')renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='assets')renderAssets();},180)};renderMonthly();
