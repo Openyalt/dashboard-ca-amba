@@ -33,11 +33,13 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 .auth-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
 .auth-error{min-height:18px;color:#ff9cab;font-size:12px;margin-top:8px}
 .auth-user{color:#7cf3c5}
-@media(max-width:700px){.cloud-status{width:100%;justify-content:center}.auth-actions{flex-direction:column-reverse}.auth-actions .btn{width:100%}}
-@media print{#authBtn,#cloudStatus,.auth-modal{display:none!important}}
+.user-badge{display:none;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#0d2133;min-width:150px}
+.user-badge.show{display:flex}.user-badge-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#173f61;color:#d9efff;font-weight:900}.user-badge-text{display:grid;line-height:1.15}.user-badge-text strong{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}.user-badge-text small{color:var(--muted);font-size:10px}.viewer-only-hidden{display:none!important}
+@media(max-width:700px){.cloud-status{width:100%;justify-content:center}.auth-actions{flex-direction:column-reverse}.auth-actions .btn{width:100%}.user-badge{width:100%}.user-badge-text strong{max-width:240px}}
+@media print{#authBtn,#cloudStatus,.auth-modal,#userBadge{display:none!important}}
 
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
-<div class="top"><div class="brand"><h1>Dashboard Executivo de Faturamento</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
+<div class="top"><div class="brand"><h1>Dashboard Executivo de Faturamento</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
 <div class="tabs"><button class="tab active" data-view="monthly">Visão mensal</button><button class="tab" data-view="annual">Visão anual</button><button class="tab" data-view="management">Gestão</button><button class="tab" data-view="companies">Empresas</button><button class="tab" data-view="assets">Patrimônio</button><button class="tab" data-view="heatmap">Mapa de calor</button><button class="tab" data-view="alerts">Auditoria</button><button class="tab" data-view="report">Relatório</button></div>
 <section id="monthly" class="view active"><div class="kpis" id="monthlyKpis"></div><div class="section-title"><h2>Ranking e leitura executiva</h2><span id="monthLabel"></span></div><div class="grid2"><div class="card panel"><h3>Ranking de faturamento</h3><div class="desc">Clique em uma barra para abrir a empresa.</div><div id="rankChart" class="chart tall"></div></div><div class="card panel"><h3>Insights do mês</h3><div id="insights" class="insights"></div></div></div>
 <div class="section-title"><h2>Distribuição financeira e operacional</h2><span>Participação por cliente e quantidade de caçambas</span></div><div class="grid-half"><div class="card panel"><h3>Participação no faturamento</h3><div id="pieChart" class="chart"></div><div id="pieLegend" class="legend"></div></div><div class="card panel"><h3>Quantidade de caçambas por cliente</h3><div id="qtyChart" class="chart"></div></div></div>
@@ -356,6 +358,9 @@ const dashboardShell = $("dashboardShell");
 const authBtn = $("authBtn");
 const importBtn = $("importBtn");
 const cloudStatus = $("cloudStatus");
+const userBadge = $("userBadge");
+const userBadgeEmail = $("userBadgeEmail");
+const userBadgeRole = $("userBadgeRole");
 const authModal = $("authModal");
 const authForm = $("authForm");
 const authEmail = $("authEmail");
@@ -490,7 +495,7 @@ window.firebaseSaveMonth = async function(monthKey, monthData, meta = {}) {
 };
 
 async function loadCloudMonths() {
-  if (!isAdmin()) return;
+  if (!currentUser) return;
   setCloudStatus("Carregando dados...", "");
   showDashboard(false);
   try {
@@ -533,10 +538,18 @@ async function loadCloudMonths() {
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   const admin = isAdmin();
+
   importBtn.disabled = !admin;
-  importBtn.title = admin ? "Importar e salvar no Firebase" : "Entre como administrador para importar";
+  importBtn.hidden = !admin;
+  importBtn.classList.toggle("viewer-only-hidden", !admin);
+  importBtn.title = admin ? "Importar e salvar no Firebase" : "Importação disponível somente para o administrador";
   authBtn.textContent = user ? "Sair" : "Entrar";
   authBtn.classList.toggle("auth-user", admin);
+
+  userBadge.classList.toggle("show", Boolean(user));
+  userBadgeEmail.textContent = user?.email || "";
+  userBadgeRole.textContent = user ? (admin ? "Administrador" : "Diretoria • somente visualização") : "";
+  userBadge.querySelector(".user-badge-icon").textContent = admin ? "A" : "D";
 
   if (!user) {
     showDashboard(false);
@@ -545,21 +558,17 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  if (!admin) {
-    showDashboard(false);
-    authError.textContent = "Este usuário não possui permissão para acessar o dashboard.";
-    if (typeof notifyImport === "function") notifyImport("Usuário autenticado sem permissão administrativa.", true);
-    await signOut(auth);
-    return;
+  if (typeof notifyImport === "function") {
+    notifyImport(admin
+      ? `Acesso autorizado: ${user.email || "administrador"}.`
+      : `Acesso de visualização autorizado: ${user.email || "diretoria"}.`);
   }
-
-  if (typeof notifyImport === "function") notifyImport(`Acesso autorizado: ${user.email || "administrador"}.`);
   await loadCloudMonths();
 });
 
 window.addEventListener("online", () => {
-  if (isAdmin() && !remoteLoaded) loadCloudMonths();
-  else if (isAdmin()) setCloudStatus("Conectado ao Firebase", "online");
+  if (currentUser && !remoteLoaded) loadCloudMonths();
+  else if (currentUser) setCloudStatus("Conectado ao Firebase", "online");
 });
 window.addEventListener("offline", () => {
   setCloudStatus("Sem internet", "offline");
