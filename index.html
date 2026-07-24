@@ -204,6 +204,46 @@ function renderHeatmap(){const companies=allCompanies().slice(0,35),max=Math.max
 function reportText(){const idx=P.months.indexOf(current),M=P.data[current],prev=idx>0?P.data[P.months[idx-1]]:null,g=prev?variation(M.totals.valor,prev.totals.valor):null,top=M.clients[0],top3=M.totals.top3,qtyg=prev?variation(M.totals.qtd,prev.totals.qtd):null,rows=managementRows(),downs=rows.filter(x=>x.val===0||x.g<0),forecast=regressionForecast(),A=assetAnalytics(),goal=Number(localStorage.getItem('dashboardGoal_'+current)||0);let txt=`RELATÓRIO EXECUTIVO — ${M.label.toUpperCase()}\n\n`;txt+=`O faturamento previsto do mês é de ${brl(M.totals.valor)}, com ${n0(M.totals.qtd)} caçambas faturadas para ${n0(M.totals.clientes)} clientes. A receita média por caçamba é de ${brl(M.totals.ticket)} e a média por cliente é de ${brl(M.totals.media)}.\n\n`;if(prev)txt+=`Em comparação com ${prev.label}, o faturamento ${g>=0?'cresceu':'recuou'} ${pct(Math.abs(g))}, enquanto a quantidade de caçambas ${qtyg>=0?'aumentou':'diminuiu'} ${pct(Math.abs(qtyg))}.\n\n`;txt+=`${top.cliente} lidera o ranking, com ${brl(top.valor)} e participação de ${pct(safeDiv(top.valor,M.totals.valor)*100)}. As três maiores empresas concentram ${pct(top3)} da receita do mês, ${top3>=60?'indicando concentração elevada da carteira.':'em nível administrável para a carteira atual.'}\n\n`;txt+=`A projeção estatística para o próximo mês é de aproximadamente ${brl(forecast)}. `;if(goal)txt+=M.totals.valor>=goal?`A meta de ${brl(goal)} foi alcançada, com realização de ${pct(safeDiv(M.totals.valor,goal)*100)}.`:`A meta definida é de ${brl(goal)}; faltam ${brl(goal-M.totals.valor)} para alcançá-la.`;else txt+='Ainda não há uma meta mensal cadastrada no painel.';txt+='\n\n';txt+=`A análise de risco encontrou ${downs.length} empresas com queda ou ausência de faturamento em relação ao período anterior. A auditoria patrimonial consolidada identificou ${A.duplicates.length} possíveis duplicidades entre clientes e ${A.issues.length} registros com observações de conferência.\n\n`;txt+=`RECOMENDAÇÕES\n1. Acompanhar as empresas com queda e validar se houve retirada, encerramento ou faturamento proporcional.\n2. Revisar patrimônios duplicados ou marcados para conferência antes do fechamento.\n3. Monitorar a concentração das três maiores empresas e buscar equilíbrio da carteira.\n4. Atualizar a meta mensal para acompanhar realizado e projeção no Centro de Gestão.`;return txt}
 function renderReport(){executiveReport.textContent=reportText();renderExecutiveReading()}
 const askAiBtn=document.getElementById('askAiBtn'),copyAiBtn=document.getElementById('copyAiBtn'),aiStatus=document.getElementById('aiStatus'),aiExecutiveOutput=document.getElementById('aiExecutiveOutput'),aiQuestion=document.getElementById('aiQuestion'),aiUseContext=document.getElementById('aiUseContext');
+function buildAIDashboardContext(){
+ const M=P.data[current],idx=P.months.indexOf(current),prev=idx>0?P.data[P.months[idx-1]]:null;
+ if(!M)return null;
+ const rows=managementRows(),A=assetAnalytics();
+ const topCompanies=M.clients.slice(0,12).map(x=>({
+  empresa:String(x.cliente||'').slice(0,100),
+  faturamento:Number(x.valor||0),
+  cacambas:Number(x.qtd||0),
+  receitaPorCacamba:Number(x.ticket||0),
+  participacaoPercentual:Number(safeDiv(x.valor,M.totals.valor)*100)
+ }));
+ const attention=rows.filter(x=>x.val===0||x.g<0).slice(0,12).map(x=>({
+  empresa:String(x.name||'').slice(0,100),
+  faturamentoAtual:Number(x.val||0),
+  variacaoPercentual:x.g===null?null:Number(x.g)
+ }));
+ const growth=rows.filter(x=>x.val>0&&x.g!==null&&x.g>0).sort((a,b)=>b.g-a.g).slice(0,10).map(x=>({
+  empresa:String(x.name||'').slice(0,100),
+  faturamentoAtual:Number(x.val||0),
+  variacaoPercentual:Number(x.g)
+ }));
+ return {
+  competencia:String(M.label||current).slice(0,50),
+  competenciaAnterior:prev?String(prev.label||'').slice(0,50):null,
+  indicadores:{
+   faturamento:Number(M.totals.valor||0),cacambas:Number(M.totals.qtd||0),clientes:Number(M.totals.clientes||0),
+   receitaPorCacamba:Number(M.totals.ticket||0),mediaPorCliente:Number(M.totals.media||0),
+   concentracaoTop3Percentual:Number(M.totals.top3||0),concentracaoTop5Percentual:Number(M.totals.top5||0),
+   variacaoFaturamentoPercentual:prev?variation(M.totals.valor,prev.totals.valor):null,
+   variacaoCacambasPercentual:prev?variation(M.totals.qtd,prev.totals.qtd):null,
+   projecaoProximoMes:Number(regressionForecast()||0),
+   metaMensal:Number(localStorage.getItem('dashboardGoal_'+current)||0)
+  },
+  empresasLideres:topCompanies,
+  maioresCrescimentos:growth,
+  empresasQueExigemAtencao:attention,
+  auditoria:{alertasDoMes:Number((M.alerts||[]).length),possiveisDuplicidadesPatrimoniais:Number(A.duplicates.length),ocorrenciasParaConferencia:Number(A.issues.length)},
+  serieMensal:P.annual.slice(-12).map(x=>({competencia:String(P.data[x.mes]?.label||x.mes).slice(0,50),faturamento:Number(x.valor||0),cacambas:Number(x.qtd||0),clientes:Number(x.clientes||0)}))
+ };
+}
 function selectedAiMode(){return document.querySelector('input[name="aiMode"]:checked')?.value||'dashboard'}
 function syncAiMode(){const dashboard=selectedAiMode()==='dashboard';if(dashboard){aiUseContext.checked=true;aiUseContext.disabled=true;aiQuestion.placeholder='Ex.: Quais empresas exigem atenção neste mês?'}else{aiUseContext.disabled=false;aiQuestion.placeholder='Ex.: Escreva um e-mail profissional solicitando uma reunião.'}}
 document.querySelectorAll('input[name="aiMode"]').forEach(el=>el.addEventListener('change',syncAiMode));syncAiMode();
@@ -214,7 +254,7 @@ if(askAiBtn)askAiBtn.onclick=async()=>{
  if(!question){aiQuestion.focus();aiStatus.textContent='Digite uma pergunta para continuar.';return}
  if(!window.firebaseAskExecutiveAI){aiStatus.textContent='Backend de IA ainda não publicado.';aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent='A interface está pronta. Publique a Firebase Function segura para ativar o assistente.';return}
  askAiBtn.disabled=true;askAiBtn.textContent='Pensando...';copyAiBtn.classList.remove('show');aiExecutiveOutput.className='ai-output loading';aiExecutiveOutput.textContent='Analisando sua solicitação com segurança...';aiStatus.textContent=useDashboardContext?'Preparando indicadores autorizados e gerando resposta...':'Gerando resposta sem enviar dados do dashboard...';
- try{const result=await window.firebaseAskExecutiveAI({question,mode,useDashboardContext,monthKey:useDashboardContext?current:null});aiExecutiveOutput.className='ai-output';aiExecutiveOutput.textContent=result;copyAiBtn.classList.add('show');aiStatus.textContent=useDashboardContext?'Resposta gerada com o contexto de '+(P.data[current]?.label||current)+'.':'Resposta geral gerada sem contexto financeiro.'}
+ try{const dashboardContext=useDashboardContext?buildAIDashboardContext():null;const result=await window.firebaseAskExecutiveAI({question,mode,useDashboardContext,monthKey:useDashboardContext?current:null,dashboardContext});aiExecutiveOutput.className='ai-output';aiExecutiveOutput.textContent=result;copyAiBtn.classList.add('show');aiStatus.textContent=useDashboardContext?'Resposta gerada com o contexto de '+(P.data[current]?.label||current)+'.':'Resposta geral gerada sem contexto financeiro.'}
  catch(e){console.error(e);const code=String(e?.code||'');let msg='Não foi possível obter uma resposta agora.';if(code.includes('resource-exhausted'))msg='Limite temporário de uso atingido. Aguarde alguns minutos e tente novamente.';else if(code.includes('unauthenticated'))msg='Sua sessão expirou. Entre novamente para utilizar o assistente.';else if(code.includes('failed-precondition'))msg='A verificação de segurança não foi concluída. Atualize a página e tente novamente.';else if(e?.message)msg=e.message.replace(/^FirebaseError:\s*/,'');aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent=msg;aiStatus.textContent='Solicitação não concluída.'}
  finally{askAiBtn.disabled=false;askAiBtn.textContent='Perguntar'}
 };
