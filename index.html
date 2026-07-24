@@ -308,6 +308,10 @@ if(P.months.length)renderMonthly();
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app-check.js";
+import {
   getAuth,
   setPersistence,
   browserLocalPersistence,
@@ -336,6 +340,14 @@ const firebaseConfig = {
 
 const ADMIN_UID = "0j2B3f4xImW7rzADDw2pvFDkhdA2";
 const app = initializeApp(firebaseConfig);
+
+// Firebase App Check com reCAPTCHA Enterprise.
+// Deve ser inicializado antes de acessar Auth ou Firestore.
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider("6Lcr2GItAAAAAC9b0FfbNZNev2teNwj3XoTrygfq"),
+  isTokenAutoRefreshEnabled: true
+});
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
