@@ -298,14 +298,10 @@ window.dashboardApplyCloudMonths=function(cloudMonths){
  rebuildGlobal();
  if(!P.data[current])current=P.months[P.months.length-1];
  monthSelect.value=current;
- renderMonthly();
- if(currentView==='annual')renderAnnual();
- if(currentView==='management')renderManagement();
- if(currentView==='companies')renderCompanies();
- if(currentView==='assets')renderAssets();
- if(currentView==='heatmap')renderHeatmap();
- if(currentView==='alerts')renderAlerts();
- if(currentView==='report')renderReport();
+};
+window.dashboardRenderCurrent=function(){
+ if(!P.months.length||!P.data[current])return;
+ switchView(currentView||'monthly');
 };
 if(P.months.length)renderMonthly();
 </script>
@@ -499,10 +495,18 @@ async function loadCloudMonths() {
       setCloudStatus(`${Object.keys(months).length} mês(es) sincronizado(s)`, "online");
       showDashboard(true);
       closeLogin();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dashboardRenderCurrent?.();
+        window.dispatchEvent(new Event('resize'));
+      }));
     } else {
       setCloudStatus("Nenhum mês cadastrado", "online");
       showDashboard(true);
       closeLogin();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dashboardRenderCurrent?.();
+        window.dispatchEvent(new Event('resize'));
+      }));
       if (typeof notifyImport === "function") notifyImport("Nenhum mês foi encontrado no Firebase. Importe a primeira planilha.");
     }
   } catch (error) {
