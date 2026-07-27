@@ -88,7 +88,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
   <div class="card panel"><div class="action-row" style="margin-bottom:12px"><button class="btn primary" id="copyReportBtn">Copiar relatório</button><button class="btn" id="downloadReportBtn">Baixar TXT</button><button class="btn" onclick="window.print()">Imprimir / PDF</button></div><div id="executiveReport" class="report-box"></div></div>
   <div class="section-title"><h2>Assistente Executivo</h2><span>Analise o painel ou faça perguntas profissionais gerais</span></div>
   <div class="card panel ai-box">
-    <div class="ai-head"><div><h3 style="margin:0 0 4px">Assistente com Gemini</h3><div class="ai-status" id="aiStatus">Acesso protegido por login, App Check e Firebase Function. A chave da IA não fica no HTML.</div></div></div>
+    <div class="ai-head"><div><h3 style="margin:0 0 4px">Assistente com Gemini</h3><div class="ai-status" id="aiStatus">Acesso protegido por login do Firebase e Cloudflare Worker. A chave da IA não fica no HTML.</div></div></div>
     <div class="ai-controls">
       <div class="ai-modes" role="radiogroup" aria-label="Modo do assistente">
         <label class="ai-mode"><input type="radio" name="aiMode" value="dashboard" checked> Analista do Dashboard</label>
@@ -450,7 +450,6 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-functions.js";
 import {
   getFirestore,
   collection,
@@ -482,9 +481,51 @@ const appCheck = initializeAppCheck(app, {
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const functions = getFunctions(app, "southamerica-east1");
-const askExecutiveAssistant = httpsCallable(functions, "askExecutiveAssistant", { timeout: 70000 });
-window.firebaseAskExecutiveAI = async payload => { const response = await askExecutiveAssistant(payload); return response?.data?.text || "A IA não retornou conteúdo."; };
+const AI_WORKER_URL = "https://dashboard-ia.yurisouza0788.workers.dev";
+
+window.firebaseAskExecutiveAI = async payload => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    const error = new Error("Você precisa estar autenticado para utilizar o assistente.");
+    error.code = "unauthenticated";
+    throw error;
+  }
+
+  const idToken = await user.getIdToken();
+
+  const response = await fetch(AI_WORKER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("O servidor da IA retornou uma resposta inválida.");
+  }
+
+  if (!response.ok) {
+    const error = new Error(
+      data?.error || "Não foi possível consultar o assistente executivo."
+    );
+
+    if (response.status === 401) error.code = "unauthenticated";
+    else if (response.status === 429) error.code = "resource-exhausted";
+    else if (response.status === 403) error.code = "permission-denied";
+    else error.code = "internal";
+
+    throw error;
+  }
+
+  return data?.answer || "A IA não retornou conteúdo.";
+};
 
 const $ = id => document.getElementById(id);
 const dashboardShell = $("dashboardShell");
