@@ -624,7 +624,7 @@ authForm.addEventListener("submit", async event => {
   authSubmit.disabled = true;
   authSubmit.textContent = "Entrando...";
   try {
-    await setPersistence(auth, browserLocalPersistence);
+    await setPersistence(auth, browserSessionPersistence);
     await signInWithEmailAndPassword(auth, authEmail.value.trim(), authPassword.value);
   } catch (error) {
     console.error(error);
@@ -787,6 +787,6 @@ window.addEventListener("offline", () => {
   showDashboard(false);
 });
 
-await setPersistence(auth, browserLocalPersistence).catch(() => {});
+await setPersistence(auth, browserSessionPersistence).catch(() => {});
 </script>
 </body></html>
