@@ -113,7 +113,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 <div id="authModal" class="auth-modal" aria-hidden="true">
   <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <h2 id="authTitle">Acesso administrativo</h2>
-    <p>Entre com o usuário autorizado no Firebase para importar ou substituir planilhas. Os dados do dashboard serão carregados somente após a autenticação.</p>
+    <p>Entre com o usuário autorizado no Firebase. Por segurança, a sessão permanece somente enquanto esta aba estiver aberta; ao fechar o dashboard, será necessário entrar novamente.</p>
     <form id="authForm">
       <div class="auth-field"><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="username" required placeholder="seuemail@gmail.com"></div>
       <div class="auth-field"><label for="authPassword">Senha</label><input id="authPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"></div>
@@ -459,8 +459,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app-check.js";
 import {
   initializeAuth,
-  indexedDBLocalPersistence,
-  browserLocalPersistence,
   browserSessionPersistence,
   setPersistence,
   signInWithEmailAndPassword,
@@ -497,11 +495,7 @@ const appCheck = initializeAppCheck(app, {
 });
 
 const auth = initializeAuth(app, {
-  persistence: [
-    indexedDBLocalPersistence,
-    browserLocalPersistence,
-    browserSessionPersistence
-  ]
+  persistence: browserSessionPersistence
 });
 const db = getFirestore(app);
 const AI_WORKER_URL = "https://dashboard-ia.yurisouza0788.workers.dev";
