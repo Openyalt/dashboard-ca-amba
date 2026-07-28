@@ -1,0 +1,1217 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Módulo de Despesas | Rapido Transportes</title>
+<style>
+:root{--bg:#071421;--panel:#0d2133;--panel2:#112a40;--line:#24445e;--text:#edf6ff;--muted:#8fa8bd;--blue:#f58220;--green:#22c991;--gold:#ffad42;--red:#ff6478;--cyan:#38bdf8;--purple:#9b87f5;--white:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 15% -10%,rgba(245,130,32,.16) 0,transparent 30%),radial-gradient(circle at 90% 0%,rgba(56,189,248,.12) 0,transparent 28%),linear-gradient(145deg,#06111d,#091827 55%,#071421);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:18px}.brand h1{margin:0;font-size:30px;letter-spacing:-.6px}.brand p{margin:6px 0;color:var(--muted)}.top-actions{display:flex;gap:9px;flex-wrap:wrap}.btn,.select{background:#0d2133;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-weight:750}.btn{cursor:pointer}.btn:hover{background:#15324b}.primary{background:linear-gradient(90deg,#d95f00,#f58220);border-color:#ff9a3c}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.tab{padding:9px 13px;border:1px solid var(--line);background:#0d2133;color:#b9ccdc;border-radius:999px;cursor:pointer;font-weight:750}.tab.active{background:linear-gradient(90deg,#c95200,#f58220);color:#fff;border-color:#ff9a3c}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.card{background:linear-gradient(180deg,rgba(17,42,64,.96),rgba(11,29,46,.96));border:1px solid var(--line);border-radius:15px;box-shadow:0 12px 32px rgba(0,0,0,.22)}.kpi{padding:17px;position:relative;overflow:hidden}.kpi:before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue)}.kpi:nth-child(2):before{background:var(--green)}.kpi:nth-child(3):before{background:var(--cyan)}.kpi:nth-child(4):before{background:var(--gold)}.kpi:nth-child(5):before{background:var(--purple)}.kpi:nth-child(6):before{background:var(--red)}.kpi small{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:10px;letter-spacing:.55px}.kpi strong{display:block;margin-top:7px;font-size:23px}.kpi em{display:block;color:#7891a6;font-style:normal;font-size:11px;margin-top:4px}.delta.up{color:#55e7b3}.delta.down{color:#ff8b9a}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:24px 0 11px}.section-title h2{margin:0;font-size:18px}.section-title span{color:var(--muted);font-size:12px}.grid2{display:grid;grid-template-columns:1.25fr .75fr;gap:14px}.grid-half{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{padding:17px;min-width:0}.panel h3{margin:0 0 4px;font-size:15px}.desc{color:var(--muted);font-size:12px;margin-bottom:10px}.chart{height:360px}.chart.tall{height:470px}.chart.small{height:300px}.insights{display:grid;gap:9px}.insight{background:#102a40;border-left:4px solid var(--blue);padding:11px;border-radius:8px}.insight b{display:block;margin-bottom:3px}.insight.warn{border-left-color:var(--gold)}.insight.risk{border-left-color:var(--red)}.insight.good{border-left-color:var(--green)}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters input,.filters select{background:#0a1b2b;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px}.filters input{min-width:250px}.table-card{overflow:hidden}.table-wrap{overflow:auto;max-height:600px}table{border-collapse:collapse;width:100%;min-width:1120px}th{position:sticky;top:0;background:#15304a;color:#a9bed0;text-align:left;padding:10px;font-size:10px;text-transform:uppercase;letter-spacing:.45px;z-index:2}td{padding:9px 10px;border-top:1px solid #17354f;font-size:12px}tbody tr:hover{background:#102a40}.num{text-align:right;font-variant-numeric:tabular-nums}.client{font-weight:800;color:#e9f5ff;cursor:pointer}.client:hover{text-decoration:underline}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#173f61;color:#bce3ff;font-weight:800;font-size:11px}.alert-high{background:#4a1c26;color:#ffb8c1}.alert-med{background:#4b3513;color:#ffd891}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.legend span{font-size:11px;color:#aabfd0;display:inline-flex;gap:6px;align-items:center}.legend i{width:9px;height:9px;border-radius:50%;display:inline-block}.view{display:none}.view.active{display:block}.alert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.alert-card{padding:12px}.alert-card b{display:block;margin-bottom:4px}.empty{padding:28px;color:var(--muted);text-align:center}.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;place-items:center;padding:20px;z-index:50}.modal.open{display:grid}.modal-card{width:min(1100px,96vw);max-height:90vh;overflow:auto;background:#0b1e30;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.5)}.modal-head{display:flex;justify-content:space-between;gap:15px}.close{background:#17304a;color:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 11px;cursor:pointer}.company-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.mini{padding:13px}.mini small{color:var(--muted)}.mini strong{display:block;font-size:19px;margin-top:5px}.tooltip{position:fixed;display:none;pointer-events:none;background:#020b12;color:#fff;padding:8px 10px;border-radius:7px;font-size:12px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.4)}footer{text-align:center;color:#6f879b;font-size:11px;padding:28px 0 8px}
+@media(max-width:1180px){.kpis{grid-template-columns:repeat(3,1fr)}.grid2,.grid-half{grid-template-columns:1fr}.alert-grid{grid-template-columns:1fr 1fr}}@media(max-width:700px){.shell{padding:15px}.top{flex-direction:column}.kpis{grid-template-columns:1fr 1fr}.filters input{min-width:100%;width:100%}.alert-grid,.company-kpis{grid-template-columns:1fr}.chart{height:320px}.chart.tall{height:430px}}
+@media print{@page{size:A4 landscape;margin:8mm}body{background:#fff;color:#173047}.shell{max-width:none;padding:6px}.top-actions,.tabs,.filters{display:none!important}.card{background:#fff;color:#173047;border-color:#ccd8e2;box-shadow:none}.brand p,.desc,.section-title span,.kpi small,.kpi em{color:#5e7487}.kpis{grid-template-columns:repeat(6,1fr);gap:5px}.kpi{padding:8px}.kpi strong{font-size:13px}.chart{height:210px!important}.table-wrap{max-height:none;overflow:visible}th{position:static;background:#e8eef3;color:#26475f}td{border-color:#dfe7ed}.view{display:block!important}.view:not(#monthly){page-break-before:always}.modal{display:none!important}}
+
+.import-note{position:fixed;right:18px;bottom:18px;z-index:120;max-width:420px;background:#102a40;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:10px;padding:12px 14px;box-shadow:0 12px 35px rgba(0,0,0,.35);display:none}.import-note.error{border-left-color:var(--red)}.import-note.show{display:block}.file-input{display:none}
+
+/* ===== DASHBOARD EXECUTIVO V3 ===== */
+.goal-box{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.goal-input{width:170px;background:#081b2b;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:right}.progress{height:12px;background:#081725;border:1px solid #24445e;border-radius:999px;overflow:hidden}.progress>i{display:block;height:100%;background:linear-gradient(90deg,#22c991,#38bdf8);border-radius:999px}.executive-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric-card{padding:16px}.metric-card small{display:block;color:var(--muted);text-transform:uppercase;font-size:10px;font-weight:800;letter-spacing:.5px}.metric-card strong{display:block;font-size:21px;margin-top:7px}.metric-card span{display:block;color:#8fa8bd;font-size:11px;margin-top:5px}.report-box{white-space:pre-wrap;line-height:1.65;background:#081b2b;border:1px solid var(--line);border-radius:12px;padding:18px;color:#d9ebf8}.action-row{display:flex;gap:8px;flex-wrap:wrap}.heatmap-wrap{overflow:auto}.heatmap-table{min-width:900px}.heat-cell{text-align:center;font-weight:800;border-radius:6px}.score{display:inline-grid;place-items:center;width:43px;height:28px;border-radius:999px;font-weight:900}.score.good{background:#123f36;color:#6df0be}.score.mid{background:#493813;color:#ffd56b}.score.bad{background:#4a1c26;color:#ff9cab}.asset-list{display:grid;gap:8px;max-height:520px;overflow:auto}.asset-row{display:grid;grid-template-columns:110px 1fr 150px;gap:10px;align-items:center;padding:10px 12px;background:#0a1d2e;border:1px solid #193b55;border-radius:9px;font-size:12px}.asset-tag{padding:3px 7px;border-radius:999px;font-weight:800;text-align:center}.asset-tag.bad{background:#4a1c26;color:#ffb8c1}.asset-tag.warn{background:#4b3513;color:#ffd891}.asset-tag.ok{background:#123f36;color:#7cf3c5}.trend-up{color:#55e7b3}.trend-down{color:#ff8b9a}.trend-flat{color:#f2b84b}.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.subtab{padding:8px 11px;border:1px solid var(--line);background:#0a1b2b;color:#b9ccdc;border-radius:8px;cursor:pointer;font-weight:750}.subtab.active{background:linear-gradient(90deg,#c95200,#f58220);color:#fff}.rank-table td:first-child{width:48px}.note-box{padding:12px;border-radius:9px;background:#102a40;border-left:4px solid var(--cyan);font-size:12px;color:#c4d9e8}.empty-soft{padding:20px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:10px}
+.exec-reading{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.exec-point{padding:13px;border:1px solid #193b55;border-radius:10px;background:#0a1d2e}.exec-point small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}.exec-point b{display:block;margin-top:6px;font-size:14px}.exec-point span{display:block;color:#9fb7ca;font-size:11px;line-height:1.45;margin-top:5px}.ai-box{display:grid;gap:12px}.ai-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ai-output{min-height:120px;white-space:pre-wrap;line-height:1.65;background:#081b2b;border:1px solid var(--line);border-radius:12px;padding:16px;color:#d9ebf8}.ai-status{font-size:11px;color:var(--muted)}
+.ai-controls{display:grid;gap:12px}.ai-modes{display:flex;gap:8px;flex-wrap:wrap}.ai-mode{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:#0a1b2b;color:#b9ccdc;cursor:pointer;font-weight:750}.ai-mode:has(input:checked){background:#5b2b0f;color:#fff;border-color:#f58220}.ai-mode input{accent-color:#2f80ed}.ai-context{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #193b55;border-radius:9px;background:#0a1d2e;color:#c4d9e8;font-size:12px;font-weight:700}.ai-context input{accent-color:#22c991}.ai-question{width:100%;min-height:100px;resize:vertical;background:#081b2b;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 13px;line-height:1.5}.ai-question:focus{outline:2px solid rgba(47,128,237,.25);border-color:#4c95ef}.ai-suggestions{display:flex;gap:7px;flex-wrap:wrap}.ai-chip{border:1px solid var(--line);background:#102a40;color:#c8dceb;border-radius:999px;padding:7px 10px;cursor:pointer;font-size:11px;font-weight:750}.ai-chip:hover{background:#173f61}.ai-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ai-output-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.ai-output-label{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px}.ai-copy{display:none}.ai-copy.show{display:inline-flex}.ai-disclaimer{font-size:10px;color:#7891a6;line-height:1.45}.ai-output.loading{color:#9fb7ca}.ai-output.error{border-color:rgba(255,100,120,.6);color:#ffb8c1}@media(max-width:650px){.ai-footer{align-items:stretch}.ai-footer .btn{width:100%}.ai-modes{display:grid;grid-template-columns:1fr}.ai-mode{width:100%}}@media(max-width:1000px){.exec-reading{grid-template-columns:1fr 1fr}}@media(max-width:650px){.exec-reading{grid-template-columns:1fr}}
+@media(max-width:1000px){.executive-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.executive-grid{grid-template-columns:1fr}.asset-row{grid-template-columns:85px 1fr}.asset-row>:last-child{grid-column:1/-1}}
+@media print{#management,#assets,#heatmap,#report{page-break-before:always}.action-row,.goal-input{display:none!important}}
+
+/* ===== FIREBASE CLOUD / AUTENTICAÇÃO ===== */
+.cloud-status{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#0d2133;color:#a9bed0;font-size:12px;font-weight:750}
+.cloud-status i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(242,184,75,.12)}
+.cloud-status.online i{background:var(--green);box-shadow:0 0 0 3px rgba(34,201,145,.12)}
+.cloud-status.offline i{background:var(--red);box-shadow:0 0 0 3px rgba(255,100,120,.12)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.auth-modal{position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;place-items:center;padding:20px;z-index:200}
+.auth-modal.open{display:grid}
+.auth-card{width:min(440px,96vw);background:#0b1e30;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.auth-card h2{margin:0 0 6px}.auth-card p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.45}
+.auth-field{display:grid;gap:6px;margin:12px 0}.auth-field label{font-size:12px;color:#b7ccdc;font-weight:800}
+.auth-field input{width:100%;background:#081b2b;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 12px}
+.auth-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
+.auth-error{min-height:18px;color:#ff9cab;font-size:12px;margin-top:8px}
+.auth-user{color:#7cf3c5}
+.user-badge{display:none;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#0d2133;min-width:150px}
+.user-badge.show{display:flex}.user-badge-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#173f61;color:#d9efff;font-weight:900}.user-badge-text{display:grid;line-height:1.15}.user-badge-text strong{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}.user-badge-text small{color:var(--muted);font-size:10px}.viewer-only-hidden{display:none!important}
+@media(max-width:700px){.cloud-status{width:100%;justify-content:center}.auth-actions{flex-direction:column-reverse}.auth-actions .btn{width:100%}.user-badge{width:100%}.user-badge-text strong{max-width:240px}}
+@media print{#authBtn,#cloudStatus,.auth-modal,#userBadge{display:none!important}}
+
+
+/* ===== ETAPA 8 — EXECUTIVO APRIMORADO ===== */
+.comparison-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.comparison-item{padding:14px;background:#0a1d2e;border:1px solid #193b55;border-radius:11px}.comparison-item small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}.comparison-item strong{display:block;margin-top:6px;font-size:18px}.comparison-item span{display:block;margin-top:4px;color:#9db4c7;font-size:11px}.action-alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.action-alert{padding:14px;cursor:pointer;transition:.18s transform,.18s border-color}.action-alert:hover{transform:translateY(-2px);border-color:#3e86cc}.action-alert .action-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.action-alert strong{font-size:20px}.action-alert p{margin:7px 0 10px;color:#a8bdce;font-size:12px}.action-link{font-size:11px;font-weight:800;color:#8fc5ff}.company-modal-card{width:min(1240px,97vw)}.company-header-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.company-section-nav{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}.company-section-nav button{background:#0a1b2b;color:#b9ccdc;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:750}.company-section-nav button.active{background:#245f9d;color:white}.company-detail-section{display:none}.company-detail-section.active{display:block}.company-assets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.company-asset-card{padding:12px;background:#0a1d2e;border:1px solid #193b55;border-radius:10px}.company-asset-card b{display:block}.company-asset-card span{display:block;color:#9db4c7;font-size:11px;margin-top:4px}.status-message{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0a1d2e;color:#c8dbea}.status-message.error{border-left:4px solid var(--red)}.status-message.loading{border-left:4px solid var(--cyan)}.loading-overlay{position:fixed;inset:0;background:rgba(3,12,20,.82);display:none;place-items:center;z-index:180}.loading-overlay.show{display:grid}.loading-card{width:min(420px,90vw);padding:22px;text-align:center;background:#0b1e30;border:1px solid var(--line);border-radius:15px}.loading-spinner{width:34px;height:34px;border:3px solid #24445e;border-top-color:#38bdf8;border-radius:50%;margin:0 auto 13px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:1000px){.comparison-strip,.action-alerts{grid-template-columns:1fr 1fr}.company-assets-grid{grid-template-columns:1fr 1fr}}@media(max-width:650px){.comparison-strip,.action-alerts,.company-assets-grid{grid-template-columns:1fr}}
+
+/* ===== MÓDULO DESPESAS ===== */
+.expense-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px}
+.expense-subtab{padding:8px 12px;border:1px solid var(--line);background:#0a1b2b;color:#b9ccdc;border-radius:9px;cursor:pointer;font-weight:800}
+.expense-subtab.active{background:linear-gradient(90deg,#c95200,#f58220);color:#fff;border-color:#ff9a3c}
+.expense-panel{display:none}.expense-panel.active{display:block}
+.expense-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.expense-kpi{padding:16px;position:relative;overflow:hidden}
+.expense-kpi:before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:var(--blue)}
+.expense-kpi small{display:block;color:var(--muted);text-transform:uppercase;font-size:10px;font-weight:850;letter-spacing:.5px}
+.expense-kpi strong{display:block;font-size:21px;margin-top:7px}
+.expense-kpi span{display:block;color:#8fa8bd;font-size:11px;margin-top:5px}
+.expense-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.expense-filters{display:flex;gap:8px;flex-wrap:wrap}
+.expense-filters input,.expense-filters select{background:#0a1b2b;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.expense-filters input{min-width:260px}
+.expense-summary-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.expense-import-box{padding:18px;border:1px dashed #f58220;border-radius:12px;background:rgba(245,130,32,.06)}
+.expense-import-box h3{margin:0 0 6px}.expense-import-box p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+.expense-status{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:900}
+.expense-status.paid{background:#123f36;color:#7cf3c5}
+.expense-status.open{background:#4b3513;color:#ffd891}
+.expense-status.overdue{background:#4a1c26;color:#ffb8c1}
+.expense-status.conciliated{background:#173f61;color:#bce3ff}
+.expense-status.pending{background:#3c2d18;color:#ffd891}
+.expense-empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+@media(max-width:1180px){.expense-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.expense-summary-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.expense-kpis{grid-template-columns:1fr 1fr}.expense-filters input{min-width:100%;width:100%}}
+
+</style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
+<div class="top"><div class="brand"><h1>Módulo de Despesas<br>Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
+<div class="tabs">
+<a class="tab" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">← Voltar ao Faturamento</a>
+</div>
+<section id="monthly" class="view"><div class="kpis" id="monthlyKpis"></div><div class="section-title"><h2>Ranking e leitura executiva</h2><span id="monthLabel"></span></div><div class="grid2"><div class="card panel"><h3>Ranking de faturamento</h3><div class="desc">Clique em uma barra para abrir a empresa.</div><div id="rankChart" class="chart tall"></div></div><div class="card panel"><h3>Insights do mês</h3><div id="insights" class="insights"></div></div></div>
+<div class="section-title"><h2>Distribuição financeira e operacional</h2><span>Participação por cliente e quantidade de caçambas</span></div><div class="grid-half"><div class="card panel"><h3>Participação no faturamento</h3><div id="pieChart" class="chart"></div><div id="pieLegend" class="legend"></div></div><div class="card panel"><h3>Quantidade de caçambas por cliente</h3><div id="qtyChart" class="chart"></div></div></div>
+<div class="section-title"><h2>Pareto 80/20</h2><span>Receita individual e acumulado percentual</span></div><div class="card panel"><div id="paretoChart" class="chart tall"></div></div>
+<div class="section-title"><h2>Vencimentos</h2><span>Distribuição financeira e operacional por dia</span></div><div class="grid-half"><div class="card panel"><h3>Faturamento por vencimento</h3><div id="dueValue" class="chart small"></div></div><div class="card panel"><h3>Caçambas por vencimento</h3><div id="dueQty" class="chart small"></div></div></div>
+<div class="section-title"><h2>Detalhamento do mês</h2><span>Resumo consolidado por cliente</span></div><div class="card table-card"><div class="toolbar"><b id="tableSummary"></b><div class="filters"><input id="searchClient" placeholder="Buscar cliente, código ou CNPJ"><select id="dueFilter"><option value="">Todos os vencimentos</option></select></div></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Cliente</th><th>Código</th><th>CNPJ</th><th>Venc.</th><th class="num">Caçambas</th><th class="num">Faturamento</th><th class="num">R$/caçamba</th><th class="num">Participação</th></tr></thead><tbody id="monthlyBody"></tbody></table></div></div></section>
+<section id="annual" class="view"><div class="kpis" id="annualKpis"></div><div class="section-title"><h2>Evolução mensal</h2><span>Faturamento, caçambas e variação</span></div><div class="grid-half"><div class="card panel"><h3>Faturamento mês a mês</h3><div id="annualValue" class="chart"></div></div><div class="card panel"><h3>Caçambas mês a mês</h3><div id="annualQty" class="chart"></div></div></div><div class="section-title"><h2>Comparação mensal</h2><span>Indicadores e crescimento</span></div><div class="card table-card"><div class="table-wrap"><table><thead><tr><th>Mês</th><th class="num">Faturamento</th><th class="num">Variação</th><th class="num">Caçambas</th><th class="num">Variação</th><th class="num">Clientes</th><th class="num">R$/caçamba</th></tr></thead><tbody id="annualBody"></tbody></table></div></div></section>
+
+<section id="expenses" class="view active">
+  <div class="section-title"><h2>Módulo de Despesas</h2><span id="expensePeriodLabel">Realizado financeiro importado do A2O</span></div>
+  <div class="expense-subnav">
+    <button class="expense-subtab active" data-expense-view="expenseSummary">Resumo</button>
+    <button class="expense-subtab" data-expense-view="expenseRecords">Lançamentos</button>
+    <button class="expense-subtab" data-expense-view="expenseCategories">Categorias</button>
+    <button class="expense-subtab" data-expense-view="expenseSuppliers">Fornecedores</button>
+    <button class="expense-subtab" data-expense-view="expenseDue">Vencimentos</button>
+    <button class="expense-subtab admin-only" data-expense-view="expenseImport" hidden>Importação A2O</button>
+  </div>
+
+  <div id="expenseSummary" class="expense-panel active">
+    <div class="expense-kpis" id="expenseKpis"></div>
+    <div class="section-title"><h2>Evolução e composição</h2><span>Janeiro a junho conforme competências importadas</span></div>
+    <div class="expense-summary-grid">
+      <div class="card panel"><h3>Evolução mensal das despesas</h3><div class="desc">Valor realizado por vencimento.</div><div id="expenseEvolutionChart" class="chart"></div></div>
+      <div class="card panel"><h3>Maiores categorias do mês</h3><div id="expenseCategorySummary" class="insights"></div></div>
+    </div>
+    <div class="section-title"><h2>Leitura operacional</h2><span>Centro de custo, conciliação e fornecedores</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Despesas por centro de custo</h3><div id="expenseCostCenterChart" class="chart"></div></div>
+      <div class="card panel"><h3>Maiores fornecedores</h3><div id="expenseSupplierChart" class="chart"></div></div>
+    </div>
+  </div>
+
+  <div id="expenseRecords" class="expense-panel">
+    <div class="card table-card">
+      <div class="expense-toolbar">
+        <b id="expenseRecordsSummary">Nenhum lançamento carregado</b>
+        <div class="expense-filters">
+          <input id="expenseSearch" placeholder="Buscar fornecedor, descrição ou histórico">
+          <select id="expenseCategoryFilter"><option value="">Todas as categorias</option></select>
+          <select id="expenseCostCenterFilter"><option value="">Todos os centros de custo</option></select>
+          <select id="expenseConciliationFilter"><option value="">Toda conciliação</option><option value="Sim">Conciliado</option><option value="Não">Não conciliado</option></select>
+        </div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Vencimento</th><th>Baixa</th><th>Fornecedor</th><th>Categoria</th><th>Centro de custo</th><th>Banco/Portador</th><th>Conciliação</th><th class="num">Valor</th><th>Status</th></tr></thead><tbody id="expenseRecordsBody"></tbody></table></div>
+    </div>
+  </div>
+
+  <div id="expenseCategories" class="expense-panel">
+    <div class="section-title"><h2>Categorias de despesas</h2><span>Ranking, participação e volume de lançamentos</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Ranking por valor</h3><div id="expenseCategoriesChart" class="chart tall"></div></div>
+      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Categoria</th><th class="num">Lançamentos</th><th class="num">Valor</th><th class="num">Participação</th></tr></thead><tbody id="expenseCategoriesBody"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="expenseSuppliers" class="expense-panel">
+    <div class="section-title"><h2>Fornecedores</h2><span>Concentração, recorrência e valor médio</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Maiores fornecedores</h3><div id="expenseSuppliersChart" class="chart tall"></div></div>
+      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Fornecedor</th><th class="num">Lançamentos</th><th class="num">Valor acumulado</th><th class="num">Média</th><th class="num">Participação</th></tr></thead><tbody id="expenseSuppliersBody"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="expenseDue" class="expense-panel">
+    <div class="expense-kpis" id="expenseDueKpis"></div>
+    <div class="section-title"><h2>Comportamento dos pagamentos</h2><span>Comparação entre vencimento e data de baixa</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Valor por situação de pagamento</h3><div id="expenseDueChart" class="chart"></div></div>
+      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>Situação</th><th class="num">Lançamentos</th><th class="num">Valor</th><th class="num">Participação</th></tr></thead><tbody id="expenseDueBody"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="expenseImport" class="expense-panel admin-only" hidden>
+    <div class="expense-import-box">
+      <h3>Importar relatório de despesas do A2O</h3>
+      <p>Selecione o relatório detalhado em XLSX/XLSM. O sistema valida as colunas, separa os lançamentos por mês de vencimento, mostra uma prévia e grava somente após confirmação.</p>
+      <input id="expenseImportFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv">
+      <button class="btn primary" id="expenseImportBtn" type="button">Selecionar relatório A2O</button>
+      <div id="expenseImportStatus" class="desc" style="margin-top:10px">Somente administradores podem importar ou substituir competências.</div>
+    </div>
+  </div>
+</section>
+
+<section id="companies" class="view"><div class="section-title"><h2>Empresas</h2><span>Histórico acumulado e desempenho mensal</span></div><div class="card table-card"><div class="toolbar"><b id="companiesSummary"></b><div class="filters"><input id="searchCompany" placeholder="Buscar empresa"></div></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Empresa</th><th>CNPJ</th><th class="num">Faturamento acumulado</th><th class="num">Caçambas</th><th class="num">Média mensal</th><th class="num">Meses ativos</th><th class="num">Melhor mês</th></tr></thead><tbody id="companiesBody"></tbody></table></div></div></section>
+<section id="alerts" class="view admin-only" hidden><div class="section-title"><h2>Central de alertas</h2><span>Pendências e inconsistências identificadas na base</span></div><div id="alertsGrid" class="alert-grid"></div></section>
+
+<section id="management" class="view">
+  <div class="section-title"><h2>Centro de gestão</h2><span>Metas, projeções, crescimento e risco</span></div>
+  <div class="executive-grid" id="managementKpis"></div>
+  <div class="section-title"><h2>Leitura executiva</h2><span>Indicadores-chave do desempenho mensal</span></div>
+  <div class="exec-reading" id="executiveReading"></div>
+  <div class="section-title"><h2>Comparativo do período</h2><span id="comparisonCaption">Evolução frente ao mês anterior disponível</span></div>
+  <div class="comparison-strip" id="comparisonStrip"></div>
+  <div class="section-title"><h2>Pontos de atenção</h2><span>Acesso direto às análises que exigem decisão</span></div>
+  <div class="action-alerts" id="actionAlerts"></div>
+  <div class="section-title"><h2>Meta mensal de faturamento</h2><span>Acompanhamento do realizado frente ao objetivo definido</span></div>
+  <div class="card panel"><div class="goal-box"><div><h3 style="margin:0 0 7px">Objetivo do período</h3><div id="goalStatus" class="desc"></div><div class="progress"><i id="goalBar" style="width:0%"></i></div></div><input id="goalInput" class="goal-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 300.000"></div></div>
+  <div class="section-title"><h2>Empresas que exigem atenção</h2><span>Comparação com o mês anterior</span></div>
+  <div class="grid-half"><div class="card panel"><h3>Maiores crescimentos</h3><div id="growthList" class="insights"></div></div><div class="card panel"><h3>Quedas e clientes sem movimento</h3><div id="riskList" class="insights"></div></div></div>
+  <div class="section-title"><h2>Ranking gerencial</h2><span>Score considera crescimento, recorrência, ticket e concentração</span></div>
+  <div class="card table-card"><div class="table-wrap"><table class="rank-table"><thead><tr><th>#</th><th>Empresa</th><th class="num">Score</th><th class="num">Faturamento</th><th class="num">Variação</th><th class="num">Recorrência</th><th class="num">Ticket</th><th>Status</th></tr></thead><tbody id="scoreBody"></tbody></table></div></div>
+</section>
+<section id="assets" class="view">
+  <div class="section-title"><h2>Inteligência de patrimônio</h2><span>Utilização, duplicidades e inconsistências</span></div>
+  <div class="executive-grid" id="assetKpis"></div>
+  <div class="section-title"><h2>Auditoria de patrimônios</h2><span>Base consolidada de todos os meses</span></div>
+  <div class="grid-half"><div class="card panel"><h3>Principais ocorrências</h3><div id="assetIssues" class="asset-list"></div></div><div class="card panel"><h3>Distribuição por situação</h3><div id="assetChart" class="chart"></div></div></div>
+</section>
+<section id="heatmap" class="view">
+  <div class="section-title"><h2>Mapa de calor das empresas</h2><span>Intensidade do faturamento por mês</span></div>
+  <div class="card panel heatmap-wrap"><table class="heatmap-table"><thead id="heatHead"></thead><tbody id="heatBody"></tbody></table></div>
+  <div class="section-title"><h2>Leitura da carteira</h2></div><div id="portfolioInsights" class="grid-half"></div>
+</section>
+<section id="report" class="view">
+  <div class="section-title"><h2>Relatório executivo automático</h2><span>Texto pronto para reunião, e-mail ou apresentação</span></div>
+  <div class="card panel"><div class="action-row" style="margin-bottom:12px"><button class="btn primary" id="copyReportBtn">Copiar relatório</button><button class="btn" id="downloadReportBtn">Baixar TXT</button><button class="btn" onclick="window.print()">Imprimir / PDF</button></div><div id="executiveReport" class="report-box"></div></div>
+  <div class="section-title"><h2>Assistente Executivo</h2><span>Analise o painel ou faça perguntas profissionais gerais</span></div>
+  <div class="card panel ai-box">
+    <div class="ai-head"><div><h3 style="margin:0 0 4px">Assistente com Gemini</h3><div class="ai-status" id="aiStatus">Acesso protegido por login do Firebase e Cloudflare Worker. A chave da IA não fica no HTML.</div></div></div>
+    <div class="ai-controls">
+      <div class="ai-modes" role="radiogroup" aria-label="Modo do assistente">
+        <label class="ai-mode"><input type="radio" name="aiMode" value="dashboard" checked> Analista do Dashboard</label>
+        <label class="ai-mode"><input type="radio" name="aiMode" value="general"> Assistente Geral</label>
+      </div>
+      <label class="ai-context"><input id="aiUseContext" type="checkbox" checked> Utilizar dados agregados do dashboard nesta pergunta</label>
+      <textarea id="aiQuestion" class="ai-question" maxlength="1500" placeholder="Ex.: Quais empresas exigem atenção neste mês?"></textarea>
+      <div class="ai-suggestions" id="aiSuggestions">
+        <button class="ai-chip" type="button" data-ai-question="Por que o faturamento mudou em relação ao mês anterior?">Por que mudou?</button>
+        <button class="ai-chip" type="button" data-ai-question="Quais empresas mais cresceram e quais exigem atenção?">Crescimentos e riscos</button>
+        <button class="ai-chip" type="button" data-ai-question="Compare o mês selecionado com o mês anterior e destaque os pontos principais.">Comparar períodos</button>
+        <button class="ai-chip" type="button" data-ai-question="Prepare um resumo objetivo para apresentar em uma reunião de diretoria.">Resumo para reunião</button>
+      </div>
+      <div class="ai-footer"><div class="ai-disclaimer">Não informe senhas, dados bancários ou informações pessoais sensíveis. O contexto enviado contém somente indicadores autorizados.</div><button class="btn primary" id="askAiBtn" type="button">Perguntar</button></div>
+    </div>
+    <div><div class="ai-output-head"><span class="ai-output-label">Resposta</span><button class="btn ai-copy" id="copyAiBtn" type="button">Copiar resposta</button></div><div id="aiExecutiveOutput" class="ai-output">Selecione o modo, escreva uma pergunta e clique em “Perguntar”.</div></div>
+  </div>
+</section>
+<footer>Dados protegidos no Firebase</footer></main>
+
+<div id="loadingOverlay" class="loading-overlay" aria-live="polite"><div class="loading-card"><div class="loading-spinner"></div><b id="loadingTitle">Carregando dashboard</b><p id="loadingText" class="desc" style="margin:8px 0 0">Aguarde enquanto os dados autorizados são preparados.</p></div></div>
+<div id="authModal" class="auth-modal" aria-hidden="true">
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <h2 id="authTitle">Acesso administrativo</h2>
+    <p>Entre com o usuário autorizado no Firebase. Por segurança, a sessão permanece somente enquanto esta aba estiver aberta; ao fechar o dashboard, será necessário entrar novamente.</p>
+    <form id="authForm">
+      <div class="auth-field"><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="username" required placeholder="seuemail@gmail.com"></div>
+      <div class="auth-field"><label for="authPassword">Senha</label><input id="authPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"></div>
+      <div id="authError" class="auth-error"></div>
+      <div class="auth-actions"><button type="button" class="btn" id="authCancel">Cancelar</button><button type="submit" class="btn primary" id="authSubmit">Entrar</button></div>
+    </form>
+  </div>
+</div>
+<div id="companyModal" class="modal"><div class="modal-card company-modal-card"><div class="modal-head"><div><h2 id="companyTitle" style="margin:0"></h2><p id="companyMeta" class="desc"></p><div id="companyHeaderMeta" class="company-header-meta"></div></div><button class="close" id="closeModal">Fechar</button></div><div class="company-kpis" id="companyKpis"></div><div class="company-section-nav"><button class="active" data-company-section="overview">Visão executiva</button><button data-company-section="history">Histórico mensal</button><button data-company-section="assets">Patrimônios</button></div><section id="companySectionOverview" class="company-detail-section active"><div class="grid-half"><div class="card panel"><h3>Evolução mensal da empresa</h3><div id="companyChart" class="chart small"></div></div><div class="card panel"><h3>Diagnóstico executivo</h3><div id="companyInsights" class="insights"></div></div></div></section><section id="companySectionHistory" class="company-detail-section"><div class="card table-card"><div class="toolbar"><b id="companyHistorySummary">Histórico mensal</b><span class="desc" style="margin:0">Valores, volume, ticket e patrimônios por competência</span></div><div class="table-wrap"><table><thead><tr><th>Mês</th><th class="num">Caçambas</th><th class="num">Faturamento</th><th class="num">Variação</th><th class="num">R$/caçamba</th><th>Vencimento</th><th>Patrimônios</th></tr></thead><tbody id="companyBody"></tbody></table></div></div></section><section id="companySectionAssets" class="company-detail-section"><div class="section-title"><h2>Patrimônios vinculados</h2><span id="companyAssetsSummary"></span></div><div id="companyAssetCards" class="company-assets-grid"></div></section></div></div>
+<script>
+const P={"months":[],"data":{}};
+const COLORS=['#2f80ed','#22c991','#38bdf8','#f2b84b','#9b87f5','#ff6478','#4cc9b0','#8da2b4'];
+const brl=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),n0=v=>Number(v).toLocaleString('pt-BR',{maximumFractionDigits:0}),pct=v=>Number(v).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+let current=null,currentView='expenses'; const tip=document.getElementById('tip');
+function showTip(e,html){tip.innerHTML=html;tip.style.display='block';tip.style.left=e.clientX+12+'px';tip.style.top=e.clientY+12+'px'}function hideTip(){tip.style.display='none'}
+function svg(tag,a={},t=''){const x=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(a).forEach(([k,v])=>x.setAttribute(k,v));x.textContent=t;return x}function base(id){const c=document.getElementById(id),w=Math.max(320,c.clientWidth),h=c.clientHeight;c.innerHTML='';const s=svg('svg',{viewBox:`0 0 ${w} ${h}`,width:'100%',height:'100%'});c.appendChild(s);return[s,w,h]}
+function hbars(id,data,key,color,fmt,clickable=true){const[s,w,h]=base(id),l=215,r=82,t=16,b=18,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x[key]),1),row=ph/data.length;data.forEach((x,i)=>{const y=t+i*row+row*.18,bh=row*.62,bw=x[key]/max*pw;s.appendChild(svg('text',{x:l-8,y:y+bh*.72,'text-anchor':'end','font-size':Math.max(8,Math.min(11,row*.36)),fill:'#afc3d4'},x.cliente.length>31?x.cliente.slice(0,31)+'…':x.cliente));const q=svg('rect',{x:l,y,width:bw,height:bh,rx:5,fill:color,style:clickable?'cursor:pointer':''});q.onmousemove=e=>showTip(e,`<b>${x.cliente}</b><br>${fmt(x[key])}`);q.onmouseleave=hideTip;if(clickable)q.onclick=()=>openCompany(x.cliente);s.appendChild(q);s.appendChild(svg('text',{x:l+bw+7,y:y+bh*.72,'font-size':10,fill:'#b8cad9'},fmt(x[key])))});}
+function vbars(id,data,key,color,fmt,labelKey='label'){const[s,w,h]=base(id),l=62,r=18,t=18,b=65,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x[key]),1),bw=Math.max(20,pw/data.length*.56);for(let i=0;i<5;i++){let y=t+ph-i*ph/4;s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));s.appendChild(svg('text',{x:l-7,y:y+4,'text-anchor':'end','font-size':9,fill:'#7f98ad'},fmt(max*i/4)))}data.forEach((x,i)=>{const xx=l+(i+.5)*pw/data.length-bw/2,bh=Math.max(0,x[key]/max*ph),y=t+ph-bh,q=svg('rect',{x:xx,y,width:bw,height:bh,rx:5,fill:color});q.onmousemove=e=>showTip(e,`<b>${x[labelKey]}</b><br>${fmt(x[key])}`);q.onmouseleave=hideTip;s.appendChild(q);s.appendChild(svg('text',{x:xx+bw/2,y:h-15,'text-anchor':'middle','font-size':10,fill:'#9bb0c2'},x[labelKey]))})}
+function lineChart(id,data,key,color,fmt,labelKey='label'){const[s,w,h]=base(id),l=62,r=20,t=20,b=50,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x[key]),1);for(let i=0;i<5;i++){let y=t+ph-i*ph/4;s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));s.appendChild(svg('text',{x:l-7,y:y+4,'text-anchor':'end','font-size':9,fill:'#7f98ad'},fmt(max*i/4)))}const pts=data.map((x,i)=>[l+i*pw/Math.max(1,data.length-1),t+ph-x[key]/max*ph]);s.appendChild(svg('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:color,'stroke-width':3}));pts.forEach((p,i)=>{const c=svg('circle',{cx:p[0],cy:p[1],r:5,fill:color,stroke:'#071421','stroke-width':2});c.onmousemove=e=>showTip(e,`<b>${data[i][labelKey]}</b><br>${fmt(data[i][key])}`);c.onmouseleave=hideTip;s.appendChild(c);s.appendChild(svg('text',{x:p[0],y:h-14,'text-anchor':'middle','font-size':10,fill:'#9bb0c2'},data[i][labelKey]))})}
+function pie(id,data){const[s,w,h]=base(id),cx=w*.48,cy=h*.47,r=Math.min(w,h)*.34,inn=r*.56,total=data.reduce((a,x)=>a+x.valor,0);let a=-Math.PI/2;data.forEach((x,i)=>{const da=x.valor/total*Math.PI*2,a2=a+da,L=da>Math.PI?1:0,p1=[cx+r*Math.cos(a),cy+r*Math.sin(a)],p2=[cx+r*Math.cos(a2),cy+r*Math.sin(a2)],q1=[cx+inn*Math.cos(a2),cy+inn*Math.sin(a2)],q2=[cx+inn*Math.cos(a),cy+inn*Math.sin(a)],d=`M${p1} A${r} ${r} 0 ${L} 1 ${p2} L${q1} A${inn} ${inn} 0 ${L} 0 ${q2} Z`,p=svg('path',{d,fill:COLORS[i%COLORS.length],stroke:'#071421','stroke-width':2,style:'cursor:pointer'});p.onmousemove=e=>showTip(e,`<b>${x.cliente}</b><br>${brl(x.valor)}<br>${pct(x.valor/total*100)}`);p.onmouseleave=hideTip;p.onclick=()=>x.cliente!=='Demais clientes'&&openCompany(x.cliente);s.appendChild(p);a=a2});s.appendChild(svg('text',{x:cx,y:cy-4,'text-anchor':'middle','font-size':22,'font-weight':800,fill:'#edf6ff'},brl(total)));s.appendChild(svg('text',{x:cx,y:cy+16,'text-anchor':'middle','font-size':11,fill:'#8fa8bd'},'Faturamento'))}
+function pareto(id,data){const[s,w,h]=base(id),l=62,r=48,t=18,b=105,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x.valor),1),bw=Math.max(7,pw/data.length*.55),pts=[];for(let i=0;i<5;i++){const y=t+ph-i*ph/4;s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));s.appendChild(svg('text',{x:l-7,y:y+4,'text-anchor':'end','font-size':9,fill:'#7f98ad'},'R$ '+Math.round(max*i/4/1000)+' mil'));s.appendChild(svg('text',{x:w-r+7,y:y+4,'font-size':9,fill:'#cfa64d'},i*25+'%'))}data.forEach((x,i)=>{const xx=l+(i+.5)*pw/data.length,bh=Math.max(0,x.valor/max*ph),y=t+ph-bh,q=svg('rect',{x:xx-bw/2,y,width:bw,height:bh,rx:3,fill:'#2f80ed',style:'cursor:pointer'});q.onmousemove=e=>showTip(e,`<b>${x.cliente}</b><br>${brl(x.valor)}<br>Acumulado: ${pct(x.acumulado)}`);q.onmouseleave=hideTip;q.onclick=()=>openCompany(x.cliente);s.appendChild(q);pts.push(`${xx},${t+ph-x.acumulado/100*ph}`);s.appendChild(svg('text',{x:xx,y:h-10,'text-anchor':'end','font-size':8,fill:'#9bb0c2',transform:`rotate(-55 ${xx} ${h-10})`},x.cliente.slice(0,13)))});s.appendChild(svg('polyline',{points:pts.join(' '),fill:'none',stroke:'#f2b84b','stroke-width':3}));const y80=t+ph-.8*ph;s.appendChild(svg('line',{x1:l,y1:y80,x2:w-r,y2:y80,stroke:'#ff6478','stroke-dasharray':'6 5'}))}
+function delta(curr,prev){if(!prev)return '';const d=(curr-prev)/prev*100;return `<span class="delta ${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${pct(Math.abs(d))}</span>`}
+function renderMonthly(){const M=P.data[current],idx=P.months.indexOf(current),prev=idx>0?P.data[P.months[idx-1]]:null,t=M.totals;monthLabel.textContent=M.label;subtitle.textContent=`${M.label} • Painel anual consolidado • Base processada`;monthlyKpis.innerHTML=[['Faturamento previsto',brl(t.valor),prev?delta(t.valor,prev.totals.valor):'Primeiro mês da série'],['Caçambas faturadas',n0(t.qtd),prev?delta(t.qtd,prev.totals.qtd):'Primeiro mês da série'],['Clientes faturados',n0(t.clientes),'CNPJs distintos'],['Receita por caçamba',brl(t.ticket),'Média ponderada'],['Média por cliente',brl(t.media),'Faturamento ÷ clientes'],['Concentração Top 3',pct(t.top3),`Top 5: ${pct(t.top5)}`]].map(x=>`<div class="card kpi"><small>${x[0]}</small><strong>${x[1]}</strong><em>${x[2]}</em></div>`).join('');
+const top=M.clients.slice(0,7),rest=M.clients.slice(7).reduce((s,x)=>s+x.valor,0),pieData=[...top.map(x=>({cliente:x.cliente,valor:x.valor})),{cliente:'Demais clientes',valor:rest}];hbars('rankChart',M.clients,'valor','#2f80ed',brl);pie('pieChart',pieData);pieLegend.innerHTML=pieData.map((x,i)=>`<span><i style="background:${COLORS[i%COLORS.length]}"></i>${x.cliente}: ${pct(x.valor/t.valor*100)}</span>`).join('');hbars('qtyChart',[...M.clients].sort((a,b)=>b.qtd-a.qtd),'qtd','#22c991',n0);pareto('paretoChart',M.pareto);vbars('dueValue',M.due,'valor','#38bdf8',v=>v?'R$ '+Math.round(v/1000)+' mil':'R$ 0');vbars('dueQty',M.due,'qtd','#9b87f5',n0);
+const big=M.clients[0],second=M.clients[1],ql=[...M.clients].sort((a,b)=>b.qtd-a.qtd)[0];insights.innerHTML=`<div class="insight"><b>Maior faturamento: ${big.cliente}</b>${brl(big.valor)} — ${pct(big.valor/t.valor*100)} da receita.</div><div class="insight"><b>Segundo maior: ${second.cliente}</b>${brl(second.valor)} — ${pct(second.valor/t.valor*100)} da receita.</div><div class="insight warn"><b>Concentração relevante</b>Os cinco maiores representam ${pct(t.top5)} do faturamento.</div><div class="insight good"><b>Líder em volume</b>${ql.cliente}, com ${n0(ql.qtd)} caçambas.</div><div class="insight risk"><b>Alertas do mês</b>${M.alerts.length} pendência(s) identificada(s) na base.</div>`;
+const dues=[...new Set(M.clients.map(x=>x.vencimento))].sort((a,b)=>parseInt(a)-parseInt(b));dueFilter.innerHTML='<option value="">Todos os vencimentos</option>'+dues.map(v=>`<option>${v}</option>`).join('');renderMonthlyTable();}
+function renderMonthlyTable(){const M=P.data[current],q=searchClient.value.toLowerCase(),d=dueFilter.value,arr=M.clients.filter(x=>(!d||x.vencimento===d)&&(!q||`${x.cliente} ${x.cod} ${x.cnpj}`.toLowerCase().includes(q)));tableSummary.textContent=`${arr.length} cliente(s) • ${n0(arr.reduce((s,x)=>s+x.qtd,0))} caçambas • ${brl(arr.reduce((s,x)=>s+x.valor,0))}`;monthlyBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td class="client" onclick="openCompany('${x.cliente.replace(/'/g,"\\'")}')">${x.cliente}</td><td>${x.cod}</td><td>${x.cnpj}</td><td><span class="pill">${x.vencimento}</span></td><td class="num">${n0(x.qtd)}</td><td class="num"><b>${brl(x.valor)}</b></td><td class="num">${brl(x.ticket)}</td><td class="num">${pct(x.valor/M.totals.valor*100)}</td></tr>`).join('')}
+function renderAnnual(){const a=P.annual,vals=a.map(x=>x.valor),qty=a.map(x=>x.qtd),best=a[vals.indexOf(Math.max(...vals))],worst=a[vals.indexOf(Math.min(...vals))],avg=P.grand.valor/a.length;annualKpis.innerHTML=[['Faturamento acumulado',brl(P.grand.valor),'Soma dos meses disponíveis'],['Caçambas acumuladas',n0(P.grand.qtd),'Volume total do período'],['Média mensal',brl(avg),`${a.length} meses analisados`],['Melhor mês',best.label,brl(best.valor)],['Menor mês',worst.label,brl(worst.valor)],['Projeção anual',brl(avg*12),'Baseada na média atual']].map(x=>`<div class="card kpi"><small>${x[0]}</small><strong>${x[1]}</strong><em>${x[2]}</em></div>`).join('');lineChart('annualValue',a,'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil');lineChart('annualQty',a,'qtd','#22c991',n0);annualBody.innerHTML=a.map((x,i)=>{const p=i?a[i-1]:null;return `<tr><td>${P.data[x.mes].label}</td><td class="num"><b>${brl(x.valor)}</b></td><td class="num">${p?delta(x.valor,p.valor):'—'}</td><td class="num">${n0(x.qtd)}</td><td class="num">${p?delta(x.qtd,p.qtd):'—'}</td><td class="num">${x.clientes}</td><td class="num">${brl(x.valor/x.qtd)}</td></tr>`}).join('')}
+function companyHistory(name){return P.months.map(m=>{const c=P.data[m].clients.find(x=>x.cliente===name);return c?{mes:m,label:P.data[m].label.split(' ')[0].slice(0,3),...c}:null}).filter(Boolean)}
+function allCompanies(){const names=[...new Set(P.months.flatMap(m=>P.data[m].clients.map(x=>x.cliente)))];return names.map(name=>{const h=companyHistory(name),valor=h.reduce((s,x)=>s+x.valor,0),qtd=h.reduce((s,x)=>s+x.qtd,0),best=[...h].sort((a,b)=>b.valor-a.valor)[0];return{name,cnpj:h[0]?.cnpj||'',valor,qtd,media:valor/h.length,meses:h.length,best}}).sort((a,b)=>b.valor-a.valor)}
+function renderCompanies(){const arr=allCompanies().filter(x=>x.name.toLowerCase().includes(searchCompany.value.toLowerCase()));companiesSummary.textContent=`${arr.length} empresa(s) • ${brl(arr.reduce((s,x)=>s+x.valor,0))}`;companiesBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td class="client" onclick="openCompany('${x.name.replace(/'/g,"\\'")}')">${x.name}</td><td>${x.cnpj}</td><td class="num"><b>${brl(x.valor)}</b></td><td class="num">${n0(x.qtd)}</td><td class="num">${brl(x.media)}</td><td class="num">${x.meses}</td><td class="num">${x.best.label} • ${brl(x.best.valor)}</td></tr>`).join('')}
+function renderAlerts(){const all=P.months.flatMap(m=>P.data[m].alerts.map(a=>({...a,mes:P.data[m].label})));alertsGrid.innerHTML=all.length?all.map(a=>`<div class="card alert-card" role="button" tabindex="0" data-alert-client="${escapeAttr(a.cliente||'')}" data-alert-type="${escapeAttr(a.tipo||'')}"><span class="pill ${a.nivel==='alto'?'alert-high':'alert-med'}">${safeText(a.tipo)}</span><b>${safeText(a.cliente)}</b><div class="desc">${safeText(a.mes)}</div><div>${safeText(a.texto)}</div><div class="action-link" style="margin-top:9px">Abrir análise →</div></div>`).join(''):'<div class="card empty">Nenhum alerta identificado para a base atual.</div>';alertsGrid.querySelectorAll('[data-alert-client]').forEach(card=>{const action=()=>{const client=card.dataset.alertClient,type=card.dataset.alertType||'';if(client&&companyHistory(client).length)openCompany(client);else if(/PATRIM|DUPLIC|CONFER/i.test(type))switchView('assets')};card.onclick=action;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();action()}}})}
+function safeText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function escapeAttr(v){return safeText(v)}
+function openCompany(name){const h=companyHistory(name);if(!h.length)return;const total=h.reduce((s,x)=>s+x.valor,0),qtd=h.reduce((s,x)=>s+x.qtd,0),best=[...h].sort((a,b)=>b.valor-a.valor)[0],worst=[...h].sort((a,b)=>a.valor-b.valor)[0],last=h[h.length-1],first=h[0],avg=total/h.length,portfolioShare=safeDiv(total,P.grand.valor)*100;const changes=h.map((x,i)=>i?{label:x.label,value:variation(x.valor,h[i-1].valor)}:null).filter(Boolean),bestGrowth=changes.length?[...changes].sort((a,b)=>b.value-a.value)[0]:null,worstGrowth=changes.length?[...changes].sort((a,b)=>a.value-b.value)[0]:null;const allAssets=new Map();h.forEach(x=>(x.patrimonios||[]).forEach(p=>{const key=String(p).trim();if(!key)return;const item=allAssets.get(key)||{pat:key,months:0,revenue:0,lastMonth:'',occurrences:[]};item.months++;item.revenue+=safeDiv(x.valor,Math.max(1,x.qtd));item.lastMonth=P.data[x.mes].label;allAssets.set(key,item)}));companyTitle.textContent=name;companyMeta.textContent=`Código ${first.cod||'não informado'} • CNPJ ${first.cnpj||'não informado'}`;companyHeaderMeta.innerHTML=`<span class="pill">${h.length} mês(es) ativo(s)</span><span class="pill">${allAssets.size} patrimônio(s)</span><span class="pill">${pct(portfolioShare)} da série</span>`;companyKpis.innerHTML=[['Faturamento acumulado',brl(total)],['Média mensal',brl(avg)],['Caçambas acumuladas',n0(qtd)],['Receita por caçamba',brl(safeDiv(total,qtd))],['Melhor mês',`${best.label} • ${brl(best.valor)}`],['Último mês',`${last.label} • ${brl(last.valor)}`]].map(x=>`<div class="card mini"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('');companyModal.classList.add('open');setCompanySection('overview');requestAnimationFrame(()=>requestAnimationFrame(()=>lineChart('companyChart',h,'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil')));const growth=h.length>1?variation(last.valor,h[h.length-2].valor):null;const status=growth===null?'Sem base comparativa':growth>=5?'Crescimento relevante':growth<=-5?'Queda que exige atenção':'Estabilidade';companyInsights.innerHTML=`<div class="insight ${growth!==null&&growth<0?'risk':'good'}"><b>Desempenho mais recente</b>${last.label}: ${brl(last.valor)} e ${n0(last.qtd)} caçambas. ${growth===null?'':`${growth>=0?'Alta':'Queda'} de ${pct(Math.abs(growth))}.`}</div><div class="insight"><b>Posição na carteira</b>${pct(portfolioShare)} do faturamento acumulado da série, com média mensal de ${brl(avg)}.</div><div class="insight warn"><b>Amplitude de desempenho</b>Melhor mês: ${best.label} (${brl(best.valor)}). Menor mês: ${worst.label} (${brl(worst.valor)}).</div><div class="insight ${status.includes('Queda')?'risk':status.includes('Crescimento')?'good':'warn'}"><b>Diagnóstico</b>${status}${bestGrowth?`. Maior avanço: ${bestGrowth.label} (${pct(bestGrowth.value)}).`:''}${worstGrowth?` Maior retração: ${worstGrowth.label} (${pct(Math.abs(worstGrowth.value))}).`:''}</div>`;companyHistorySummary.textContent=`${h.length} competências • ${brl(total)} acumulados`;companyBody.innerHTML=h.map((x,i)=>{const g=i?variation(x.valor,h[i-1].valor):null;return `<tr><td><b>${safeText(P.data[x.mes].label)}</b></td><td class="num">${n0(x.qtd)}</td><td class="num"><b>${brl(x.valor)}</b></td><td class="num ${g===null?'':g>=0?'trend-up':'trend-down'}">${g===null?'—':trendText(g)}</td><td class="num">${brl(x.ticket)}</td><td>${safeText(x.vencimento)}</td><td>${(x.patrimonios||[]).slice(0,12).map(safeText).join(', ')}${(x.patrimonios||[]).length>12?'…':''}</td></tr>`}).join('');const assets=[...allAssets.values()].sort((a,b)=>b.months-a.months||b.revenue-a.revenue);companyAssetsSummary.textContent=`${assets.length} identificações distintas no histórico`;companyAssetCards.innerHTML=assets.length?assets.map(a=>`<div class="company-asset-card"><b>Patrimônio ${safeText(a.pat)}</b><span>${a.months} mês(es) identificado(s)</span><span>Último registro: ${safeText(a.lastMonth)}</span><span>Receita estimada acumulada: ${brl(a.revenue)}</span></div>`).join(''):'<div class="empty-soft">Nenhum patrimônio identificado para esta empresa.</div>'}
+function setCompanySection(section){document.querySelectorAll('[data-company-section]').forEach(b=>b.classList.toggle('active',b.dataset.companySection===section));document.querySelectorAll('.company-detail-section').forEach(x=>x.classList.toggle('active',x.id===`companySection${section[0].toUpperCase()+section.slice(1)}`));if(section==='overview')requestAnimationFrame(()=>requestAnimationFrame(()=>{const name=companyTitle.textContent,h=companyHistory(name);if(h.length)lineChart('companyChart',h,'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil')}))}
+document.querySelectorAll('[data-company-section]').forEach(b=>b.addEventListener('click',()=>setCompanySection(b.dataset.companySection)));
+function switchView(v){
+  if(v==='alerts' && !(window.firebaseIsAdmin?.())){
+    v='monthly';
+  }
+  currentView=v;
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
+  if(v==='annual')renderAnnual();
+  if(v==='management')renderManagement();
+  if(v==='companies')renderCompanies();
+  if(v==='assets')renderAssets();
+  if(v==='heatmap')renderHeatmap();
+  if(v==='alerts')renderAlerts();
+  if(v==='report')renderReport();
+  setTimeout(()=>{if(v==='monthly')renderMonthly()},30)
+}
+
+
+
+// ===== MÓDULO DESPESAS =====
+const E={months:[],data:{}};
+let expenseView='expenseSummary';
+
+function expenseDateObject(v){
+  if(!v)return null;
+  if(v instanceof Date&&!isNaN(v))return v;
+  if(typeof v==='number'&&v>20000){return new Date(Date.UTC(1899,11,30)+v*86400000)}
+  const x=String(v).trim();
+  let m=x.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(m)return new Date(Date.UTC(+m[3],+m[2]-1,+m[1]));
+  m=x.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+  if(m)return new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
+  return null;
+}
+function expenseDateText(v){
+  const d=expenseDateObject(v);
+  return d?`${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}`:String(v||'');
+}
+function expenseMonthFromDate(v){
+  const d=expenseDateObject(v);return d?[d.getUTCMonth()+1,d.getUTCFullYear()]:null;
+}
+function expenseDaysBetween(a,b){
+  const A=expenseDateObject(a),B=expenseDateObject(b);
+  return A&&B?Math.round((B-A)/86400000):null;
+}
+function expenseStatus(r){
+  if(r.data_baixa)return 'Pago';
+  const d=expenseDateObject(r.data_vencimento);
+  return d&&d<new Date()?'Vencido':'Em aberto';
+}
+function expensePaymentTiming(r){
+  if(!r.data_baixa)return expenseStatus(r);
+  const days=expenseDaysBetween(r.data_vencimento,r.data_baixa);
+  if(days===null)return 'Pago';
+  if(days<0)return 'Antecipado';
+  if(days===0)return 'No vencimento';
+  return 'Após vencimento';
+}
+function expenseCurrentKey(){
+  if(E.data[current])return current;
+  return E.months[E.months.length-1]||null;
+}
+function expenseRows(key=expenseCurrentKey()){return E.data[key]?.records||[]}
+function expenseAggregate(rows,key){
+  const map=new Map();
+  rows.forEach(r=>{const name=String(r[key]||'Não informado').trim()||'Não informado';const x=map.get(name)||{name,value:0,count:0};x.value+=Number(r.valor||0);x.count++;map.set(name,x)});
+  return [...map.values()].sort((a,b)=>b.value-a.value);
+}
+function rebuildExpenseMonths(){
+  E.months=Object.keys(E.data).sort((a,b)=>{
+    const A=E.data[a],B=E.data[b];
+    return (A.year*12+A.month)-(B.year*12+B.month);
+  });
+}
+function switchExpenseView(id){
+  expenseView=id;
+  document.querySelectorAll('.expense-panel').forEach(x=>x.classList.toggle('active',x.id===id));
+  document.querySelectorAll('.expense-subtab').forEach(x=>x.classList.toggle('active',x.dataset.expenseView===id));
+  renderExpenses();
+}
+document.querySelectorAll('.expense-subtab').forEach(b=>b.addEventListener('click',()=>switchExpenseView(b.dataset.expenseView)));
+
+function renderExpenseEmpty(){
+  expenseKpis.innerHTML='<div class="card expense-empty" style="grid-column:1/-1">Nenhuma despesa foi importada. Entre como administrador e utilize “Importação A2O”.</div>';
+  ['expenseEvolutionChart','expenseCostCenterChart','expenseSupplierChart'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=''});
+  expenseCategorySummary.innerHTML='<div class="expense-empty">Sem dados para análise.</div>';
+}
+function renderExpenseSummary(){
+  const key=expenseCurrentKey();if(!key||!E.data[key])return renderExpenseEmpty();
+  const M=E.data[key],rows=M.records,total=M.total;
+  const all=E.months.flatMap(k=>E.data[k].records||[]);
+  const accumulated=all.reduce((s,r)=>s+Number(r.valor||0),0);
+  const conciliated=rows.filter(r=>String(r.conciliado).toLowerCase()==='sim').reduce((s,r)=>s+Number(r.valor||0),0);
+  const notConciliated=total-conciliated;
+  const suppliers=expenseAggregate(rows,'fornecedor'),cats=expenseAggregate(rows,'categoria');
+  const idx=E.months.indexOf(key),prev=idx>0?E.data[E.months[idx-1]]:null;
+  const change=prev&&prev.total?((total-prev.total)/prev.total*100):null;
+  expensePeriodLabel.textContent=`${M.label} • ${rows.length} lançamentos • realizado importado do A2O`;
+  expenseKpis.innerHTML=[
+    ['Despesas do mês',brl(total),change===null?'Sem comparação anterior':`${change>=0?'▲':'▼'} ${pct(Math.abs(change))} vs. mês anterior`],
+    ['Acumulado importado',brl(accumulated),`${E.months.length} competência(s)`],
+    ['Média por lançamento',brl(rows.length?total/rows.length:0),`${rows.length} lançamentos`],
+    ['Maior fornecedor',suppliers[0]?.name||'—',suppliers[0]?brl(suppliers[0].value):'Sem dados'],
+    ['Maior categoria',cats[0]?.name||'—',cats[0]?brl(cats[0].value):'Sem dados'],
+    ['Não conciliado',brl(notConciliated),total?pct(notConciliated/total*100):'0,0%']
+  ].map(x=>`<div class="card expense-kpi"><small>${safeText(x[0])}</small><strong>${safeText(x[1])}</strong><span>${safeText(x[2])}</span></div>`).join('');
+  const evolution=E.months.map(k=>({label:E.data[k].label.split(' ')[0].slice(0,3),valor:E.data[k].total}));
+  lineChart('expenseEvolutionChart',evolution,'valor','#f58220',v=>'R$ '+Math.round(v/1000)+' mil');
+  const topCats=cats.slice(0,6);
+  expenseCategorySummary.innerHTML=topCats.length?topCats.map((x,i)=>`<div class="insight ${i===0?'warn':''}"><b>${safeText(x.name)}</b>${brl(x.value)} • ${x.count} lançamento(s) • ${pct(total?x.value/total*100:0)}</div>`).join(''):'<div class="expense-empty">Sem categorias.</div>';
+  const centers=expenseAggregate(rows,'centro_custo').slice(0,12);
+  const suppliersTop=suppliers.slice(0,12);
+  if(centers.length)hbars('expenseCostCenterChart',centers.map(x=>({cliente:x.name,valor:x.value})),'valor','#38bdf8',brl,false);
+  else expenseCostCenterChart.innerHTML='';
+  if(suppliersTop.length)hbars('expenseSupplierChart',suppliersTop.map(x=>({cliente:x.name,valor:x.value})),'valor','#22c991',brl,false);
+  else expenseSupplierChart.innerHTML='';
+}
+function renderExpenseRecords(){
+  const rows=expenseRows(),q=(expenseSearch.value||'').toLowerCase(),cat=expenseCategoryFilter.value,cc=expenseCostCenterFilter.value,con=expenseConciliationFilter.value;
+  const filtered=rows.filter(r=>(!q||`${r.fornecedor} ${r.categoria} ${r.historico} ${r.banco}`.toLowerCase().includes(q))&&(!cat||r.categoria===cat)&&(!cc||r.centro_custo===cc)&&(!con||r.conciliado===con));
+  expenseRecordsSummary.textContent=`${filtered.length} lançamento(s) • ${brl(filtered.reduce((s,r)=>s+Number(r.valor||0),0))}`;
+  expenseRecordsBody.innerHTML=filtered.map(r=>{const st=expenseStatus(r);return `<tr><td>${safeText(r.data_vencimento)}</td><td>${safeText(r.data_baixa||'—')}</td><td><b>${safeText(r.fornecedor)}</b></td><td>${safeText(r.categoria)}</td><td>${safeText(r.centro_custo)}</td><td>${safeText(r.banco)}</td><td><span class="expense-status ${String(r.conciliado).toLowerCase()==='sim'?'conciliated':'pending'}">${safeText(r.conciliado||'Não')}</span></td><td class="num"><b>${brl(r.valor)}</b></td><td><span class="expense-status ${st==='Pago'?'paid':st==='Vencido'?'overdue':'open'}">${st}</span></td></tr>`}).join('');
+}
+function updateExpenseFilters(){
+  const rows=expenseRows();
+  const cats=[...new Set(rows.map(r=>r.categoria).filter(Boolean))].sort();
+  const centers=[...new Set(rows.map(r=>r.centro_custo).filter(Boolean))].sort();
+  expenseCategoryFilter.innerHTML='<option value="">Todas as categorias</option>'+cats.map(x=>`<option>${safeText(x)}</option>`).join('');
+  expenseCostCenterFilter.innerHTML='<option value="">Todos os centros de custo</option>'+centers.map(x=>`<option>${safeText(x)}</option>`).join('');
+}
+function renderExpenseCategories(){
+  const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows,'categoria');
+  if(arr.length)hbars('expenseCategoriesChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#f58220',brl,false);
+  else expenseCategoriesChart.innerHTML='';
+  expenseCategoriesBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+}
+function renderExpenseSuppliers(){
+  const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows,'fornecedor');
+  if(arr.length)hbars('expenseSuppliersChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#22c991',brl,false);
+  else expenseSuppliersChart.innerHTML='';
+  expenseSuppliersBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${brl(x.count?x.value/x.count:0)}</td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+}
+function renderExpenseDue(){
+  const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows.map(r=>({...r,situacao:expensePaymentTiming(r)})),'situacao');
+  const late=rows.filter(r=>expensePaymentTiming(r)==='Após vencimento');
+  const onTime=rows.filter(r=>['Antecipado','No vencimento'].includes(expensePaymentTiming(r)));
+  const avgDelay=late.length?late.reduce((s,r)=>s+Math.max(0,expenseDaysBetween(r.data_vencimento,r.data_baixa)||0),0)/late.length:0;
+  const notConciliated=rows.filter(r=>String(r.conciliado).toLowerCase()!=='sim');
+  expenseDueKpis.innerHTML=[
+    ['Pago antecipado/no prazo',brl(onTime.reduce((s,r)=>s+Number(r.valor||0),0)),`${onTime.length} lançamento(s)`],
+    ['Pago após vencimento',brl(late.reduce((s,r)=>s+Number(r.valor||0),0)),`${late.length} lançamento(s)`],
+    ['Atraso médio',`${avgDelay.toLocaleString('pt-BR',{maximumFractionDigits:1})} dia(s)`,'Entre vencimento e baixa'],
+    ['Não conciliado',brl(notConciliated.reduce((s,r)=>s+Number(r.valor||0),0)),`${notConciliated.length} lançamento(s)`],
+    ['Total do mês',brl(total),`${rows.length} lançamento(s)`],
+    ['Conciliação',pct(total?(total-notConciliated.reduce((s,r)=>s+Number(r.valor||0),0))/total*100:0),'Percentual financeiro conciliado']
+  ].map(x=>`<div class="card expense-kpi"><small>${safeText(x[0])}</small><strong>${safeText(x[1])}</strong><span>${safeText(x[2])}</span></div>`).join('');
+  if(arr.length)vbars('expenseDueChart',arr.map(x=>({label:x.name,valor:x.value})),'valor','#9b87f5',v=>'R$ '+Math.round(v/1000)+' mil');
+  else expenseDueChart.innerHTML='';
+  expenseDueBody.innerHTML=arr.map(x=>`<tr><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+}
+function renderExpenses(){
+  if(!E.months.length){renderExpenseEmpty();return}
+  updateExpenseFilters();
+  if(expenseView==='expenseSummary')renderExpenseSummary();
+  if(expenseView==='expenseRecords')renderExpenseRecords();
+  if(expenseView==='expenseCategories')renderExpenseCategories();
+  if(expenseView==='expenseSuppliers')renderExpenseSuppliers();
+  if(expenseView==='expenseDue')renderExpenseDue();
+}
+[expenseSearch,expenseCategoryFilter,expenseCostCenterFilter,expenseConciliationFilter].forEach(el=>el&&el.addEventListener(el.tagName==='INPUT'?'input':'change',renderExpenseRecords));
+
+const EXPENSE_ALIASES={
+  emissao:['DATA EMISSAO'],
+  vencimento:['DATA VENCIMENTO'],
+  previsao:['DATA PREVISAO'],
+  baixa:['DATA BAIXA'],
+  conciliado:['CONCILIADO BANCO','CONCILIADO'],
+  conciliacao:['DATA CONCILIACAO BANCARIA'],
+  fornecedor:['RAZAO SOCIAL PESSOA','FORNECEDOR'],
+  valor:['VALOR A PAGAR','VALOR'],
+  tipo:['TIPO'],
+  categoria:['DESCRICAO REDUZIDA','CATEGORIA'],
+  filial:['RAZAO SOCIAL FILIAL','FILIAL'],
+  centro_custo:['DESCRICAO CENTRO DE CUSTO','CENTRO DE CUSTO'],
+  banco:['DESCRICAO BANCO PORTADOR','BANCO PORTADOR','BANCO'],
+  historico:['HISTORICO']
+};
+function expenseFindHeader(rows){
+  let best=null;
+  for(let i=0;i<Math.min(rows.length,20);i++){
+    const normalized=(rows[i]||[]).map(normKey),map={},score=0;
+    Object.entries(EXPENSE_ALIASES).forEach(([field,aliases])=>{const ix=normalized.findIndex(v=>aliases.includes(v));if(ix>=0){map[field]=ix;score++}});
+    if(!best||score>best.score)best={index:i,map,score};
+  }
+  if(!best||best.score<8)throw new Error('A planilha não possui as colunas esperadas do relatório de despesas A2O.');
+  return best;
+}
+function expenseMapTable(rows){
+  const header=expenseFindHeader(rows),out=[];
+  for(const row of rows.slice(header.index+1)){
+    const g=f=>row[header.map[f]];
+    const value=numBR(g('valor'));
+    if(!value)continue;
+    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('vencimento'));
+    if(!p)continue;
+    out.push({
+      data_emissao:expenseDateText(g('emissao')),
+      data_vencimento:due,
+      data_previsao:expenseDateText(g('previsao')),
+      data_baixa:expenseDateText(g('baixa')),
+      conciliado:textVal(g('conciliado'))||'Não',
+      data_conciliacao:expenseDateText(g('conciliacao')),
+      fornecedor:textVal(g('fornecedor'))||'Não informado',
+      valor:value,
+      tipo:textVal(g('tipo')),
+      categoria:textVal(g('categoria'))||'Não informado',
+      filial:textVal(g('filial'))||'Não informado',
+      centro_custo:textVal(g('centro_custo'))||'Não informado',
+      banco:textVal(g('banco'))||'Não informado',
+      historico:textVal(g('historico')),
+      month:p[0],year:p[1],monthKey:monthKey(p[0],p[1])
+    });
+  }
+  if(!out.length)throw new Error('Nenhum lançamento válido foi encontrado no relatório.');
+  return out;
+}
+function makeExpenseMonth(records,m,y){
+  return{
+    label:monthLabel(m,y),month:m,year:y,records,
+    total:records.reduce((s,r)=>s+Number(r.valor||0),0),
+    count:records.length,
+    conciliatedTotal:records.filter(r=>String(r.conciliado).toLowerCase()==='sim').reduce((s,r)=>s+Number(r.valor||0),0)
+  };
+}
+async function importExpenseFile(file){
+  if(!window.firebaseIsAdmin?.())throw new Error('Somente o administrador pode importar despesas.');
+  const ext=(file.name.split('.').pop()||'').toLowerCase();
+  let tables=[];
+  if(ext==='csv')tables=[{name:'Arquivo',rows:csvRows(await file.text())}];
+  else if(ext==='xlsx'||ext==='xlsm')tables=await xlsxSheets(await file.arrayBuffer());
+  else throw new Error('Formato não aceito. Use XLSX, XLSM ou CSV.');
+  let records=[],errors=[];
+  for(const t of tables){try{const mapped=expenseMapTable(t.rows||[]);if(mapped.length>records.length)records=mapped}catch(e){errors.push(`${t.name}: ${e.message}`)}}
+  if(!records.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada.');
+  const groups=new Map();
+  records.forEach(r=>{if(!groups.has(r.monthKey))groups.set(r.monthKey,[]);groups.get(r.monthKey).push(r)});
+  const preview=[...groups.entries()].sort().map(([k,rs])=>`• ${monthLabel(rs[0].month,rs[0].year)} — ${rs.length} lançamentos — ${brl(rs.reduce((s,r)=>s+r.valor,0))} — ${E.data[k]?'SUBSTITUIR':'CRIAR'}`).join('\n');
+  if(!confirm(`Relatório A2O identificado:\n\n${preview}\n\nDeseja gravar essas competências no Firebase?`))return;
+  if(!window.firebaseSaveExpenseMonth)throw new Error('A conexão com o Firebase ainda não foi carregada.');
+  let i=0;
+  for(const [key,rs] of [...groups.entries()].sort()){
+    expenseImportBtn.textContent=`Salvando ${++i}/${groups.size}...`;
+    const data=makeExpenseMonth(rs,rs[0].month,rs[0].year);
+    await window.firebaseSaveExpenseMonth(key,data,{fileName:file.name});
+    E.data[key]=data;
+  }
+  rebuildExpenseMonths();renderExpenses();
+  notifyImport(`${groups.size} competência(s) de despesas sincronizada(s) com sucesso.`);
+}
+expenseImportBtn.onclick=()=>expenseImportFile.click();
+expenseImportFile.onchange=async()=>{const f=expenseImportFile.files?.[0];if(!f)return;expenseImportBtn.disabled=true;expenseImportBtn.textContent='Importando...';expenseImportStatus.textContent='Validando e preparando os lançamentos...';try{await importExpenseFile(f);expenseImportStatus.textContent='Importação concluída com sucesso.'}catch(e){console.error(e);expenseImportStatus.textContent=e.message||'Falha na importação.';notifyImport(expenseImportStatus.textContent,true)}finally{expenseImportBtn.disabled=false;expenseImportBtn.textContent='Selecionar relatório A2O';expenseImportFile.value=''}};
+// ===== FIM DO MÓDULO DESPESAS =====
+
+// ===== MÓDULOS EXECUTIVOS V3 =====
+function safeDiv(a,b){return b? a/b:0}
+function variation(now,prev){return prev?((now-prev)/prev*100):null}
+function trendText(v){if(v===null)return 'Sem comparação';return `${v>=0?'▲':'▼'} ${pct(Math.abs(v))}`}
+function regressionForecast(){const a=P.annual;if(!a.length)return 0;if(a.length===1)return a[0].valor;const n=a.length,sx=(n-1)*n/2,sy=a.reduce((s,x)=>s+x.valor,0),sxx=a.reduce((s,x,i)=>s+i*i,0),sxy=a.reduce((s,x,i)=>s+i*x.valor,0),den=n*sxx-sx*sx;if(!den)return sy/n;const slope=(n*sxy-sx*sy)/den,intercept=(sy-slope*sx)/n;return Math.max(0,intercept+slope*n)}
+function managementRows(){const idx=P.months.indexOf(current),M=P.data[current],prev=idx>0?P.data[P.months[idx-1]]:null;const names=new Set([...(prev?.clients||[]).map(x=>x.cliente),...M.clients.map(x=>x.cliente)]);return [...names].map(name=>{const now=M.clients.find(x=>x.cliente===name),old=prev?.clients.find(x=>x.cliente===name),val=now?.valor||0,pval=old?.valor||0,g=old?variation(val,pval):(now?100:null),hist=companyHistory(name),rec=safeDiv(hist.length,P.months.length)*100,ticket=now?.ticket||safeDiv(hist.reduce((s,x)=>s+x.valor,0),hist.reduce((s,x)=>s+x.qtd,0));const concentration=safeDiv(val,M.totals.valor)*100;let score=45+Math.min(20,rec*.2)+Math.max(-20,Math.min(20,(g??0)*.25))+Math.min(15,safeDiv(ticket,M.totals.ticket)*8)-Math.max(0,concentration-30)*.5;score=Math.max(0,Math.min(100,Math.round(score)));return{name,now,old,val,pval,g,rec,ticket,score,concentration}}).sort((a,b)=>b.score-a.score)}
+function executiveIntelligence(){
+ const idx=P.months.indexOf(current),M=P.data[current],prev=idx>0?P.data[P.months[idx-1]]:null;
+ const revenueChange=prev?variation(M.totals.valor,prev.totals.valor):null;
+ const qtyChange=prev?variation(M.totals.qtd,prev.totals.qtd):null;
+ const currentNames=new Set(M.clients.map(x=>x.cliente));
+ const prevNames=new Set(prev?prev.clients.map(x=>x.cliente):[]);
+ const newClients=prev?[...currentNames].filter(x=>!prevNames.has(x)).length:0;
+ const lostClients=prev?[...prevNames].filter(x=>!currentNames.has(x)).length:0;
+ const efficiency=prev?variation(M.totals.ticket,prev.totals.ticket):null;
+ const concentration=M.totals.top3;
+ return [
+  {label:'Movimento do mês',value:prev?trendText(revenueChange):'Base inicial',detail:prev?`${M.label} contra ${prev.label}. Volume: ${trendText(qtyChange)}.`:'Primeiro mês disponível para comparação.'},
+  {label:'Carteira ativa',value:`${M.totals.clientes} clientes`,detail:prev?`${newClients} entrada(s) e ${lostClients} saída(s) frente ao mês anterior.`:'Acompanhamento de entradas e saídas inicia no próximo mês.'},
+  {label:'Concentração',value:pct(concentration),detail:concentration>=60?'Top 3 com peso elevado; acompanhar dependência.':'Top 3 em faixa administrável para a série atual.'},
+  {label:'Eficiência',value:brl(M.totals.ticket),detail:prev?`Receita por caçamba: ${trendText(efficiency)}.`:'Ticket médio do primeiro mês da série.'}
+ ];
+}
+function renderExecutiveReading(){
+ const el=document.getElementById('executiveReading');if(!el)return;
+ el.innerHTML=executiveIntelligence().map(x=>`<div class="exec-point"><small>${x.label}</small><b>${x.value}</b><span>${x.detail}</span></div>`).join('');
+}
+function parseGoalValue(value){
+  const raw=String(value??'').trim();
+  if(!raw)return 0;
+  const cleaned=raw.replace(/\s/g,'').replace(/R\$/gi,'');
+  let normalized;
+  if(cleaned.includes(',')&&cleaned.includes('.')) normalized=cleaned.lastIndexOf(',')>cleaned.lastIndexOf('.')?cleaned.replace(/\./g,'').replace(',','.'):cleaned.replace(/,/g,'');
+  else if(cleaned.includes(',')) normalized=cleaned.replace(/\./g,'').replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(cleaned)) normalized=cleaned.replace(/\./g,'');
+  else normalized=cleaned;
+  const number=Number(normalized);
+  return Number.isFinite(number)&&number>0?number:0;
+}
+function formatGoalInput(value){return value?Number(value).toLocaleString('pt-BR',{maximumFractionDigits:2}):''}
+function renderConsolidatedComparison(){const idx=P.months.indexOf(current),M=P.data[current],prev=idx>0?P.data[P.months[idx-1]]:null;const strip=document.getElementById('comparisonStrip'),caption=document.getElementById('comparisonCaption');if(!strip)return;if(!prev){caption.textContent='Primeira competência disponível na série';strip.innerHTML=[['Faturamento',brl(M.totals.valor),'Base inicial'],['Caçambas',n0(M.totals.qtd),'Base inicial'],['Clientes ativos',n0(M.totals.clientes),'Base inicial'],['Receita por caçamba',brl(M.totals.ticket),'Base inicial']].map(x=>`<div class="comparison-item"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('');return}caption.textContent=`${M.label} comparado com ${prev.label}`;const items=[['Faturamento',M.totals.valor,prev.totals.valor,brl],['Caçambas',M.totals.qtd,prev.totals.qtd,n0],['Clientes ativos',M.totals.clientes,prev.totals.clientes,n0],['Receita por caçamba',M.totals.ticket,prev.totals.ticket,brl]];strip.innerHTML=items.map(([label,now,old,fmt])=>{const g=variation(now,old),diff=now-old;return `<div class="comparison-item"><small>${label}</small><strong>${fmt(now)}</strong><span class="${g>=0?'trend-up':'trend-down'}">${g>=0?'▲':'▼'} ${pct(Math.abs(g))} • ${diff>=0?'+':''}${label==='Faturamento'||label==='Receita por caçamba'?brl(diff):n0(diff)}</span></div>`}).join('')}
+function renderActionAlerts(){const box=document.getElementById('actionAlerts');if(!box)return;const rows=managementRows(),declines=rows.filter(x=>x.val===0||x.g<0),A=assetAnalytics(),alerts=P.data[current].alerts||[];const cards=[{count:declines.length,title:'Empresas em queda ou sem movimento',text:'Priorize a revisão dos clientes que perderam receita no período.',action:'management',link:'Ver ranking de atenção'},{count:A.duplicates.length,title:'Possíveis duplicidades patrimoniais',text:'Identificações presentes em mais de um cliente exigem validação.',action:'assets',link:'Abrir auditoria patrimonial'},{count:alerts.length,title:'Alertas do mês',text:'Pendências e inconsistências encontradas na competência selecionada.',action:'alerts',link:'Abrir central de alertas'}];box.innerHTML=cards.map(c=>`<div class="card action-alert" role="button" tabindex="0" data-action-view="${c.action}"><div class="action-top"><b>${c.title}</b><strong>${n0(c.count)}</strong></div><p>${c.text}</p><span class="action-link">${c.link} →</span></div>`).join('');box.querySelectorAll('[data-action-view]').forEach(c=>{const go=()=>{const v=c.dataset.actionView;if(v==='management'){document.getElementById('riskList')?.scrollIntoView({behavior:'smooth',block:'center'})}else switchView(v)};c.onclick=go;c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
+function renderManagement(){renderExecutiveReading();renderConsolidatedComparison();renderActionAlerts();const idx=P.months.indexOf(current),M=P.data[current],prev=idx>0?P.data[P.months[idx-1]]:null,growth=prev?variation(M.totals.valor,prev.totals.valor):null,forecast=regressionForecast(),annualized=(P.grand.valor/P.annual.length)*12;const goal=Number(localStorage.getItem('dashboardGoal_'+current)||0),progress=goal?safeDiv(M.totals.valor,goal)*100:0;managementKpis.innerHTML=[['Variação mensal',trendText(growth),prev?`Contra ${prev.label}`:'Primeiro mês'],['Projeção próximo mês',brl(forecast),'Tendência linear da série'],['Projeção anual',brl(annualized),'Média dos meses disponíveis'],['Receita por cliente',brl(M.totals.media),`${M.totals.clientes} clientes ativos`]].map(x=>`<div class="card metric-card"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('');goalInput.value=formatGoalInput(goal);goalBar.style.width=Math.max(0,Math.min(100,progress))+'%';goalStatus.textContent=goal?`${brl(M.totals.valor)} realizados de ${brl(goal)} — ${pct(progress)} do objetivo. ${M.totals.valor>=goal?`Meta superada em ${brl(M.totals.valor-goal)}.`:`Saldo necessário: ${brl(goal-M.totals.valor)}.`}`:'Defina uma meta mensal para acompanhar a execução do faturamento.';const rows=managementRows(),ups=rows.filter(x=>x.g!==null&&x.g>0&&x.val>0).sort((a,b)=>b.g-a.g).slice(0,6),downs=rows.filter(x=>x.val===0||x.g<0).sort((a,b)=>(a.val===0?-999:a.g)-(b.val===0?-999:b.g)).slice(0,8);growthList.innerHTML=ups.length?ups.map(x=>`<div class="insight good"><b>${x.name}</b><span class="trend-up">${trendText(x.g)}</span> • ${brl(x.val)}</div>`).join(''):'<div class="empty-soft">Nenhum crescimento identificado.</div>';riskList.innerHTML=downs.length?downs.map(x=>`<div class="insight risk"><b>${x.name}</b>${x.val===0?'Sem faturamento no mês atual':`${trendText(x.g)} • ${brl(x.val)}`}</div>`).join(''):'<div class="empty-soft">Nenhuma queda relevante identificada.</div>';scoreBody.innerHTML=rows.filter(x=>x.val>0).slice(0,40).map((x,i)=>{const cls=x.score>=75?'good':x.score>=55?'mid':'bad',status=x.score>=75?'Saudável':x.score>=55?'Acompanhar':'Atenção';return `<tr><td>${i+1}</td><td class="client" onclick='openCompany(${JSON.stringify(x.name)})'>${x.name}</td><td class="num"><span class="score ${cls}">${x.score}</span></td><td class="num"><b>${brl(x.val)}</b></td><td class="num ${x.g>=0?'trend-up':'trend-down'}">${trendText(x.g)}</td><td class="num">${pct(x.rec)}</td><td class="num">${brl(x.ticket)}</td><td>${status}</td></tr>`}).join('')}
+goalInput.addEventListener('change',()=>{const goal=parseGoalValue(goalInput.value);if(goal)localStorage.setItem('dashboardGoal_'+current,String(goal));else localStorage.removeItem('dashboardGoal_'+current);renderManagement()});
+function assetAnalytics(){const occurrence=new Map(),issues=[];for(const m of P.months){for(const r of P.data[m].rows){const p=String(r.patrimonio||'').trim();if(!p)continue;const key=p.toUpperCase();if(!occurrence.has(key))occurrence.set(key,[]);occurrence.get(key).push({mes:m,cliente:r.cliente,row:r});if(r.pat_corrigir||/CONFERIR|DUPLIC|INEXIST|OUTRO EQUIP/i.test(p+' '+(r.obs||'')))issues.push({pat:p,cliente:r.cliente,mes:P.data[m].label,text:r.pat_corrigir||r.obs||'Patrimônio a conferir',type:/DUPLIC/i.test((r.pat_corrigir||'')+' '+(r.obs||''))?'Duplicado':'Conferir'})}}const duplicates=[...occurrence.entries()].filter(([k,v])=>new Set(v.map(x=>x.cliente)).size>1).map(([pat,v])=>({pat,clientes:[...new Set(v.map(x=>x.cliente))],count:v.length}));const currentAssets=new Set(P.data[current].rows.map(r=>String(r.patrimonio||'').trim()).filter(Boolean));const historical=new Set(occurrence.keys());return{occurrence,issues,duplicates,currentCount:currentAssets.size,historicalCount:historical.size}}
+function renderAssets(){const A=assetAnalytics(),uniqueIssues=new Map();[...A.duplicates.map(x=>({pat:x.pat,cliente:x.clientes.join(' / '),mes:'Período consolidado',text:`Mesmo patrimônio aparece em ${x.clientes.length} clientes (${x.count} registros).`,type:'Duplicado'})),...A.issues].forEach(x=>{const k=x.pat+'|'+x.cliente+'|'+x.text;if(!uniqueIssues.has(k))uniqueIssues.set(k,x)});const arr=[...uniqueIssues.values()];assetKpis.innerHTML=[['Patrimônios no mês',n0(A.currentCount),'Identificações distintas'],['Patrimônios históricos',n0(A.historicalCount),'Base consolidada'],['Duplicidades entre clientes',n0(A.duplicates.length),'Exigem conferência'],['Ocorrências de auditoria',n0(arr.length),'Avisos únicos identificados']].map(x=>`<div class="card metric-card"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('');assetIssues.innerHTML=arr.length?arr.slice(0,100).map(x=>`<div class="asset-row"><b>${x.pat}</b><div><b>${x.cliente}</b><div class="desc" style="margin:2px 0 0">${x.mes} • ${x.text}</div></div><span class="asset-tag ${x.type==='Duplicado'?'bad':'warn'}">${x.type}</span></div>`).join(''):'<div class="empty-soft">Nenhuma inconsistência encontrada.</div>';const chartData=[{label:'Sem ocorrência',valor:Math.max(0,A.historicalCount-arr.length)},{label:'Conferir',valor:arr.filter(x=>x.type!=='Duplicado').length},{label:'Duplicados',valor:arr.filter(x=>x.type==='Duplicado').length}];vbars('assetChart',chartData,'valor','#f2b84b',n0)}
+function renderHeatmap(){const companies=allCompanies().slice(0,35),max=Math.max(1,...companies.flatMap(c=>companyHistory(c.name).map(x=>x.valor)));heatHead.innerHTML='<tr><th>Empresa</th>'+P.months.map(m=>`<th class="num">${P.data[m].label.slice(0,3)}</th>`).join('')+'<th class="num">Total</th></tr>';heatBody.innerHTML=companies.map(c=>{const vals=P.months.map(m=>P.data[m].clients.find(x=>x.cliente===c.name)?.valor||0);return `<tr><td class="client" onclick='openCompany(${JSON.stringify(c.name)})'>${c.name}</td>${vals.map(v=>{const intensity=v/max,alpha=.10+intensity*.8;return `<td class="num heat-cell" style="background:rgba(34,201,145,${alpha.toFixed(2)})">${v?brl(v):'—'}</td>`}).join('')}<td class="num"><b>${brl(c.valor)}</b></td></tr>`}).join('');const recurring=companies.filter(c=>c.meses===P.months.length),newest=companies.filter(c=>companyHistory(c.name)[0]?.mes===current),inactive=companies.filter(c=>companyHistory(c.name).at(-1)?.mes!==current);portfolioInsights.innerHTML=`<div class="card panel"><h3>Carteira recorrente</h3><div class="note-box"><b>${recurring.length} empresas</b> aparecem em todos os ${P.months.length} meses da série.</div></div><div class="card panel"><h3>Movimentação da carteira</h3><div class="note-box"><b>${newest.length} entradas no mês selecionado</b> e ${inactive.length} empresas do ranking sem movimento no mês atual.</div></div>`}
+function reportText(){const idx=P.months.indexOf(current),M=P.data[current],prev=idx>0?P.data[P.months[idx-1]]:null,g=prev?variation(M.totals.valor,prev.totals.valor):null,top=M.clients[0],top3=M.totals.top3,qtyg=prev?variation(M.totals.qtd,prev.totals.qtd):null,rows=managementRows(),downs=rows.filter(x=>x.val===0||x.g<0),forecast=regressionForecast(),A=assetAnalytics(),goal=Number(localStorage.getItem('dashboardGoal_'+current)||0);let txt=`RELATÓRIO EXECUTIVO — ${M.label.toUpperCase()}\n\n`;txt+=`O faturamento previsto do mês é de ${brl(M.totals.valor)}, com ${n0(M.totals.qtd)} caçambas faturadas para ${n0(M.totals.clientes)} clientes. A receita média por caçamba é de ${brl(M.totals.ticket)} e a média por cliente é de ${brl(M.totals.media)}.\n\n`;if(prev)txt+=`Em comparação com ${prev.label}, o faturamento ${g>=0?'cresceu':'recuou'} ${pct(Math.abs(g))}, enquanto a quantidade de caçambas ${qtyg>=0?'aumentou':'diminuiu'} ${pct(Math.abs(qtyg))}.\n\n`;txt+=`${top.cliente} lidera o ranking, com ${brl(top.valor)} e participação de ${pct(safeDiv(top.valor,M.totals.valor)*100)}. As três maiores empresas concentram ${pct(top3)} da receita do mês, ${top3>=60?'indicando concentração elevada da carteira.':'em nível administrável para a carteira atual.'}\n\n`;txt+=`A projeção estatística para o próximo mês é de aproximadamente ${brl(forecast)}. `;if(goal)txt+=M.totals.valor>=goal?`A meta de ${brl(goal)} foi alcançada, com realização de ${pct(safeDiv(M.totals.valor,goal)*100)}.`:`A meta definida é de ${brl(goal)}; faltam ${brl(goal-M.totals.valor)} para alcançá-la.`;else txt+='Ainda não há uma meta mensal cadastrada no painel.';txt+='\n\n';txt+=`A análise de risco encontrou ${downs.length} empresas com queda ou ausência de faturamento em relação ao período anterior. A auditoria patrimonial consolidada identificou ${A.duplicates.length} possíveis duplicidades entre clientes e ${A.issues.length} registros com observações de conferência.\n\n`;txt+=`RECOMENDAÇÕES\n1. Acompanhar as empresas com queda e validar se houve retirada, encerramento ou faturamento proporcional.\n2. Revisar patrimônios duplicados ou marcados para conferência antes do fechamento.\n3. Monitorar a concentração das três maiores empresas e buscar equilíbrio da carteira.\n4. Atualizar a meta mensal para acompanhar realizado e projeção no Centro de Gestão.`;return txt}
+function renderReport(){executiveReport.textContent=reportText();renderExecutiveReading()}
+const askAiBtn=document.getElementById('askAiBtn'),copyAiBtn=document.getElementById('copyAiBtn'),aiStatus=document.getElementById('aiStatus'),aiExecutiveOutput=document.getElementById('aiExecutiveOutput'),aiQuestion=document.getElementById('aiQuestion'),aiUseContext=document.getElementById('aiUseContext');
+function buildAIDashboardContext(){
+ const M=P.data[current],idx=P.months.indexOf(current),prev=idx>0?P.data[P.months[idx-1]]:null;
+ if(!M)return null;
+ const rows=managementRows(),A=assetAnalytics();
+ const topCompanies=M.clients.slice(0,12).map(x=>({
+  empresa:String(x.cliente||'').slice(0,100),
+  faturamento:Number(x.valor||0),
+  cacambas:Number(x.qtd||0),
+  receitaPorCacamba:Number(x.ticket||0),
+  participacaoPercentual:Number(safeDiv(x.valor,M.totals.valor)*100)
+ }));
+ const attention=rows.filter(x=>x.val===0||x.g<0).slice(0,12).map(x=>({
+  empresa:String(x.name||'').slice(0,100),
+  faturamentoAtual:Number(x.val||0),
+  variacaoPercentual:x.g===null?null:Number(x.g)
+ }));
+ const growth=rows.filter(x=>x.val>0&&x.g!==null&&x.g>0).sort((a,b)=>b.g-a.g).slice(0,10).map(x=>({
+  empresa:String(x.name||'').slice(0,100),
+  faturamentoAtual:Number(x.val||0),
+  variacaoPercentual:Number(x.g)
+ }));
+ return {
+  competencia:String(M.label||current).slice(0,50),
+  competenciaAnterior:prev?String(prev.label||'').slice(0,50):null,
+  indicadores:{
+   faturamento:Number(M.totals.valor||0),cacambas:Number(M.totals.qtd||0),clientes:Number(M.totals.clientes||0),
+   receitaPorCacamba:Number(M.totals.ticket||0),mediaPorCliente:Number(M.totals.media||0),
+   concentracaoTop3Percentual:Number(M.totals.top3||0),concentracaoTop5Percentual:Number(M.totals.top5||0),
+   variacaoFaturamentoPercentual:prev?variation(M.totals.valor,prev.totals.valor):null,
+   variacaoCacambasPercentual:prev?variation(M.totals.qtd,prev.totals.qtd):null,
+   projecaoProximoMes:Number(regressionForecast()||0),
+   metaMensal:Number(localStorage.getItem('dashboardGoal_'+current)||0)
+  },
+  empresasLideres:topCompanies,
+  maioresCrescimentos:growth,
+  empresasQueExigemAtencao:attention,
+  auditoria:{alertasDoMes:Number((M.alerts||[]).length),possiveisDuplicidadesPatrimoniais:Number(A.duplicates.length),ocorrenciasParaConferencia:Number(A.issues.length)},
+  serieMensal:P.annual.slice(-12).map(x=>({competencia:String(P.data[x.mes]?.label||x.mes).slice(0,50),faturamento:Number(x.valor||0),cacambas:Number(x.qtd||0),clientes:Number(x.clientes||0)}))
+ };
+}
+function selectedAiMode(){return document.querySelector('input[name="aiMode"]:checked')?.value||'dashboard'}
+function syncAiMode(){const dashboard=selectedAiMode()==='dashboard';if(dashboard){aiUseContext.checked=true;aiUseContext.disabled=true;aiQuestion.placeholder='Ex.: Quais empresas exigem atenção neste mês?'}else{aiUseContext.checked=false;aiUseContext.disabled=true;aiQuestion.placeholder='Ex.: Escreva um e-mail profissional solicitando uma reunião.'}}
+document.querySelectorAll('input[name="aiMode"]').forEach(el=>el.addEventListener('change',syncAiMode));syncAiMode();
+document.querySelectorAll('[data-ai-question]').forEach(btn=>btn.onclick=()=>{aiQuestion.value=btn.dataset.aiQuestion||'';aiQuestion.focus()});
+if(aiQuestion)aiQuestion.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')askAiBtn.click()});
+if(askAiBtn)askAiBtn.onclick=async()=>{
+ const question=String(aiQuestion.value||'').trim(),mode=selectedAiMode(),useDashboardContext=mode==='dashboard';
+ if(!question){aiQuestion.focus();aiStatus.textContent='Digite uma pergunta para continuar.';return}
+ if(!window.firebaseAskExecutiveAI){aiStatus.textContent='Backend de IA ainda não publicado.';aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent='A interface está pronta. Publique a Firebase Function segura para ativar o assistente.';return}
+ askAiBtn.disabled=true;askAiBtn.textContent='Pensando...';copyAiBtn.classList.remove('show');aiExecutiveOutput.className='ai-output loading';aiExecutiveOutput.textContent='Analisando sua solicitação com segurança...';aiStatus.textContent=useDashboardContext?'Preparando indicadores autorizados e gerando resposta...':'Gerando resposta sem enviar dados do dashboard...';
+ try{const dashboardContext=useDashboardContext?buildAIDashboardContext():null;const result=await window.firebaseAskExecutiveAI({question,mode,useDashboardContext,monthKey:useDashboardContext?current:null,dashboardContext});aiExecutiveOutput.className='ai-output';aiExecutiveOutput.textContent=result;copyAiBtn.classList.add('show');aiStatus.textContent=useDashboardContext?'Resposta gerada com o contexto de '+(P.data[current]?.label||current)+'.':'Resposta geral gerada sem contexto financeiro.'}
+ catch(e){console.error(e);const code=String(e?.code||'');let msg='Não foi possível obter uma resposta agora.';if(code.includes('resource-exhausted'))msg='Limite temporário de uso atingido. Aguarde alguns minutos e tente novamente.';else if(code.includes('unauthenticated'))msg='Sua sessão expirou. Entre novamente para utilizar o assistente.';else if(code.includes('failed-precondition'))msg='A verificação de segurança não foi concluída. Atualize a página e tente novamente.';else if(e?.message)msg=e.message.replace(/^FirebaseError:\s*/,'');aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent=msg;aiStatus.textContent='Solicitação não concluída.'}
+ finally{askAiBtn.disabled=false;askAiBtn.textContent='Perguntar'}
+};
+if(copyAiBtn)copyAiBtn.onclick=async()=>{try{await navigator.clipboard.writeText(aiExecutiveOutput.textContent||'');notifyImport('Resposta copiada para a área de transferência.')}catch(e){notifyImport('Não foi possível copiar automaticamente.',true)}};
+copyReportBtn.onclick=async()=>{try{await navigator.clipboard.writeText(reportText());notifyImport('Relatório copiado para a área de transferência.')}catch(e){notifyImport('Não foi possível copiar automaticamente.',true)}};
+downloadReportBtn.onclick=()=>{const blob=new Blob([reportText()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`relatorio_executivo_${current}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+// ===== FIM DOS MÓDULOS V3 =====
+
+// ===== IMPORTADOR OFFLINE DE EXCEL / CSV / TXT =====
+const IMPORT_SOURCE_HTML=document.documentElement.outerHTML;
+const MONTH_NAMES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function notifyImport(msg,error=false){const n=document.getElementById('importNote');n.textContent=msg;n.className='import-note show'+(error?' error':'');clearTimeout(n._t);n._t=setTimeout(()=>n.className='import-note',6500)}
+function normKey(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim()}
+function numBR(v){if(typeof v==='number')return Number.isFinite(v)?v:0;let x=String(v??'').trim();if(!x)return 0;x=x.replace(/R\$/gi,'').replace(/\s/g,'');if(x.includes(',')&&x.includes('.'))x=x.replace(/\./g,'').replace(',','.');else if(x.includes(','))x=x.replace(',','.');x=x.replace(/[^0-9.-]/g,'');return Number(x)||0}
+function textVal(v){return String(v??'').trim()}
+function excelDate(v){if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return `${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}`}return textVal(v)}
+function parseDateParts(v){if(v instanceof Date&&!isNaN(v))return [v.getMonth()+1,v.getFullYear()];if(typeof v==='number'&&v>20000){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return[d.getUTCMonth()+1,d.getUTCFullYear()]}const x=textVal(v);let m=x.match(/(?:^|\D)(\d{1,2})[\/\-.](\d{4})(?:\D|$)/);if(m)return[+m[1],+m[2]];m=x.match(/(20\d{2})[\/\-.](\d{1,2})/);if(m)return[+m[2],+m[1]];return null}
+function monthFromText(v){const x=normKey(v);const ab=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];let mi=ab.findIndex(a=>x.includes(a));let yr=(x.match(/20\d{2}/)||[])[0];if(mi>=0&&yr)return[mi+1,+yr];const p=parseDateParts(v);return p}
+function monthKey(m,y){return `${['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][m-1]}_${y}`}
+function monthLabel(m,y){return `${MONTH_NAMES[m-1]} ${y}`}
+function csvRows(text){text=text.replace(/^\uFEFF/,'');const first=(text.split(/\r?\n/).find(x=>x.trim())||'');const candidates=[';','\t',',','|'];const delim=candidates.sort((a,b)=>(first.split(b).length-first.split(a).length))[0];let rows=[],row=[],cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'&&text[i+1]==='"'){cell+='"';i++}else if(c==='"')q=false;else cell+=c}else if(c==='"')q=true;else if(c===delim){row.push(cell);cell=''}else if(c==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=c}if(cell||row.length){row.push(cell);rows.push(row)}return rows.filter(r=>r.some(x=>textVal(x)))}
+function u16(a,o){return a[o]|a[o+1]<<8} function u32(a,o){return (a[o]|a[o+1]<<8|a[o+2]<<16|a[o+3]<<24)>>>0}
+async function unzipXlsx(buf){const a=new Uint8Array(buf);let e=-1;for(let i=a.length-22;i>=Math.max(0,a.length-66000);i--)if(u32(a,i)===0x06054b50){e=i;break}if(e<0)throw new Error('Arquivo XLSX inválido.');const count=u16(a,e+10),cd=u32(a,e+16);let p=cd,files={};for(let n=0;n<count;n++){if(u32(a,p)!==0x02014b50)break;const method=u16(a,p+10),cs=u32(a,p+20),ns=u16(a,p+28),es=u16(a,p+30),cm=u16(a,p+32),lo=u32(a,p+42),name=new TextDecoder().decode(a.slice(p+46,p+46+ns));if(u32(a,lo)===0x04034b50){const ln=u16(a,lo+26),le=u16(a,lo+28),start=lo+30+ln+le,raw=a.slice(start,start+cs);let data;if(method===0)data=raw;else if(method===8){const ds=new DecompressionStream('deflate-raw');data=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer())}if(data)files[name]=data}p+=46+ns+es+cm}return files}
+function xmlText(bytes){return new TextDecoder('utf-8').decode(bytes)}
+function colNum(ref){let n=0;for(const c of (ref.match(/[A-Z]+/i)||['A'])[0].toUpperCase())n=n*26+c.charCodeAt(0)-64;return n-1}
+async function xlsxSheets(buf){const f=await unzipXlsx(buf),parser=new DOMParser(),shared=[];if(f['xl/sharedStrings.xml']){const d=parser.parseFromString(xmlText(f['xl/sharedStrings.xml']),'text/xml');d.querySelectorAll('si').forEach(si=>shared.push(si.textContent||''))}let dateStyles=new Set();if(f['xl/styles.xml']){const d=parser.parseFromString(xmlText(f['xl/styles.xml']),'text/xml'),custom={};d.querySelectorAll('numFmts numFmt').forEach(x=>custom[x.getAttribute('numFmtId')]=x.getAttribute('formatCode')||'');d.querySelectorAll('cellXfs xf').forEach((x,i)=>{const id=+x.getAttribute('numFmtId');const fmt=custom[id]||'';if([14,15,16,17,22,45,46,47].includes(id)||/[dmy]/i.test(fmt))dateStyles.add(i)})}
+const out=[];for(const name of Object.keys(f).filter(x=>/^xl\/worksheets\/sheet\d+\.xml$/.test(x)).sort()){const d=parser.parseFromString(xmlText(f[name]),'text/xml'),rows=[];d.querySelectorAll('sheetData row').forEach(rr=>{const row=[];rr.querySelectorAll('c').forEach(c=>{const ix=colNum(c.getAttribute('r')||'A'),t=c.getAttribute('t'),st=+(c.getAttribute('s')||-1),vn=c.querySelector('v')?.textContent??'',inline=c.querySelector('is')?.textContent??'';let v=t==='s'?shared[+vn]:(t==='inlineStr'?inline:(t==='b'?(vn==='1'):vn));if(t!=='s'&&t!=='inlineStr'&&v!==''&&!isNaN(v))v=+v;if(typeof v==='number'&&dateStyles.has(st))v=excelDate(v);row[ix]=v});rows.push(row)});out.push({name:name.match(/sheet(\d+)/)[1],rows})}return out}
+const ALIASES={
+mes:['MES ANO','MES_ANO','COMPETENCIA','PERIODO','MES'],
+cod:['COD','CODIGO','COD CLIENTE','CODIGO CLIENTE'],
+cnpj:['CNPJ','CPF CNPJ','DOCUMENTO','CPF/CNPJ'],
+cliente:['CLIENTE','RAZAO SOCIAL','NOME CLIENTE','EMPRESA'],
+patrimonio:['N PATRIMONIO','NUMERO PATRIMONIO','Nº PATRIMONIO','PATRIMONIO','EQUIPAMENTO','CACAMBA'],
+contrato:['N CONTRATO','NUMERO CONTRATO','Nº CONTRATO','Nº_CONTRATO','CONTRATO'],
+inicio:['INICIO','FAT INICIO','FAT. INICIO','DATA INICIO','DT INICIO'],
+fim:['FIM','FAT FINAL','FAT. FINAL','DATA FIM','DT FIM'],
+dias:['DIAS','QTD DIAS','QUANTIDADE DIAS'],
+valor_loc:['VALOR LOC','VALOR_LOC','VALOR LOCACAO','VALOR MENSAL','PRECO LOCACAO'],
+valor:['VALOR PER','VALOR_PER','SOMA DE VALOR PER','VALOR PROPORCIONAL','VALOR FATURADO','FATURAMENTO','VALOR TOTAL','TOTAL','VALOR'],
+qt:['QT CACAMBAS','QT_CACAMBAS','SOMA DE QT CACAMBAS','QTD CACAMBAS','QUANTIDADE CACAMBAS','QT','QTD','QUANTIDADE','CACAMBAS'],
+vencimento:['VENCIMENTO','DIA VENCIMENTO','VENC'],
+obs:['OBS','OBSERVACAO','OBSERVACOES'],
+pat_corrigir:['PATRIMONIO A CORRIGIR','PAT CORRIGIR','PATRIMONIO CORRIGIR','CORRIGIR','INCONSISTENCIA','PENDENCIA']
+};
+function aliasIndex(headers,aliases){
+ const hs=(headers||[]).map(h=>normKey(h));
+ const als=(aliases||[]).map(a=>normKey(a)).filter(Boolean);
+ for(const a of als){const i=hs.findIndex(h=>h===a);if(i>=0)return i}
+ for(const a of als){const i=hs.findIndex(h=>h&&a&&(h.startsWith(a+' ')||h.endsWith(' '+a)));if(i>=0)return i}
+ return-1
+}
+function headerMap(row){const hs=(row||[]).map(normKey),map={};let score=0;for(const[k,als]of Object.entries(ALIASES)){const ix=aliasIndex(hs,als);if(ix>=0){map[k]=ix;score++}}return{hs,map,score}}
+function isTotalRow(cliente,row){const c=normKey(cliente),joined=normKey((row||[]).map(textVal).join(' '));return !c||c==='TOTAL'||c==='TOTAL GERAL'||c.startsWith('TOTAL ')||joined==='TOTAL GERAL'}
+function mapTable(matrix){
+ if(!Array.isArray(matrix)||!matrix.length)throw new Error('A aba está vazia.');
+ let hi=-1,map={},best=-1;
+ for(let i=0;i<Math.min(60,matrix.length);i++){
+  const test=headerMap(matrix[i]);
+  let weighted=test.score;
+  if(test.map.cliente!==undefined)weighted+=5;
+  if(test.map.valor!==undefined)weighted+=5;
+  if(test.map.patrimonio!==undefined)weighted+=3;
+  if(test.map.inicio!==undefined||test.map.fim!==undefined)weighted+=2;
+  if(weighted>best){hi=i;map=test.map;best=weighted}
+ }
+ if(hi<0||map.cliente===undefined||map.valor===undefined)throw new Error('Não encontrei um cabeçalho compatível com CLIENTE e VALOR_PER./VALOR.');
+ const rows=[];let ignored=0;
+ for(const r of matrix.slice(hi+1)){
+  if(!Array.isArray(r)||!r.some(x=>textVal(x))){ignored++;continue}
+  const g=k=>map[k]===undefined?'':r[map[k]];
+  const cliente=textVal(g('cliente'));
+  if(isTotalRow(cliente,r)){ignored++;continue}
+  const valor=numBR(g('valor')),valorLoc=numBR(g('valor_loc'));
+  let qt=map.qt===undefined?1:numBR(g('qt'));if(!qt)qt=1;
+  const patrimonio=textVal(g('patrimonio'));
+  const inicio=excelDate(g('inicio')),fim=excelDate(g('fim'));
+  if(!cliente||(!valor&&!patrimonio&&!inicio&&!fim)){ignored++;continue}
+  rows.push({mes:textVal(g('mes')),cod:textVal(g('cod')),cnpj:textVal(g('cnpj')),cliente:cliente.trim(),patrimonio,contrato:textVal(g('contrato')),inicio,fim,dias:numBR(g('dias')),valor_loc:valorLoc||valor,valor,qt,vencimento:textVal(g('vencimento')),obs:textVal(g('obs')),pat_corrigir:textVal(g('pat_corrigir')),rating:0})
+ }
+ if(!rows.length)throw new Error('Nenhum registro válido encontrado após a validação da aba.');
+ return{rows,headerRow:hi+1,map,ignored}
+}
+function workbookTargetMonth(tables,fileName){
+ for(const t of tables||[]){for(const r of (t.rows||[]).slice(0,40)){for(let i=0;i<(r||[]).length;i++){const k=normKey(r[i]);if(k==='MES ANO'||k==='MES_ANO'||k==='COMPETENCIA'){const p=monthFromText(r[i+1]);if(p)return p}}}}
+ return monthFromText(fileName)
+}
+function rowMonth(r){return monthFromText(r.mes)||parseDateParts(r.inicio)||parseDateParts(r.fim)}
+function inferMonth(rows,fileName,sheetName){for(const r of rows){const p=rowMonth(r);if(p&&p[0]>=1&&p[0]<=12)return p}let p=monthFromText(`${sheetName} ${fileName}`);if(p)return p;const ans=prompt('Não consegui identificar o mês. Informe mês e ano, por exemplo: 08/2026');p=parseDateParts(ans);if(!p||p[0]<1||p[0]>12)throw new Error('Mês/ano não informado corretamente.');return p}
+function makeMonth(rows,m,y){const key=monthKey(m,y);rows.forEach(r=>{r.mes=key;r.ano=y;r.mes_num=m});const groups=new Map();for(const r of rows){const k=r.cliente;let c=groups.get(k);if(!c)c={cliente:r.cliente,cod:r.cod,cnpj:r.cnpj,vencimento:r.vencimento,qtd:0,valor:0,patrimonios:[],contratos:[],obs:[],corrigir:[]};c.qtd+=r.qt||1;c.valor+=r.valor||0;if(r.patrimonio&&!c.patrimonios.includes(r.patrimonio))c.patrimonios.push(r.patrimonio);if(r.contrato&&!c.contratos.includes(r.contrato))c.contratos.push(r.contrato);if(r.obs&&!c.obs.includes(r.obs))c.obs.push(r.obs);if(r.pat_corrigir&&!c.corrigir.includes(r.pat_corrigir))c.corrigir.push(r.pat_corrigir);if(!c.cod&&r.cod)c.cod=r.cod;if(!c.cnpj&&r.cnpj)c.cnpj=r.cnpj;if(!c.vencimento&&r.vencimento)c.vencimento=r.vencimento;groups.set(k,c)}const clients=[...groups.values()].map(c=>({...c,ticket:c.qtd?c.valor/c.qtd:0})).sort((a,b)=>b.valor-a.valor);const valor=clients.reduce((s,c)=>s+c.valor,0),qtd=clients.reduce((s,c)=>s+c.qtd,0);let ac=0;const pareto=clients.map(c=>{ac+=c.valor;return{cliente:c.cliente,valor:c.valor,acumulado:valor?ac/valor*100:0}});const dm=new Map();clients.forEach(c=>{const k=c.vencimento||'Não informado',d=dm.get(k)||{label:k,valor:0,qtd:0,clientes:0};d.valor+=c.valor;d.qtd+=c.qtd;d.clientes++;dm.set(k,d)});const due=[...dm.values()].sort((a,b)=>(parseInt(a.label)||99)-(parseInt(b.label)||99));const alerts=[];clients.forEach(c=>{if(c.corrigir.length)alerts.push({tipo:'Patrimônio',nivel:'alto',cliente:c.cliente,texto:c.corrigir.join(' | ')});if(c.obs.length)alerts.push({tipo:'Observação',nivel:'médio',cliente:c.cliente,texto:c.obs.join(' | ')})});const top=n=>valor?clients.slice(0,n).reduce((s,c)=>s+c.valor,0)/valor*100:0;return{label:monthLabel(m,y),rows,clients,pareto,due,alerts,totals:{valor,qtd,clientes:clients.length,ticket:qtd?valor/qtd:0,media:clients.length?valor/clients.length:0,top3:top(3),top5:top(5)}}}
+function rebuildGlobal(){P.months.sort((a,b)=>{const A=P.data[a].rows[0],B=P.data[b].rows[0];return(A.ano*12+A.mes_num)-(B.ano*12+B.mes_num)});P.annual=P.months.map(m=>({mes:m,label:P.data[m].label.slice(0,3),valor:P.data[m].totals.valor,qtd:P.data[m].totals.qtd,clientes:P.data[m].totals.clientes}));P.grand={valor:P.annual.reduce((s,x)=>s+x.valor,0),qtd:P.annual.reduce((s,x)=>s+x.qtd,0),clientes_unicos:new Set(P.months.flatMap(m=>P.data[m].clients.map(c=>c.cnpj||c.cliente))).size};monthSelect.innerHTML=P.months.map(m=>`<option value="${m}">${P.data[m].label}</option>`).join('');monthSelect.value=current}
+async function importDashboardFile(file){
+ let tables=[];const ext=(file.name.split('.').pop()||'').toLowerCase();
+ if(ext==='csv'||ext==='txt')tables=[{name:'Arquivo',rows:csvRows(await file.text())}];
+ else if(ext==='xlsx'||ext==='xlsm')tables=await xlsxSheets(await file.arrayBuffer());
+ else throw new Error('Formato não aceito. Use XLSX, XLSM, CSV ou TXT.');
+ if(!tables.length)throw new Error('O arquivo não possui abas legíveis.');
+ if(!window.firebaseIsAdmin||!window.firebaseIsAdmin())throw new Error('Entre como administrador antes de importar.');
+
+ const candidates=[],errors=[];
+ for(const t of tables){
+  if(!t.rows||!t.rows.length)continue;
+  try{
+   const mapped=mapTable(t.rows),allRows=mapped.rows;
+   const datedRows=allRows.filter(r=>rowMonth(r));
+   const groups=new Map();
+
+   if(datedRows.length){
+    for(const r of allRows){
+     const p=rowMonth(r);
+     if(!p||p[0]<1||p[0]>12)continue;
+     const key=monthKey(p[0],p[1]);
+     if(!groups.has(key))groups.set(key,{p,rows:[]});
+     groups.get(key).rows.push(r);
+    }
+   }else{
+    let p=monthFromText(`${t.name} ${file.name}`);
+    if(!p&&tables.length===1)p=inferMonth(allRows,file.name,t.name);
+    if(!p)throw new Error('Não foi possível identificar o mês pela aba, pelo arquivo ou pelas datas dos registros.');
+    groups.set(monthKey(p[0],p[1]),{p,rows:allRows});
+   }
+
+   for(const {p,rows} of groups.values()){
+    if(!rows.length)continue;
+    const detail=rows.filter(r=>r.patrimonio).length,dateDetail=rows.filter(r=>r.inicio||r.fim).length,contracts=rows.filter(r=>r.contrato).length;
+    const score=detail*100000+dateDetail*1000+contracts*100+rows.length;
+    candidates.push({rows,p,score,sheet:t.name,headerRow:mapped.headerRow,ignored:mapped.ignored,detail});
+   }
+  }catch(e){errors.push(`Aba ${t.name}: ${e.message||e}`)}
+ }
+ if(!candidates.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada no arquivo.');
+
+ // Se mais de uma aba gerar o mesmo mês, conserva a candidata mais detalhada.
+ const bestByMonth=new Map();
+ for(const candidate of candidates){
+  const key=monthKey(candidate.p[0],candidate.p[1]);
+  const previous=bestByMonth.get(key);
+  if(!previous||candidate.score>previous.score)bestByMonth.set(key,candidate);
+ }
+ const selected=[...bestByMonth.values()].sort((a,b)=>(a.p[1]*12+a.p[0])-(b.p[1]*12+b.p[0]));
+
+ const preview=selected.map(c=>{
+  const [m,y]=c.p,key=monthKey(m,y),action=P.data[key]?'SUBSTITUIR':'CRIAR';
+  return `• ${monthLabel(m,y)} — ${c.rows.length} registros — aba “${c.sheet}” — ${action}`;
+ }).join('\n');
+ const ignoredErrors=errors.length?`\n\nAbas ignoradas:\n${errors.slice(0,8).map(x=>`• ${x}`).join('\n')}${errors.length>8?`\n• +${errors.length-8} ocorrência(s)`:''}`:'';
+ if(!confirm(`Foram identificados ${selected.length} mês(es) para sincronização:\n\n${preview}${ignoredErrors}\n\nDeseja gravar todos no Firebase?`))return;
+
+ if(!window.firebaseSaveMonth)throw new Error('A conexão com o Firebase ainda não foi carregada. Aguarde alguns segundos e tente novamente.');
+ const saved=[];
+ for(let i=0;i<selected.length;i++){
+  const chosen=selected[i],[m,y]=chosen.p,key=monthKey(m,y),monthData=makeMonth(chosen.rows,m,y);
+  importBtn.textContent=`Salvando ${i+1}/${selected.length}...`;
+  await window.firebaseSaveMonth(key,monthData,{fileName:file.name,sheet:chosen.sheet,ignored:chosen.ignored});
+  P.data[key]=monthData;if(!P.months.includes(key))P.months.push(key);
+  saved.push({key,label:monthData.label,rows:monthData.rows.length,clients:monthData.clients.length,sheet:chosen.sheet,ignored:chosen.ignored});
+ }
+
+ rebuildGlobal();current=saved[saved.length-1].key;monthSelect.value=current;
+ renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='management')renderManagement();if(currentView==='companies')renderCompanies();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='alerts')renderAlerts();if(currentView==='report')renderReport();
+ const summary=saved.map(x=>`${x.label}: ${x.rows} registros e ${x.clients} clientes`).join(' • ');
+ notifyImport(`${saved.length} mês(es) sincronizado(s) com sucesso. ${summary}`);
+}
+importBtn.onclick=()=>importFile.click();importFile.onchange=async()=>{const f=importFile.files&&importFile.files[0];if(!f)return;importBtn.disabled=true;importBtn.textContent='Importando...';try{await importDashboardFile(f)}catch(e){console.error(e);notifyImport(e&&e.message?e.message:'Falha ao importar o arquivo.',true)}finally{importBtn.disabled=false;importBtn.textContent='Importar Excel / TXT';importFile.value=''}};
+// ===== FIM DO IMPORTADOR =====
+
+P.months.forEach(m=>monthSelect.insertAdjacentHTML('beforeend',`<option value="${m}">${P.data[m].label}</option>`));monthSelect.value=current;monthSelect.onchange=e=>{current=e.target.value;renderMonthly();if(currentView==='management')renderManagement();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='report')renderReport()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));searchClient.oninput=renderMonthlyTable;dueFilter.onchange=renderMonthlyTable;searchCompany.oninput=renderCompanies;closeModal.onclick=()=>companyModal.classList.remove('open');companyModal.onclick=e=>{if(e.target===companyModal)companyModal.classList.remove('open')};fullscreenBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();let rt;window.onresize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!P.months.length)return;if(currentView==='monthly')renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();},180)};
+
+setTimeout(()=>{ if(currentView==='expenses') renderExpenses(); }, 0);
+
+window.expenseDashboardState=E;
+window.expenseApplyCloudMonths=function(cloudMonths){
+  E.data={};
+  Object.entries(cloudMonths||{}).forEach(([key,value])=>{if(value?.records)E.data[key]=value});
+  rebuildExpenseMonths();
+  if(currentView==='expenses')renderExpenses();
+};
+
+window.dashboardState=P;
+window.dashboardApplyCloudMonths=function(cloudMonths){
+ if(!cloudMonths||typeof cloudMonths!=='object')return;
+ Object.entries(cloudMonths).forEach(([key,value])=>{if(value&&value.rows&&value.totals)P.data[key]=value});
+ P.months=Object.keys(P.data);
+ rebuildGlobal();
+ if(!P.data[current])current=P.months[P.months.length-1];
+ monthSelect.value=current;
+};
+window.dashboardRenderCurrent=function(){
+ if(!P.months.length||!P.data[current])return;
+ switchView(currentView||'monthly');
+};
+if(P.months.length)renderMonthly();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app-check.js";
+import {
+  initializeAuth,
+  browserSessionPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  writeBatch,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_wFryqSMKHU3qzDW7m-w0skAMLBU8CwE",
+  authDomain: "dashboard-cacambas.firebaseapp.com",
+  projectId: "dashboard-cacambas",
+  storageBucket: "dashboard-cacambas.firebasestorage.app",
+  messagingSenderId: "898160892437",
+  appId: "1:898160892437:web:bfecffbec1ce38f7584c1c",
+  measurementId: "G-TP9YT5FKYQ"
+};
+
+const ADMIN_UID = "0j2B3f4xImW7rzADDw2pvFDkhdA2";
+const app = initializeApp(firebaseConfig);
+
+// Firebase App Check com reCAPTCHA Enterprise.
+// Deve ser inicializado antes de acessar Auth ou Firestore.
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider("6Lcr2GItAAAAAC9b0FfbNZNev2teNwj3XoTrygfq"),
+  isTokenAutoRefreshEnabled: true
+});
+
+const auth = initializeAuth(app, {
+  persistence: browserSessionPersistence
+});
+const db = getFirestore(app);
+const AI_WORKER_URL = "https://dashboard-ia.yurisouza0788.workers.dev";
+
+window.firebaseAskExecutiveAI = async payload => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    const error = new Error("Você precisa estar autenticado para utilizar o assistente.");
+    error.code = "unauthenticated";
+    throw error;
+  }
+
+  const idToken = await user.getIdToken();
+
+  const response = await fetch(AI_WORKER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("O servidor da IA retornou uma resposta inválida.");
+  }
+
+  if (!response.ok) {
+    const error = new Error(
+      data?.error || "Não foi possível consultar o assistente executivo."
+    );
+
+    if (response.status === 401) error.code = "unauthenticated";
+    else if (response.status === 429) error.code = "resource-exhausted";
+    else if (response.status === 403) error.code = "permission-denied";
+    else error.code = "internal";
+
+    throw error;
+  }
+
+  return data?.answer || "A IA não retornou conteúdo.";
+};
+
+const $ = id => document.getElementById(id);
+const dashboardShell = $("dashboardShell");
+const authBtn = $("authBtn");
+const importBtn = $("importBtn");
+const cloudStatus = $("cloudStatus");
+const userBadge = $("userBadge");
+const userBadgeEmail = $("userBadgeEmail");
+const userBadgeRole = $("userBadgeRole");
+const authModal = $("authModal");
+const authForm = $("authForm");
+const authEmail = $("authEmail");
+const authPassword = $("authPassword");
+const authError = $("authError");
+const authSubmit = $("authSubmit");
+const authCancel = $("authCancel");
+const loadingOverlay = $("loadingOverlay");
+const loadingTitle = $("loadingTitle");
+const loadingText = $("loadingText");
+
+let currentUser = null;
+let remoteLoaded = false;
+
+function setCloudStatus(text, mode = "") {
+  cloudStatus.className = "cloud-status" + (mode ? " " + mode : "");
+  cloudStatus.querySelector("span").textContent = text;
+}
+
+function isAdmin() {
+  return Boolean(currentUser && currentUser.uid === ADMIN_UID);
+}
+window.firebaseIsAdmin = isAdmin;
+
+function showDashboard(show) {
+  dashboardShell.hidden = !show;
+}
+function setLoading(show,title="Carregando dashboard",text="Aguarde enquanto os dados autorizados são preparados."){
+  if(!loadingOverlay)return; loadingTitle.textContent=title; loadingText.textContent=text; loadingOverlay.classList.toggle("show",Boolean(show));
+}
+
+function openLogin() {
+  authError.textContent = "";
+  authPassword.value = "";
+  authModal.classList.add("open");
+  authModal.setAttribute("aria-hidden", "false");
+  setTimeout(() => authEmail.focus(), 50);
+}
+function closeLogin() {
+  authModal.classList.remove("open");
+  authModal.setAttribute("aria-hidden", "true");
+}
+
+authCancel.addEventListener("click", () => {
+  if (currentUser) closeLogin();
+});
+authModal.addEventListener("click", event => {
+  if (event.target === authModal && currentUser) closeLogin();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && currentUser) closeLogin();
+});
+
+authBtn.addEventListener("click", async () => {
+  if (currentUser) {
+    if (confirm("Deseja sair do dashboard?")) {
+      setLoading(false);
+      showDashboard(false);
+      remoteLoaded = false;
+      await signOut(auth);
+    }
+    return;
+  }
+  openLogin();
+});
+
+authForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  authError.textContent = "";
+  authSubmit.disabled = true;
+  authSubmit.textContent = "Entrando...";
+  try {
+    await setPersistence(auth, browserSessionPersistence);
+    await signInWithEmailAndPassword(auth, authEmail.value.trim(), authPassword.value);
+  } catch (error) {
+    console.error(error);
+    const messages = {
+      "auth/invalid-credential": "E-mail ou senha incorretos.",
+      "auth/user-disabled": "Este usuário foi desativado.",
+      "auth/too-many-requests": "Muitas tentativas. Aguarde um pouco e tente novamente.",
+      "auth/network-request-failed": "Falha de internet ao tentar entrar.",
+      "auth/unauthorized-domain": "Este domínio ainda não está autorizado no Firebase Authentication."
+    };
+    authError.textContent = messages[error.code] || "Não foi possível entrar. Confira os dados e tente novamente.";
+  } finally {
+    authSubmit.disabled = false;
+    authSubmit.textContent = "Entrar";
+  }
+});
+
+function safeMonthPayload(monthData) {
+  return JSON.parse(JSON.stringify(monthData));
+}
+
+window.firebaseSaveMonth = async function(monthKey, monthData, meta = {}) {
+  if (!isAdmin()) throw new Error("Usuário sem permissão para salvar.");
+  if (!navigator.onLine) throw new Error("Sem internet. A importação não foi gravada; tente novamente quando a conexão voltar.");
+
+  setCloudStatus("Salvando na nuvem...", "");
+  const clean = safeMonthPayload(monthData);
+  const totalValue = Number(clean?.totals?.valor || 0);
+  const rowCount = Array.isArray(clean?.rows) ? clean.rows.length : 0;
+  const clientCount = Array.isArray(clean?.clients) ? clean.clients.length : 0;
+
+  const estimatedBytes = new Blob([JSON.stringify(clean)]).size;
+  if (estimatedBytes > 900000) {
+    throw new Error("Este mês ficou grande demais para um único documento do Firebase. Reduza a planilha ou use a versão com linhas separadas.");
+  }
+
+  const batch = writeBatch(db);
+  batch.set(doc(db, "dashboard_months", monthKey), {
+    monthData: clean,
+    label: clean.label || monthKey,
+    rowCount,
+    clientCount,
+    totalValue,
+    updatedByUid: currentUser.uid,
+    updatedByEmail: currentUser.email || "",
+    updatedAt: serverTimestamp()
+  });
+
+  const importId = `${monthKey}_${Date.now()}`;
+  batch.set(doc(db, "dashboard_imports", importId), {
+    monthKey,
+    label: clean.label || monthKey,
+    rowCount,
+    clientCount,
+    totalValue,
+    sourceFile: String(meta.fileName || ""),
+    sourceSheet: String(meta.sheet || ""),
+    ignoredRows: Number(meta.ignored || 0),
+    action: window.dashboardState?.data?.[monthKey] ? "replace" : "create",
+    userUid: currentUser.uid,
+    userEmail: currentUser.email || "",
+    createdAt: serverTimestamp()
+  });
+  await batch.commit();
+  setCloudStatus("Salvo na nuvem", "online");
+};
+
+
+window.firebaseSaveExpenseMonth = async function(monthKey, monthData, meta = {}) {
+  if (!isAdmin()) throw new Error("Usuário sem permissão para salvar despesas.");
+  if (!navigator.onLine) throw new Error("Sem internet. A importação não foi gravada.");
+
+  setCloudStatus("Salvando despesas...", "");
+  const clean = JSON.parse(JSON.stringify(monthData));
+  const estimatedBytes = new Blob([JSON.stringify(clean)]).size;
+  if (estimatedBytes > 900000) {
+    throw new Error("A competência de despesas ultrapassou o limite seguro de um documento. Divida o relatório.");
+  }
+
+  const batch = writeBatch(db);
+  batch.set(doc(db, "expense_months", monthKey), {
+    monthData: clean,
+    label: clean.label || monthKey,
+    rowCount: Array.isArray(clean.records) ? clean.records.length : 0,
+    totalValue: Number(clean.total || 0),
+    updatedByUid: currentUser.uid,
+    updatedByEmail: currentUser.email || "",
+    updatedAt: serverTimestamp()
+  });
+
+  batch.set(doc(db, "expense_imports", `${monthKey}_${Date.now()}`), {
+    monthKey,
+    label: clean.label || monthKey,
+    rowCount: Array.isArray(clean.records) ? clean.records.length : 0,
+    totalValue: Number(clean.total || 0),
+    sourceFile: String(meta.fileName || ""),
+    action: window.expenseDashboardState?.data?.[monthKey] ? "replace" : "create",
+    userUid: currentUser.uid,
+    userEmail: currentUser.email || "",
+    createdAt: serverTimestamp()
+  });
+
+  await batch.commit();
+  setCloudStatus("Despesas salvas", "online");
+};
+
+async function loadCloudExpenses() {
+  if (!currentUser) return;
+  try {
+    const snapshot = await getDocs(collection(db, "expense_months"));
+    const months = {};
+    snapshot.forEach(item => {
+      const data = item.data();
+      if (data?.monthData) months[item.id] = data.monthData;
+    });
+    window.expenseApplyCloudMonths?.(months);
+  } catch (error) {
+    console.error("Falha ao carregar despesas:", error);
+    if (typeof notifyImport === "function") {
+      notifyImport("Faturamento carregado, mas o módulo Despesas não pôde ser sincronizado.", true);
+    }
+  }
+}
+
+async function loadCloudMonths() {
+  if (!currentUser) return;
+  setCloudStatus("Carregando dados...", "");
+  setLoading(true,"Preparando análise executiva","Sincronizando competências, indicadores e patrimônios autorizados.");
+  showDashboard(false);
+  try {
+    const snapshot = await getDocs(collection(db, "dashboard_months"));
+    const months = {};
+    snapshot.forEach(item => {
+      const data = item.data();
+      if (data && data.monthData) months[item.id] = data.monthData;
+    });
+
+    remoteLoaded = true;
+    await loadCloudExpenses();
+    if (Object.keys(months).length) {
+      window.dashboardApplyCloudMonths?.(months);
+      setCloudStatus(`${Object.keys(months).length} mês(es) sincronizado(s)`, "online");
+      showDashboard(true);
+      setLoading(false);
+      closeLogin();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dashboardRenderCurrent?.();
+        window.dispatchEvent(new Event('resize'));
+      }));
+    } else {
+      setCloudStatus("Nenhum mês cadastrado", "online");
+      showDashboard(true);
+      setLoading(false);
+      closeLogin();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dashboardRenderCurrent?.();
+        window.dispatchEvent(new Event('resize'));
+      }));
+      if (typeof notifyImport === "function") notifyImport("Nenhum mês foi encontrado no Firebase. Importe a primeira planilha.");
+    }
+  } catch (error) {
+    console.error("Falha ao carregar Firestore:", error);
+    setCloudStatus("Falha ao carregar dados", "offline");
+    setLoading(false);
+    showDashboard(false);
+    openLogin();
+    authError.textContent = "Não foi possível carregar os dados autorizados. Verifique a internet e tente novamente.";
+  }
+}
+
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  const admin = isAdmin();
+
+  importBtn.disabled = !admin;
+  importBtn.hidden = !admin;
+  importBtn.classList.toggle("viewer-only-hidden", !admin);
+
+  document.querySelectorAll(".admin-only").forEach(element => {
+    element.hidden = !admin;
+  });
+  const expenseImportControl = document.getElementById("expenseImportBtn");
+  if (expenseImportControl) expenseImportControl.disabled = !admin;
+
+  if (!admin && currentView === "alerts") {
+    window.dashboardSwitchView?.("monthly");
+  }
+  importBtn.title = admin ? "Importar e salvar no Firebase" : "Importação disponível somente para o administrador";
+  authBtn.textContent = user ? "Sair" : "Entrar";
+  authBtn.classList.toggle("auth-user", admin);
+
+  userBadge.classList.toggle("show", Boolean(user));
+  userBadgeEmail.textContent = user?.email || "";
+  userBadgeRole.textContent = user ? (admin ? "Administrador" : "Diretoria • somente visualização") : "";
+  userBadge.querySelector(".user-badge-icon").textContent = admin ? "A" : "D";
+
+  if (!user) {
+    setLoading(false);
+    showDashboard(false);
+    setCloudStatus("Aguardando login", "");
+    openLogin();
+    return;
+  }
+
+  if (typeof notifyImport === "function") {
+    notifyImport(admin
+      ? `Acesso autorizado: ${user.email || "administrador"}.`
+      : `Acesso de visualização autorizado: ${user.email || "diretoria"}.`);
+  }
+  await loadCloudMonths();
+});
+
+window.addEventListener("online", () => {
+  if (currentUser && !remoteLoaded) loadCloudMonths();
+  else if (currentUser) setCloudStatus("Conectado ao Firebase", "online");
+});
+window.addEventListener("offline", () => {
+  setCloudStatus("Sem internet", "offline");
+  setLoading(false);
+  showDashboard(false);
+});
+
+await setPersistence(auth, browserSessionPersistence).catch(() => {});
+</script>
+</body></html>
