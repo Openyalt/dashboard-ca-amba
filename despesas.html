@@ -205,7 +205,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
           <input id="expenseSearch" placeholder="Buscar fornecedor, descrição ou histórico">
           <select id="expenseCategoryFilter"><option value="">Todas as categorias</option></select>
           <select id="expenseCostCenterFilter"><option value="">Todos os centros de custo</option></select>
-          <select id="expenseConciliationFilter"><option value="">Toda conciliação</option><option value="Sim">Conciliado</option><option value="Não">Não conciliado</option></select>
+          <select id="expenseConciliationFilter"><option value="">Todos</option><option value="Sim">Conciliado</option><option value="Não">Não conciliado</option></select>
         </div>
       </div>
       <div class="table-wrap"><table><thead><tr><th>Vencimento</th><th>Baixa</th><th>Fornecedor</th><th>Categoria</th><th>Centro de custo</th><th>Banco/Portador</th><th>Conciliação</th><th class="num">Valor</th><th>Status</th></tr></thead><tbody id="expenseRecordsBody"></tbody></table></div>
@@ -322,7 +322,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
     <div><div class="ai-output-head"><span class="ai-output-label">Resposta</span><button class="btn ai-copy" id="copyAiBtn" type="button">Copiar resposta</button></div><div id="aiExecutiveOutput" class="ai-output">Selecione o modo, escreva uma pergunta e clique em “Perguntar”.</div></div>
   </div>
 </section>
-<footer>Dados protegidos no Firebase</footer></main>
+<footer>Dados protegidos • Firebase Authentication • Firestore</footer></main>
 
 <div id="loadingOverlay" class="loading-overlay" aria-live="polite"><div class="loading-card"><div class="loading-spinner"></div><b id="loadingTitle">Carregando dashboard</b><p id="loadingText" class="desc" style="margin:8px 0 0">Aguarde enquanto os dados autorizados são preparados.</p></div></div>
 <div id="authModal" class="auth-modal" aria-hidden="true">
@@ -459,18 +459,21 @@ function renderExpenseSummary(){
   const all=E.months.flatMap(k=>E.data[k].records||[]);
   const accumulated=all.reduce((s,r)=>s+Number(r.valor||0),0);
   const conciliated=rows.filter(r=>String(r.conciliado).toLowerCase()==='sim').reduce((s,r)=>s+Number(r.valor||0),0);
-  const notConciliated=total-conciliated;
   const suppliers=expenseAggregate(rows,'fornecedor'),cats=expenseAggregate(rows,'categoria');
   const idx=E.months.indexOf(key),prev=idx>0?E.data[E.months[idx-1]]:null;
   const change=prev&&prev.total?((total-prev.total)/prev.total*100):null;
   expensePeriodLabel.textContent=`${M.label} • ${rows.length} lançamentos • realizado importado do A2O`;
+  const centersAll=expenseAggregate(rows,'centro_custo');
+  const periodStart=E.months[0] ? E.data[E.months[0]].label : '';
+  const periodEnd=E.months[E.months.length-1] ? E.data[E.months[E.months.length-1]].label : '';
+  const importedPeriod=periodStart&&periodEnd ? `${periodStart} a ${periodEnd}` : `${E.months.length} competência(s)`;
   expenseKpis.innerHTML=[
     ['Despesas do mês',brl(total),change===null?'Sem comparação anterior':`${change>=0?'▲':'▼'} ${pct(Math.abs(change))} vs. mês anterior`],
-    ['Acumulado importado',brl(accumulated),`${E.months.length} competência(s)`],
+    ['Total importado',brl(accumulated),importedPeriod],
     ['Média por lançamento',brl(rows.length?total/rows.length:0),`${rows.length} lançamentos`],
-    ['Maior fornecedor',suppliers[0]?.name||'—',suppliers[0]?brl(suppliers[0].value):'Sem dados'],
-    ['Maior categoria',cats[0]?.name||'—',cats[0]?brl(cats[0].value):'Sem dados'],
-    ['Não conciliado',brl(notConciliated),total?pct(notConciliated/total*100):'0,0%']
+    ['Maior fornecedor',suppliers[0]?.name||'—',suppliers[0]?`${brl(suppliers[0].value)} • ${pct(total?suppliers[0].value/total*100:0)}`:'Sem dados'],
+    ['Maior categoria',cats[0]?.name||'—',cats[0]?`${brl(cats[0].value)} • ${pct(total?cats[0].value/total*100:0)}`:'Sem dados'],
+    ['Maior centro de custo',centersAll[0]?.name||'—',centersAll[0]?`${brl(centersAll[0].value)} • ${pct(total?centersAll[0].value/total*100:0)}`:'Sem dados']
   ].map(x=>`<div class="card expense-kpi"><small>${safeText(x[0])}</small><strong>${safeText(x[1])}</strong><span>${safeText(x[2])}</span></div>`).join('');
   const evolution=E.months.map(k=>({label:E.data[k].label.split(' ')[0].slice(0,3),valor:E.data[k].total}));
   lineChart('expenseEvolutionChart',evolution,'valor','#f58220',v=>'R$ '+Math.round(v/1000)+' mil');
