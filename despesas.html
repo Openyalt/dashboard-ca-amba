@@ -450,7 +450,7 @@ const EXPENSE_ALIASES={
 function expenseFindHeader(rows){
   let best=null;
   for(let i=0;i<Math.min(rows.length,20);i++){
-    const normalized=(rows[i]||[]).map(normKey),map={},score=0;
+    const normalized=(rows[i]||[]).map(normKey),map={};let score=0;
     Object.entries(EXPENSE_ALIASES).forEach(([field,aliases])=>{const ix=normalized.findIndex(v=>aliases.includes(v));if(ix>=0){map[field]=ix;score++}});
     if(!best||score>best.score)best={index:i,map,score};
   }
@@ -1214,4 +1214,4 @@ window.addEventListener("offline", () => {
 
 await setPersistence(auth, browserSessionPersistence).catch(() => {});
 </script>
-</body></html>
+</body></h
