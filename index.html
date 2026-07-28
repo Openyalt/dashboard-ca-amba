@@ -44,15 +44,122 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 /* ===== ETAPA 8 — EXECUTIVO APRIMORADO ===== */
 .comparison-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.comparison-item{padding:14px;background:#0a1d2e;border:1px solid #193b55;border-radius:11px}.comparison-item small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}.comparison-item strong{display:block;margin-top:6px;font-size:18px}.comparison-item span{display:block;margin-top:4px;color:#9db4c7;font-size:11px}.action-alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.action-alert{padding:14px;cursor:pointer;transition:.18s transform,.18s border-color}.action-alert:hover{transform:translateY(-2px);border-color:#3e86cc}.action-alert .action-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.action-alert strong{font-size:20px}.action-alert p{margin:7px 0 10px;color:#a8bdce;font-size:12px}.action-link{font-size:11px;font-weight:800;color:#8fc5ff}.company-modal-card{width:min(1240px,97vw)}.company-header-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.company-section-nav{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}.company-section-nav button{background:#0a1b2b;color:#b9ccdc;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:750}.company-section-nav button.active{background:#245f9d;color:white}.company-detail-section{display:none}.company-detail-section.active{display:block}.company-assets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.company-asset-card{padding:12px;background:#0a1d2e;border:1px solid #193b55;border-radius:10px}.company-asset-card b{display:block}.company-asset-card span{display:block;color:#9db4c7;font-size:11px;margin-top:4px}.status-message{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0a1d2e;color:#c8dbea}.status-message.error{border-left:4px solid var(--red)}.status-message.loading{border-left:4px solid var(--cyan)}.loading-overlay{position:fixed;inset:0;background:rgba(3,12,20,.82);display:none;place-items:center;z-index:180}.loading-overlay.show{display:grid}.loading-card{width:min(420px,90vw);padding:22px;text-align:center;background:#0b1e30;border:1px solid var(--line);border-radius:15px}.loading-spinner{width:34px;height:34px;border:3px solid #24445e;border-top-color:#38bdf8;border-radius:50%;margin:0 auto 13px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:1000px){.comparison-strip,.action-alerts{grid-template-columns:1fr 1fr}.company-assets-grid{grid-template-columns:1fr 1fr}}@media(max-width:650px){.comparison-strip,.action-alerts,.company-assets-grid{grid-template-columns:1fr}}
+
+/* ===== MÓDULO DESPESAS ===== */
+.expense-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px}
+.expense-subtab{padding:8px 12px;border:1px solid var(--line);background:#0a1b2b;color:#b9ccdc;border-radius:9px;cursor:pointer;font-weight:800}
+.expense-subtab.active{background:linear-gradient(90deg,#c95200,#f58220);color:#fff;border-color:#ff9a3c}
+.expense-panel{display:none}.expense-panel.active{display:block}
+.expense-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.expense-kpi{padding:16px;position:relative;overflow:hidden}
+.expense-kpi:before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:var(--blue)}
+.expense-kpi small{display:block;color:var(--muted);text-transform:uppercase;font-size:10px;font-weight:850;letter-spacing:.5px}
+.expense-kpi strong{display:block;font-size:21px;margin-top:7px}
+.expense-kpi span{display:block;color:#8fa8bd;font-size:11px;margin-top:5px}
+.expense-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.expense-filters{display:flex;gap:8px;flex-wrap:wrap}
+.expense-filters input,.expense-filters select{background:#0a1b2b;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.expense-filters input{min-width:260px}
+.expense-summary-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.expense-import-box{padding:18px;border:1px dashed #f58220;border-radius:12px;background:rgba(245,130,32,.06)}
+.expense-import-box h3{margin:0 0 6px}.expense-import-box p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+.expense-status{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:900}
+.expense-status.paid{background:#123f36;color:#7cf3c5}
+.expense-status.open{background:#4b3513;color:#ffd891}
+.expense-status.overdue{background:#4a1c26;color:#ffb8c1}
+.expense-status.conciliated{background:#173f61;color:#bce3ff}
+.expense-status.pending{background:#3c2d18;color:#ffd891}
+.expense-empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+@media(max-width:1180px){.expense-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.expense-summary-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.expense-kpis{grid-template-columns:1fr 1fr}.expense-filters input{min-width:100%;width:100%}}
+
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
 <div class="top"><div class="brand"><h1>Dashboard de Faturamento Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
-<div class="tabs"><button class="tab active" data-view="monthly">Visão mensal</button><button class="tab" data-view="annual">Visão anual</button><button class="tab" data-view="management">Gestão</button><button class="tab" data-view="companies">Empresas</button><button class="tab" data-view="assets">Patrimônio</button><button class="tab" data-view="heatmap">Mapa de calor</button><button class="tab admin-only" data-view="alerts" hidden>Auditoria</button><button class="tab" data-view="report">Relatório</button></div>
+<div class="tabs"><button class="tab active" data-view="monthly">Visão mensal</button><button class="tab" data-view="annual">Visão anual</button><button class="tab" data-view="management">Gestão</button><button class="tab" data-view="expenses">Despesas</button><button class="tab" data-view="companies">Empresas</button><button class="tab" data-view="assets">Patrimônio</button><button class="tab" data-view="heatmap">Mapa de calor</button><button class="tab admin-only" data-view="alerts" hidden>Auditoria</button><button class="tab" data-view="report">Relatório</button></div>
 <section id="monthly" class="view active"><div class="kpis" id="monthlyKpis"></div><div class="section-title"><h2>Ranking e leitura executiva</h2><span id="monthLabel"></span></div><div class="grid2"><div class="card panel"><h3>Ranking de faturamento</h3><div class="desc">Clique em uma barra para abrir a empresa.</div><div id="rankChart" class="chart tall"></div></div><div class="card panel"><h3>Insights do mês</h3><div id="insights" class="insights"></div></div></div>
 <div class="section-title"><h2>Distribuição financeira e operacional</h2><span>Participação por cliente e quantidade de caçambas</span></div><div class="grid-half"><div class="card panel"><h3>Participação no faturamento</h3><div id="pieChart" class="chart"></div><div id="pieLegend" class="legend"></div></div><div class="card panel"><h3>Quantidade de caçambas por cliente</h3><div id="qtyChart" class="chart"></div></div></div>
 <div class="section-title"><h2>Pareto 80/20</h2><span>Receita individual e acumulado percentual</span></div><div class="card panel"><div id="paretoChart" class="chart tall"></div></div>
 <div class="section-title"><h2>Vencimentos</h2><span>Distribuição financeira e operacional por dia</span></div><div class="grid-half"><div class="card panel"><h3>Faturamento por vencimento</h3><div id="dueValue" class="chart small"></div></div><div class="card panel"><h3>Caçambas por vencimento</h3><div id="dueQty" class="chart small"></div></div></div>
 <div class="section-title"><h2>Detalhamento do mês</h2><span>Resumo consolidado por cliente</span></div><div class="card table-card"><div class="toolbar"><b id="tableSummary"></b><div class="filters"><input id="searchClient" placeholder="Buscar cliente, código ou CNPJ"><select id="dueFilter"><option value="">Todos os vencimentos</option></select></div></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Cliente</th><th>Código</th><th>CNPJ</th><th>Venc.</th><th class="num">Caçambas</th><th class="num">Faturamento</th><th class="num">R$/caçamba</th><th class="num">Participação</th></tr></thead><tbody id="monthlyBody"></tbody></table></div></div></section>
 <section id="annual" class="view"><div class="kpis" id="annualKpis"></div><div class="section-title"><h2>Evolução mensal</h2><span>Faturamento, caçambas e variação</span></div><div class="grid-half"><div class="card panel"><h3>Faturamento mês a mês</h3><div id="annualValue" class="chart"></div></div><div class="card panel"><h3>Caçambas mês a mês</h3><div id="annualQty" class="chart"></div></div></div><div class="section-title"><h2>Comparação mensal</h2><span>Indicadores e crescimento</span></div><div class="card table-card"><div class="table-wrap"><table><thead><tr><th>Mês</th><th class="num">Faturamento</th><th class="num">Variação</th><th class="num">Caçambas</th><th class="num">Variação</th><th class="num">Clientes</th><th class="num">R$/caçamba</th></tr></thead><tbody id="annualBody"></tbody></table></div></div></section>
+
+<section id="expenses" class="view">
+  <div class="section-title"><h2>Módulo de Despesas</h2><span id="expensePeriodLabel">Realizado financeiro importado do A2O</span></div>
+  <div class="expense-subnav">
+    <button class="expense-subtab active" data-expense-view="expenseSummary">Resumo</button>
+    <button class="expense-subtab" data-expense-view="expenseRecords">Lançamentos</button>
+    <button class="expense-subtab" data-expense-view="expenseCategories">Categorias</button>
+    <button class="expense-subtab" data-expense-view="expenseSuppliers">Fornecedores</button>
+    <button class="expense-subtab" data-expense-view="expenseDue">Vencimentos</button>
+    <button class="expense-subtab admin-only" data-expense-view="expenseImport" hidden>Importação A2O</button>
+  </div>
+
+  <div id="expenseSummary" class="expense-panel active">
+    <div class="expense-kpis" id="expenseKpis"></div>
+    <div class="section-title"><h2>Evolução e composição</h2><span>Janeiro a junho conforme competências importadas</span></div>
+    <div class="expense-summary-grid">
+      <div class="card panel"><h3>Evolução mensal das despesas</h3><div class="desc">Valor realizado por vencimento.</div><div id="expenseEvolutionChart" class="chart"></div></div>
+      <div class="card panel"><h3>Maiores categorias do mês</h3><div id="expenseCategorySummary" class="insights"></div></div>
+    </div>
+    <div class="section-title"><h2>Leitura operacional</h2><span>Centro de custo, conciliação e fornecedores</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Despesas por centro de custo</h3><div id="expenseCostCenterChart" class="chart"></div></div>
+      <div class="card panel"><h3>Maiores fornecedores</h3><div id="expenseSupplierChart" class="chart"></div></div>
+    </div>
+  </div>
+
+  <div id="expenseRecords" class="expense-panel">
+    <div class="card table-card">
+      <div class="expense-toolbar">
+        <b id="expenseRecordsSummary">Nenhum lançamento carregado</b>
+        <div class="expense-filters">
+          <input id="expenseSearch" placeholder="Buscar fornecedor, descrição ou histórico">
+          <select id="expenseCategoryFilter"><option value="">Todas as categorias</option></select>
+          <select id="expenseCostCenterFilter"><option value="">Todos os centros de custo</option></select>
+          <select id="expenseConciliationFilter"><option value="">Toda conciliação</option><option value="Sim">Conciliado</option><option value="Não">Não conciliado</option></select>
+        </div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Vencimento</th><th>Baixa</th><th>Fornecedor</th><th>Categoria</th><th>Centro de custo</th><th>Banco/Portador</th><th>Conciliação</th><th class="num">Valor</th><th>Status</th></tr></thead><tbody id="expenseRecordsBody"></tbody></table></div>
+    </div>
+  </div>
+
+  <div id="expenseCategories" class="expense-panel">
+    <div class="section-title"><h2>Categorias de despesas</h2><span>Ranking, participação e volume de lançamentos</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Ranking por valor</h3><div id="expenseCategoriesChart" class="chart tall"></div></div>
+      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Categoria</th><th class="num">Lançamentos</th><th class="num">Valor</th><th class="num">Participação</th></tr></thead><tbody id="expenseCategoriesBody"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="expenseSuppliers" class="expense-panel">
+    <div class="section-title"><h2>Fornecedores</h2><span>Concentração, recorrência e valor médio</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Maiores fornecedores</h3><div id="expenseSuppliersChart" class="chart tall"></div></div>
+      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Fornecedor</th><th class="num">Lançamentos</th><th class="num">Valor acumulado</th><th class="num">Média</th><th class="num">Participação</th></tr></thead><tbody id="expenseSuppliersBody"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="expenseDue" class="expense-panel">
+    <div class="expense-kpis" id="expenseDueKpis"></div>
+    <div class="section-title"><h2>Comportamento dos pagamentos</h2><span>Comparação entre vencimento e data de baixa</span></div>
+    <div class="grid-half">
+      <div class="card panel"><h3>Valor por situação de pagamento</h3><div id="expenseDueChart" class="chart"></div></div>
+      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>Situação</th><th class="num">Lançamentos</th><th class="num">Valor</th><th class="num">Participação</th></tr></thead><tbody id="expenseDueBody"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="expenseImport" class="expense-panel admin-only" hidden>
+    <div class="expense-import-box">
+      <h3>Importar relatório de despesas do A2O</h3>
+      <p>Selecione o relatório detalhado em XLSX/XLSM. O sistema valida as colunas, separa os lançamentos por mês de vencimento, mostra uma prévia e grava somente após confirmação.</p>
+      <input id="expenseImportFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv">
+      <button class="btn primary" id="expenseImportBtn" type="button">Selecionar relatório A2O</button>
+      <div id="expenseImportStatus" class="desc" style="margin-top:10px">Somente administradores podem importar ou substituir competências.</div>
+    </div>
+  </div>
+</section>
+
 <section id="companies" class="view"><div class="section-title"><h2>Empresas</h2><span>Histórico acumulado e desempenho mensal</span></div><div class="card table-card"><div class="toolbar"><b id="companiesSummary"></b><div class="filters"><input id="searchCompany" placeholder="Buscar empresa"></div></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Empresa</th><th>CNPJ</th><th class="num">Faturamento acumulado</th><th class="num">Caçambas</th><th class="num">Média mensal</th><th class="num">Meses ativos</th><th class="num">Melhor mês</th></tr></thead><tbody id="companiesBody"></tbody></table></div></div></section>
 <section id="alerts" class="view admin-only" hidden><div class="section-title"><h2>Central de alertas</h2><span>Pendências e inconsistências identificadas na base</span></div><div id="alertsGrid" class="alert-grid"></div></section>
 
@@ -168,6 +275,251 @@ function switchView(v){
   setTimeout(()=>{if(v==='monthly')renderMonthly()},30)
 }
 
+
+
+// ===== MÓDULO DESPESAS =====
+const E={months:[],data:{}};
+let expenseView='expenseSummary';
+
+function expenseDateObject(v){
+  if(!v)return null;
+  if(v instanceof Date&&!isNaN(v))return v;
+  if(typeof v==='number'&&v>20000){return new Date(Date.UTC(1899,11,30)+v*86400000)}
+  const x=String(v).trim();
+  let m=x.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(m)return new Date(Date.UTC(+m[3],+m[2]-1,+m[1]));
+  m=x.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+  if(m)return new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
+  return null;
+}
+function expenseDateText(v){
+  const d=expenseDateObject(v);
+  return d?`${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}`:String(v||'');
+}
+function expenseMonthFromDate(v){
+  const d=expenseDateObject(v);return d?[d.getUTCMonth()+1,d.getUTCFullYear()]:null;
+}
+function expenseDaysBetween(a,b){
+  const A=expenseDateObject(a),B=expenseDateObject(b);
+  return A&&B?Math.round((B-A)/86400000):null;
+}
+function expenseStatus(r){
+  if(r.data_baixa)return 'Pago';
+  const d=expenseDateObject(r.data_vencimento);
+  return d&&d<new Date()?'Vencido':'Em aberto';
+}
+function expensePaymentTiming(r){
+  if(!r.data_baixa)return expenseStatus(r);
+  const days=expenseDaysBetween(r.data_vencimento,r.data_baixa);
+  if(days===null)return 'Pago';
+  if(days<0)return 'Antecipado';
+  if(days===0)return 'No vencimento';
+  return 'Após vencimento';
+}
+function expenseCurrentKey(){
+  if(E.data[current])return current;
+  return E.months[E.months.length-1]||null;
+}
+function expenseRows(key=expenseCurrentKey()){return E.data[key]?.records||[]}
+function expenseAggregate(rows,key){
+  const map=new Map();
+  rows.forEach(r=>{const name=String(r[key]||'Não informado').trim()||'Não informado';const x=map.get(name)||{name,value:0,count:0};x.value+=Number(r.valor||0);x.count++;map.set(name,x)});
+  return [...map.values()].sort((a,b)=>b.value-a.value);
+}
+function rebuildExpenseMonths(){
+  E.months=Object.keys(E.data).sort((a,b)=>{
+    const A=E.data[a],B=E.data[b];
+    return (A.year*12+A.month)-(B.year*12+B.month);
+  });
+}
+function switchExpenseView(id){
+  expenseView=id;
+  document.querySelectorAll('.expense-panel').forEach(x=>x.classList.toggle('active',x.id===id));
+  document.querySelectorAll('.expense-subtab').forEach(x=>x.classList.toggle('active',x.dataset.expenseView===id));
+  renderExpenses();
+}
+document.querySelectorAll('.expense-subtab').forEach(b=>b.addEventListener('click',()=>switchExpenseView(b.dataset.expenseView)));
+
+function renderExpenseEmpty(){
+  expenseKpis.innerHTML='<div class="card expense-empty" style="grid-column:1/-1">Nenhuma despesa foi importada. Entre como administrador e utilize “Importação A2O”.</div>';
+  ['expenseEvolutionChart','expenseCostCenterChart','expenseSupplierChart'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=''});
+  expenseCategorySummary.innerHTML='<div class="expense-empty">Sem dados para análise.</div>';
+}
+function renderExpenseSummary(){
+  const key=expenseCurrentKey();if(!key||!E.data[key])return renderExpenseEmpty();
+  const M=E.data[key],rows=M.records,total=M.total;
+  const all=E.months.flatMap(k=>E.data[k].records||[]);
+  const accumulated=all.reduce((s,r)=>s+Number(r.valor||0),0);
+  const conciliated=rows.filter(r=>String(r.conciliado).toLowerCase()==='sim').reduce((s,r)=>s+Number(r.valor||0),0);
+  const notConciliated=total-conciliated;
+  const suppliers=expenseAggregate(rows,'fornecedor'),cats=expenseAggregate(rows,'categoria');
+  const idx=E.months.indexOf(key),prev=idx>0?E.data[E.months[idx-1]]:null;
+  const change=prev&&prev.total?((total-prev.total)/prev.total*100):null;
+  expensePeriodLabel.textContent=`${M.label} • ${rows.length} lançamentos • realizado importado do A2O`;
+  expenseKpis.innerHTML=[
+    ['Despesas do mês',brl(total),change===null?'Sem comparação anterior':`${change>=0?'▲':'▼'} ${pct(Math.abs(change))} vs. mês anterior`],
+    ['Acumulado importado',brl(accumulated),`${E.months.length} competência(s)`],
+    ['Média por lançamento',brl(rows.length?total/rows.length:0),`${rows.length} lançamentos`],
+    ['Maior fornecedor',suppliers[0]?.name||'—',suppliers[0]?brl(suppliers[0].value):'Sem dados'],
+    ['Maior categoria',cats[0]?.name||'—',cats[0]?brl(cats[0].value):'Sem dados'],
+    ['Não conciliado',brl(notConciliated),total?pct(notConciliated/total*100):'0,0%']
+  ].map(x=>`<div class="card expense-kpi"><small>${safeText(x[0])}</small><strong>${safeText(x[1])}</strong><span>${safeText(x[2])}</span></div>`).join('');
+  const evolution=E.months.map(k=>({label:E.data[k].label.split(' ')[0].slice(0,3),valor:E.data[k].total}));
+  lineChart('expenseEvolutionChart',evolution,'valor','#f58220',v=>'R$ '+Math.round(v/1000)+' mil');
+  const topCats=cats.slice(0,6);
+  expenseCategorySummary.innerHTML=topCats.length?topCats.map((x,i)=>`<div class="insight ${i===0?'warn':''}"><b>${safeText(x.name)}</b>${brl(x.value)} • ${x.count} lançamento(s) • ${pct(total?x.value/total*100:0)}</div>`).join(''):'<div class="expense-empty">Sem categorias.</div>';
+  const centers=expenseAggregate(rows,'centro_custo').slice(0,12);
+  const suppliersTop=suppliers.slice(0,12);
+  if(centers.length)hbars('expenseCostCenterChart',centers.map(x=>({cliente:x.name,valor:x.value})),'valor','#38bdf8',brl,false);
+  else expenseCostCenterChart.innerHTML='';
+  if(suppliersTop.length)hbars('expenseSupplierChart',suppliersTop.map(x=>({cliente:x.name,valor:x.value})),'valor','#22c991',brl,false);
+  else expenseSupplierChart.innerHTML='';
+}
+function renderExpenseRecords(){
+  const rows=expenseRows(),q=(expenseSearch.value||'').toLowerCase(),cat=expenseCategoryFilter.value,cc=expenseCostCenterFilter.value,con=expenseConciliationFilter.value;
+  const filtered=rows.filter(r=>(!q||`${r.fornecedor} ${r.categoria} ${r.historico} ${r.banco}`.toLowerCase().includes(q))&&(!cat||r.categoria===cat)&&(!cc||r.centro_custo===cc)&&(!con||r.conciliado===con));
+  expenseRecordsSummary.textContent=`${filtered.length} lançamento(s) • ${brl(filtered.reduce((s,r)=>s+Number(r.valor||0),0))}`;
+  expenseRecordsBody.innerHTML=filtered.map(r=>{const st=expenseStatus(r);return `<tr><td>${safeText(r.data_vencimento)}</td><td>${safeText(r.data_baixa||'—')}</td><td><b>${safeText(r.fornecedor)}</b></td><td>${safeText(r.categoria)}</td><td>${safeText(r.centro_custo)}</td><td>${safeText(r.banco)}</td><td><span class="expense-status ${String(r.conciliado).toLowerCase()==='sim'?'conciliated':'pending'}">${safeText(r.conciliado||'Não')}</span></td><td class="num"><b>${brl(r.valor)}</b></td><td><span class="expense-status ${st==='Pago'?'paid':st==='Vencido'?'overdue':'open'}">${st}</span></td></tr>`}).join('');
+}
+function updateExpenseFilters(){
+  const rows=expenseRows();
+  const cats=[...new Set(rows.map(r=>r.categoria).filter(Boolean))].sort();
+  const centers=[...new Set(rows.map(r=>r.centro_custo).filter(Boolean))].sort();
+  expenseCategoryFilter.innerHTML='<option value="">Todas as categorias</option>'+cats.map(x=>`<option>${safeText(x)}</option>`).join('');
+  expenseCostCenterFilter.innerHTML='<option value="">Todos os centros de custo</option>'+centers.map(x=>`<option>${safeText(x)}</option>`).join('');
+}
+function renderExpenseCategories(){
+  const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows,'categoria');
+  if(arr.length)hbars('expenseCategoriesChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#f58220',brl,false);
+  else expenseCategoriesChart.innerHTML='';
+  expenseCategoriesBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+}
+function renderExpenseSuppliers(){
+  const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows,'fornecedor');
+  if(arr.length)hbars('expenseSuppliersChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#22c991',brl,false);
+  else expenseSuppliersChart.innerHTML='';
+  expenseSuppliersBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${brl(x.count?x.value/x.count:0)}</td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+}
+function renderExpenseDue(){
+  const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows.map(r=>({...r,situacao:expensePaymentTiming(r)})),'situacao');
+  const late=rows.filter(r=>expensePaymentTiming(r)==='Após vencimento');
+  const onTime=rows.filter(r=>['Antecipado','No vencimento'].includes(expensePaymentTiming(r)));
+  const avgDelay=late.length?late.reduce((s,r)=>s+Math.max(0,expenseDaysBetween(r.data_vencimento,r.data_baixa)||0),0)/late.length:0;
+  const notConciliated=rows.filter(r=>String(r.conciliado).toLowerCase()!=='sim');
+  expenseDueKpis.innerHTML=[
+    ['Pago antecipado/no prazo',brl(onTime.reduce((s,r)=>s+Number(r.valor||0),0)),`${onTime.length} lançamento(s)`],
+    ['Pago após vencimento',brl(late.reduce((s,r)=>s+Number(r.valor||0),0)),`${late.length} lançamento(s)`],
+    ['Atraso médio',`${avgDelay.toLocaleString('pt-BR',{maximumFractionDigits:1})} dia(s)`,'Entre vencimento e baixa'],
+    ['Não conciliado',brl(notConciliated.reduce((s,r)=>s+Number(r.valor||0),0)),`${notConciliated.length} lançamento(s)`],
+    ['Total do mês',brl(total),`${rows.length} lançamento(s)`],
+    ['Conciliação',pct(total?(total-notConciliated.reduce((s,r)=>s+Number(r.valor||0),0))/total*100:0),'Percentual financeiro conciliado']
+  ].map(x=>`<div class="card expense-kpi"><small>${safeText(x[0])}</small><strong>${safeText(x[1])}</strong><span>${safeText(x[2])}</span></div>`).join('');
+  if(arr.length)vbars('expenseDueChart',arr.map(x=>({label:x.name,valor:x.value})),'valor','#9b87f5',v=>'R$ '+Math.round(v/1000)+' mil');
+  else expenseDueChart.innerHTML='';
+  expenseDueBody.innerHTML=arr.map(x=>`<tr><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+}
+function renderExpenses(){
+  if(!E.months.length){renderExpenseEmpty();return}
+  updateExpenseFilters();
+  if(expenseView==='expenseSummary')renderExpenseSummary();
+  if(expenseView==='expenseRecords')renderExpenseRecords();
+  if(expenseView==='expenseCategories')renderExpenseCategories();
+  if(expenseView==='expenseSuppliers')renderExpenseSuppliers();
+  if(expenseView==='expenseDue')renderExpenseDue();
+}
+[expenseSearch,expenseCategoryFilter,expenseCostCenterFilter,expenseConciliationFilter].forEach(el=>el&&el.addEventListener(el.tagName==='INPUT'?'input':'change',renderExpenseRecords));
+
+const EXPENSE_ALIASES={
+  emissao:['DATA EMISSAO'],
+  vencimento:['DATA VENCIMENTO'],
+  previsao:['DATA PREVISAO'],
+  baixa:['DATA BAIXA'],
+  conciliado:['CONCILIADO BANCO','CONCILIADO'],
+  conciliacao:['DATA CONCILIACAO BANCARIA'],
+  fornecedor:['RAZAO SOCIAL PESSOA','FORNECEDOR'],
+  valor:['VALOR A PAGAR','VALOR'],
+  tipo:['TIPO'],
+  categoria:['DESCRICAO REDUZIDA','CATEGORIA'],
+  filial:['RAZAO SOCIAL FILIAL','FILIAL'],
+  centro_custo:['DESCRICAO CENTRO DE CUSTO','CENTRO DE CUSTO'],
+  banco:['DESCRICAO BANCO PORTADOR','BANCO PORTADOR','BANCO'],
+  historico:['HISTORICO']
+};
+function expenseFindHeader(rows){
+  let best=null;
+  for(let i=0;i<Math.min(rows.length,20);i++){
+    const normalized=(rows[i]||[]).map(normKey),map={},score=0;
+    Object.entries(EXPENSE_ALIASES).forEach(([field,aliases])=>{const ix=normalized.findIndex(v=>aliases.includes(v));if(ix>=0){map[field]=ix;score++}});
+    if(!best||score>best.score)best={index:i,map,score};
+  }
+  if(!best||best.score<8)throw new Error('A planilha não possui as colunas esperadas do relatório de despesas A2O.');
+  return best;
+}
+function expenseMapTable(rows){
+  const header=expenseFindHeader(rows),out=[];
+  for(const row of rows.slice(header.index+1)){
+    const g=f=>row[header.map[f]];
+    const value=numBR(g('valor'));
+    if(!value)continue;
+    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('vencimento'));
+    if(!p)continue;
+    out.push({
+      data_emissao:expenseDateText(g('emissao')),
+      data_vencimento:due,
+      data_previsao:expenseDateText(g('previsao')),
+      data_baixa:expenseDateText(g('baixa')),
+      conciliado:textVal(g('conciliado'))||'Não',
+      data_conciliacao:expenseDateText(g('conciliacao')),
+      fornecedor:textVal(g('fornecedor'))||'Não informado',
+      valor:value,
+      tipo:textVal(g('tipo')),
+      categoria:textVal(g('categoria'))||'Não informado',
+      filial:textVal(g('filial'))||'Não informado',
+      centro_custo:textVal(g('centro_custo'))||'Não informado',
+      banco:textVal(g('banco'))||'Não informado',
+      historico:textVal(g('historico')),
+      month:p[0],year:p[1],monthKey:monthKey(p[0],p[1])
+    });
+  }
+  if(!out.length)throw new Error('Nenhum lançamento válido foi encontrado no relatório.');
+  return out;
+}
+function makeExpenseMonth(records,m,y){
+  return{
+    label:monthLabel(m,y),month:m,year:y,records,
+    total:records.reduce((s,r)=>s+Number(r.valor||0),0),
+    count:records.length,
+    conciliatedTotal:records.filter(r=>String(r.conciliado).toLowerCase()==='sim').reduce((s,r)=>s+Number(r.valor||0),0)
+  };
+}
+async function importExpenseFile(file){
+  if(!window.firebaseIsAdmin?.())throw new Error('Somente o administrador pode importar despesas.');
+  const ext=(file.name.split('.').pop()||'').toLowerCase();
+  let tables=[];
+  if(ext==='csv')tables=[{name:'Arquivo',rows:csvRows(await file.text())}];
+  else if(ext==='xlsx'||ext==='xlsm')tables=await xlsxSheets(await file.arrayBuffer());
+  else throw new Error('Formato não aceito. Use XLSX, XLSM ou CSV.');
+  let records=[],errors=[];
+  for(const t of tables){try{const mapped=expenseMapTable(t.rows||[]);if(mapped.length>records.length)records=mapped}catch(e){errors.push(`${t.name}: ${e.message}`)}}
+  if(!records.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada.');
+  const groups=new Map();
+  records.forEach(r=>{if(!groups.has(r.monthKey))groups.set(r.monthKey,[]);groups.get(r.monthKey).push(r)});
+  const preview=[...groups.entries()].sort().map(([k,rs])=>`• ${monthLabel(rs[0].month,rs[0].year)} — ${rs.length} lançamentos — ${brl(rs.reduce((s,r)=>s+r.valor,0))} — ${E.data[k]?'SUBSTITUIR':'CRIAR'}`).join('\n');
+  if(!confirm(`Relatório A2O identificado:\n\n${preview}\n\nDeseja gravar essas competências no Firebase?`))return;
+  if(!window.firebaseSaveExpenseMonth)throw new Error('A conexão com o Firebase ainda não foi carregada.');
+  let i=0;
+  for(const [key,rs] of [...groups.entries()].sort()){
+    expenseImportBtn.textContent=`Salvando ${++i}/${groups.size}...`;
+    const data=makeExpenseMonth(rs,rs[0].month,rs[0].year);
+    await window.firebaseSaveExpenseMonth(key,data,{fileName:file.name});
+    E.data[key]=data;
+  }
+  rebuildExpenseMonths();renderExpenses();
+  notifyImport(`${groups.size} competência(s) de despesas sincronizada(s) com sucesso.`);
+}
+expenseImportBtn.onclick=()=>expenseImportFile.click();
+expenseImportFile.onchange=async()=>{const f=expenseImportFile.files?.[0];if(!f)return;expenseImportBtn.disabled=true;expenseImportBtn.textContent='Importando...';expenseImportStatus.textContent='Validando e preparando os lançamentos...';try{await importExpenseFile(f);expenseImportStatus.textContent='Importação concluída com sucesso.'}catch(e){console.error(e);expenseImportStatus.textContent=e.message||'Falha na importação.';notifyImport(expenseImportStatus.textContent,true)}finally{expenseImportBtn.disabled=false;expenseImportBtn.textContent='Selecionar relatório A2O';expenseImportFile.value=''}};
+// ===== FIM DO MÓDULO DESPESAS =====
 
 // ===== MÓDULOS EXECUTIVOS V3 =====
 function safeDiv(a,b){return b? a/b:0}
@@ -435,7 +787,16 @@ async function importDashboardFile(file){
 importBtn.onclick=()=>importFile.click();importFile.onchange=async()=>{const f=importFile.files&&importFile.files[0];if(!f)return;importBtn.disabled=true;importBtn.textContent='Importando...';try{await importDashboardFile(f)}catch(e){console.error(e);notifyImport(e&&e.message?e.message:'Falha ao importar o arquivo.',true)}finally{importBtn.disabled=false;importBtn.textContent='Importar Excel / TXT';importFile.value=''}};
 // ===== FIM DO IMPORTADOR =====
 
-P.months.forEach(m=>monthSelect.insertAdjacentHTML('beforeend',`<option value="${m}">${P.data[m].label}</option>`));monthSelect.value=current;monthSelect.onchange=e=>{current=e.target.value;renderMonthly();if(currentView==='management')renderManagement();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='report')renderReport()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));searchClient.oninput=renderMonthlyTable;dueFilter.onchange=renderMonthlyTable;searchCompany.oninput=renderCompanies;closeModal.onclick=()=>companyModal.classList.remove('open');companyModal.onclick=e=>{if(e.target===companyModal)companyModal.classList.remove('open')};fullscreenBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();let rt;window.onresize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!P.months.length)return;if(currentView==='monthly')renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='assets')renderAssets();},180)};
+P.months.forEach(m=>monthSelect.insertAdjacentHTML('beforeend',`<option value="${m}">${P.data[m].label}</option>`));monthSelect.value=current;monthSelect.onchange=e=>{current=e.target.value;renderMonthly();if(currentView==='management')renderManagement();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='report')renderReport()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));searchClient.oninput=renderMonthlyTable;dueFilter.onchange=renderMonthlyTable;searchCompany.oninput=renderCompanies;closeModal.onclick=()=>companyModal.classList.remove('open');companyModal.onclick=e=>{if(e.target===companyModal)companyModal.classList.remove('open')};fullscreenBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();let rt;window.onresize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!P.months.length)return;if(currentView==='monthly')renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();},180)};
+
+window.expenseDashboardState=E;
+window.expenseApplyCloudMonths=function(cloudMonths){
+  E.data={};
+  Object.entries(cloudMonths||{}).forEach(([key,value])=>{if(value?.records)E.data[key]=value});
+  rebuildExpenseMonths();
+  if(currentView==='expenses')renderExpenses();
+};
+
 window.dashboardState=P;
 window.dashboardApplyCloudMonths=function(cloudMonths){
  if(!cloudMonths||typeof cloudMonths!=='object')return;
@@ -692,6 +1053,63 @@ window.firebaseSaveMonth = async function(monthKey, monthData, meta = {}) {
   setCloudStatus("Salvo na nuvem", "online");
 };
 
+
+window.firebaseSaveExpenseMonth = async function(monthKey, monthData, meta = {}) {
+  if (!isAdmin()) throw new Error("Usuário sem permissão para salvar despesas.");
+  if (!navigator.onLine) throw new Error("Sem internet. A importação não foi gravada.");
+
+  setCloudStatus("Salvando despesas...", "");
+  const clean = JSON.parse(JSON.stringify(monthData));
+  const estimatedBytes = new Blob([JSON.stringify(clean)]).size;
+  if (estimatedBytes > 900000) {
+    throw new Error("A competência de despesas ultrapassou o limite seguro de um documento. Divida o relatório.");
+  }
+
+  const batch = writeBatch(db);
+  batch.set(doc(db, "expense_months", monthKey), {
+    monthData: clean,
+    label: clean.label || monthKey,
+    rowCount: Array.isArray(clean.records) ? clean.records.length : 0,
+    totalValue: Number(clean.total || 0),
+    updatedByUid: currentUser.uid,
+    updatedByEmail: currentUser.email || "",
+    updatedAt: serverTimestamp()
+  });
+
+  batch.set(doc(db, "expense_imports", `${monthKey}_${Date.now()}`), {
+    monthKey,
+    label: clean.label || monthKey,
+    rowCount: Array.isArray(clean.records) ? clean.records.length : 0,
+    totalValue: Number(clean.total || 0),
+    sourceFile: String(meta.fileName || ""),
+    action: window.expenseDashboardState?.data?.[monthKey] ? "replace" : "create",
+    userUid: currentUser.uid,
+    userEmail: currentUser.email || "",
+    createdAt: serverTimestamp()
+  });
+
+  await batch.commit();
+  setCloudStatus("Despesas salvas", "online");
+};
+
+async function loadCloudExpenses() {
+  if (!currentUser) return;
+  try {
+    const snapshot = await getDocs(collection(db, "expense_months"));
+    const months = {};
+    snapshot.forEach(item => {
+      const data = item.data();
+      if (data?.monthData) months[item.id] = data.monthData;
+    });
+    window.expenseApplyCloudMonths?.(months);
+  } catch (error) {
+    console.error("Falha ao carregar despesas:", error);
+    if (typeof notifyImport === "function") {
+      notifyImport("Faturamento carregado, mas o módulo Despesas não pôde ser sincronizado.", true);
+    }
+  }
+}
+
 async function loadCloudMonths() {
   if (!currentUser) return;
   setCloudStatus("Carregando dados...", "");
@@ -706,6 +1124,7 @@ async function loadCloudMonths() {
     });
 
     remoteLoaded = true;
+    await loadCloudExpenses();
     if (Object.keys(months).length) {
       window.dashboardApplyCloudMonths?.(months);
       setCloudStatus(`${Object.keys(months).length} mês(es) sincronizado(s)`, "online");
@@ -748,6 +1167,8 @@ onAuthStateChanged(auth, async user => {
   document.querySelectorAll(".admin-only").forEach(element => {
     element.hidden = !admin;
   });
+  const expenseImportControl = document.getElementById("expenseImportBtn");
+  if (expenseImportControl) expenseImportControl.disabled = !admin;
 
   if (!admin && currentView === "alerts") {
     window.dashboardSwitchView?.("monthly");
