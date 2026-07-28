@@ -74,6 +74,92 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 @media(max-width:900px){.expense-summary-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.expense-kpis{grid-template-columns:1fr 1fr}.expense-filters input{min-width:100%;width:100%}}
 
+
+/* ===== REFINO EXECUTIVO - CATEGORIAS E FORNECEDORES ===== */
+.expense-categories-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) minmax(320px,.8fr);
+  gap:16px;
+  align-items:stretch;
+}
+.top-category-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:14px;
+  max-height:none;
+  overflow:visible;
+}
+.top-category-card{
+  padding:14px 14px 13px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(17,42,64,.96),rgba(11,29,46,.96));
+}
+.top-category-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.top-category-rank{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:28px;
+  height:28px;
+  border-radius:8px;
+  background:rgba(245,130,32,.16);
+  color:#ffb36f;
+  font-weight:900;
+}
+.top-category-name{
+  flex:1;
+  min-width:0;
+  font-weight:900;
+  line-height:1.25;
+}
+.top-category-share{
+  font-size:12px;
+  color:#ffb36f;
+  font-weight:900;
+  white-space:nowrap;
+}
+.top-category-bar{
+  height:8px;
+  border-radius:999px;
+  background:#0a1b2b;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.05);
+}
+.top-category-bar > span{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#f58220,#ffb35d);
+}
+.top-category-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:11px;
+}
+.top-category-meta b{
+  color:var(--text);
+}
+.category-detail-table{
+  margin-top:16px;
+}
+.category-detail-table .table-wrap{
+  max-height:360px;
+}
+@media(max-width:1050px){
+  .expense-categories-layout{grid-template-columns:1fr}
+}
+
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
 <div class="top"><div class="brand"><h1>Módulo de Despesas<br>Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
 <div class="tabs">
@@ -128,9 +214,29 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 
   <div id="expenseCategories" class="expense-panel">
     <div class="section-title"><h2>Categorias de despesas</h2><span>Ranking, participação e volume de lançamentos</span></div>
-    <div class="grid-half">
-      <div class="card panel"><h3>Ranking por valor</h3><div id="expenseCategoriesChart" class="chart tall"></div></div>
-      <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Categoria</th><th class="num">Lançamentos</th><th class="num">Valor</th><th class="num">Participação</th></tr></thead><tbody id="expenseCategoriesBody"></tbody></table></div></div>
+    <div class="expense-categories-layout">
+      <div class="card panel">
+        <h3>Ranking por valor</h3>
+        <div class="desc">Principais categorias do mês selecionado.</div>
+        <div id="expenseCategoriesChart" class="chart tall"></div>
+      </div>
+      <div class="card panel">
+        <h3>Top categorias</h3>
+        <div class="desc">Participação, valor e quantidade de lançamentos.</div>
+        <div id="expenseTopCategories" class="top-category-list"></div>
+      </div>
+    </div>
+    <div class="card table-card category-detail-table">
+      <div class="expense-toolbar">
+        <b>Detalhamento completo das categorias</b>
+        <span class="desc">Todas as categorias do mês, em ordem de valor</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Categoria</th><th class="num">Lançamentos</th><th class="num">Valor</th><th class="num">Participação</th></tr></thead>
+          <tbody id="expenseCategoriesBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -392,13 +498,46 @@ function updateExpenseFilters(){
 }
 function renderExpenseCategories(){
   const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows,'categoria');
-  if(arr.length)hbars('expenseCategoriesChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#f58220',brl,false);
-  else expenseCategoriesChart.innerHTML='';
+
+  if(arr.length){
+    hbars(
+      'expenseCategoriesChart',
+      arr.slice(0,15).map(x=>({cliente:x.name,valor:x.value})),
+      'valor',
+      '#f58220',
+      brl,
+      false
+    );
+  }else{
+    expenseCategoriesChart.innerHTML='';
+  }
+
+  const medals=['🥇','🥈','🥉'];
+  const top=arr.slice(0,6);
+  expenseTopCategories.innerHTML=top.length
+    ? top.map((x,i)=>{
+        const share=total?x.value/total*100:0;
+        const relative=top[0]?.value?x.value/top[0].value*100:0;
+        return `<div class="top-category-card">
+          <div class="top-category-head">
+            <span class="top-category-rank">${medals[i]||i+1}</span>
+            <div class="top-category-name">${safeText(x.name)}</div>
+            <span class="top-category-share">${pct(share)}</span>
+          </div>
+          <div class="top-category-bar"><span style="width:${Math.max(relative,4).toFixed(1)}%"></span></div>
+          <div class="top-category-meta">
+            <span><b>${brl(x.value)}</b></span>
+            <span>${n0(x.count)} lançamento(s)</span>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="expense-empty">Sem categorias para o período.</div>';
+
   expenseCategoriesBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
 }
 function renderExpenseSuppliers(){
   const rows=expenseRows(),total=rows.reduce((s,r)=>s+Number(r.valor||0),0),arr=expenseAggregate(rows,'fornecedor');
-  if(arr.length)hbars('expenseSuppliersChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#22c991',brl,false);
+  if(arr.length)hbars('expenseSuppliersChart',arr.slice(0,10).map(x=>({cliente:x.name,valor:x.value})),'valor','#22c991',brl,false);
   else expenseSuppliersChart.innerHTML='';
   expenseSuppliersBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num"><b>${brl(x.value)}</b></td><td class="num">${brl(x.count?x.value/x.count:0)}</td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
 }
