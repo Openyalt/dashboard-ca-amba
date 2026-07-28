@@ -506,11 +506,14 @@ async function importExpenseFile(file){
   if(!records.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada.');
   const groups=new Map();
   records.forEach(r=>{if(!groups.has(r.monthKey))groups.set(r.monthKey,[]);groups.get(r.monthKey).push(r)});
-  const preview=[...groups.entries()].sort().map(([k,rs])=>`• ${monthLabel(rs[0].month,rs[0].year)} — ${rs.length} lançamentos — ${brl(rs.reduce((s,r)=>s+r.valor,0))} — ${E.data[k]?'SUBSTITUIR':'CRIAR'}`).join('\n');
+  const orderedGroups=[...groups.entries()].sort(([,a],[,b])=>
+    (a[0].year*12+a[0].month)-(b[0].year*12+b[0].month)
+  );
+  const preview=orderedGroups.map(([k,rs])=>`• ${monthLabel(rs[0].month,rs[0].year)} — ${rs.length} lançamentos — ${brl(rs.reduce((s,r)=>s+r.valor,0))} — ${E.data[k]?'SUBSTITUIR':'CRIAR'}`).join('\n');
   if(!confirm(`Relatório A2O identificado:\n\n${preview}\n\nDeseja gravar essas competências no Firebase?`))return;
   if(!window.firebaseSaveExpenseMonth)throw new Error('A conexão com o Firebase ainda não foi carregada.');
   let i=0;
-  for(const [key,rs] of [...groups.entries()].sort()){
+  for(const [key,rs] of orderedGroups){
     expenseImportBtn.textContent=`Salvando ${++i}/${groups.size}...`;
     const data=makeExpenseMonth(rs,rs[0].month,rs[0].year);
     await window.firebaseSaveExpenseMonth(key,data,{fileName:file.name});
@@ -1214,4 +1217,4 @@ window.addEventListener("offline", () => {
 
 await setPersistence(auth, browserSessionPersistence).catch(() => {});
 </script>
-</body></h
+</body></html>
