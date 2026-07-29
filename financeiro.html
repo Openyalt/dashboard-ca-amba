@@ -432,7 +432,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
   <div id="financeImport" class="finance-panel admin-only" hidden>
     <div class="finance-import">
       <h3>Importar Contas a Receber do A2O</h3>
-      <p>Selecione o relatório detalhado de recebíveis. O sistema identifica registros recebidos, em aberto e vencidos pela Data de Baixa e Data de Vencimento. A gravação ocorre somente após confirmação.</p>
+      <p>Selecione o relatório detalhado de recebíveis. Títulos anteriores ao período serão preservados como saldo anterior da carteira, enquanto os gráficos e comparativos seguirão as competências de janeiro em diante. Entradas realizadas são classificadas pela Data de Baixa.</p>
       <input id="receivableImportFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv">
       <button id="receivableImportBtn" class="btn primary" type="button">Selecionar relatório de recebíveis</button>
       <div id="receivableImportStatus" class="desc" style="margin-top:10px">Coleções utilizadas: receivable_months e receivable_imports.</div>
@@ -677,10 +677,34 @@ function financeRecordStatus(r){
 }
 function allReceivableRows(){return R.months.flatMap(k=>R.data[k]?.records||[])}
 function financeAvailableKeys(){
-  return [...new Set([...E.months,...R.months])].sort((a,b)=>{
+  // O período executivo acompanha as competências operacionais já importadas
+  // em Despesas. Recebíveis antigos continuam na carteira, mas não viram
+  // meses extras nos gráficos de janeiro a junho.
+  const baseKeys=E.months.length ? [...E.months] : [...R.months];
+  return baseKeys.sort((a,b)=>{
     const A=E.data[a]||R.data[a],B=E.data[b]||R.data[b];
     return (A.year*12+A.month)-(B.year*12+B.month);
   });
+}
+function financePeriodBounds(){
+  const keys=financeAvailableKeys();
+  if(!keys.length)return {start:null,end:null,startIndex:null,endIndex:null};
+  const first=E.data[keys[0]]||R.data[keys[0]];
+  const last=E.data[keys[keys.length-1]]||R.data[keys[keys.length-1]];
+  return {
+    start:keys[0],
+    end:keys[keys.length-1],
+    startIndex:first.year*12+first.month,
+    endIndex:last.year*12+last.month
+  };
+}
+function financeRecordDueIndex(record){
+  const p=expenseMonthFromDate(record.data_vencimento);
+  return p ? p[1]*12+p[0] : null;
+}
+function financeRecordPaymentIndex(record){
+  const p=expenseMonthFromDate(record.data_baixa);
+  return p ? p[1]*12+p[0] : null;
 }
 function financeCurrentKey(){
   const keys=financeAvailableKeys();
@@ -692,11 +716,26 @@ function financeMonthStats(key){
   const allIncome=allReceivableRows();
   const receivedRows=allIncome.filter(r=>financeMonthKeyFromDate(r.data_baixa)===key);
   const dueRows=R.data[key]?.records||[];
+  const selected=E.data[key]||R.data[key];
+  const selectedIndex=selected ? selected.year*12+selected.month : null;
+
+  // Carteira em aberto até o fim da competência selecionada.
+  // Aqui entram também títulos antigos que ainda não foram baixados.
+  const portfolioRows=allIncome.filter(r=>{
+    if(r.data_baixa)return false;
+    const dueIndex=financeRecordDueIndex(r);
+    return dueIndex!==null && selectedIndex!==null && dueIndex<=selectedIndex;
+  });
+
   const received=receivedRows.reduce((s,r)=>s+Number(r.valor||0),0);
   const expenses=expenseRows.reduce((s,r)=>s+Number(r.valor||0),0);
   const open=dueRows.filter(r=>financeRecordStatus(r)==='Em aberto').reduce((s,r)=>s+Number(r.valor||0),0);
-  const overdue=dueRows.filter(r=>financeRecordStatus(r)==='Vencido').reduce((s,r)=>s+Number(r.valor||0),0);
-  return {key,received,expenses,balance:received-expenses,open,overdue,receivedRows,expenseRows,dueRows};
+  const overdue=portfolioRows.reduce((s,r)=>s+Number(r.valor||0),0);
+
+  return {
+    key,received,expenses,balance:received-expenses,open,overdue,
+    receivedRows,expenseRows,dueRows,portfolioRows
+  };
 }
 function financeSeries(){
   return financeAvailableKeys().map(key=>{
@@ -738,7 +777,7 @@ function renderFinanceSummary(){
     financeKpi('Saldo do mês',brl(s.balance),s.balance>=0?'Caixa positivo':'Caixa negativo','balance'),
     financeKpi('Margem de caixa',pct(margin),s.received?'Saldo ÷ entradas':'Sem entradas realizadas','balance'),
     financeKpi('A receber',brl(s.open),`${s.dueRows.filter(r=>financeRecordStatus(r)==='Em aberto').length} lançamento(s)`,'income'),
-    financeKpi('Recebíveis vencidos',brl(s.overdue),`${s.dueRows.filter(r=>financeRecordStatus(r)==='Vencido').length} lançamento(s)`,'expense')
+    financeKpi('Carteira vencida',brl(s.overdue),`${s.portfolioRows.length} título(s) em atraso até a competência`,'expense')
   ].join('');
 
   const max=Math.max(...series.flatMap(x=>[x.received,x.expenses]),1);
@@ -938,8 +977,31 @@ async function importReceivables(file){
   if(!records.length)throw new Error(errors.join(' | ')||'Nenhuma aba compatível foi encontrada.');
   const groups=new Map();records.forEach(r=>{if(!groups.has(r.monthKey))groups.set(r.monthKey,[]);groups.get(r.monthKey).push(r)});
   const ordered=[...groups.entries()].sort(([,a],[,b])=>(a[0].year*12+a[0].month)-(b[0].year*12+b[0].month));
-  const preview=ordered.map(([k,rs])=>`• ${monthLabel(rs[0].month,rs[0].year)} — ${rs.length} lançamento(s) — ${brl(rs.reduce((a,r)=>a+r.valor,0))} — ${R.data[k]?'SUBSTITUIR':'CRIAR'}`).join('\n');
-  if(!confirm(`Contas a Receber identificadas:\n\n${preview}\n\nDeseja gravar essas competências no Firebase?`))return;
+
+  const bounds=financePeriodBounds();
+  const priorGroups=[],periodGroups=[],futureGroups=[];
+  ordered.forEach(entry=>{
+    const rs=entry[1],idx=rs[0].year*12+rs[0].month;
+    if(bounds.startIndex!==null && idx<bounds.startIndex)priorGroups.push(entry);
+    else if(bounds.endIndex!==null && idx>bounds.endIndex)futureGroups.push(entry);
+    else periodGroups.push(entry);
+  });
+
+  const previewLines=[];
+  if(priorGroups.length){
+    const priorRows=priorGroups.flatMap(([,rs])=>rs);
+    previewLines.push(`• Saldo anterior ao período — ${priorRows.length} lançamento(s) — ${brl(priorRows.reduce((a,r)=>a+r.valor,0))} — MANTER NA CARTEIRA`);
+  }
+  periodGroups.forEach(([k,rs])=>{
+    previewLines.push(`• ${monthLabel(rs[0].month,rs[0].year)} — ${rs.length} lançamento(s) — ${brl(rs.reduce((a,r)=>a+r.valor,0))} — ${R.data[k]?'SUBSTITUIR':'CRIAR'}`);
+  });
+  if(futureGroups.length){
+    const futureRows=futureGroups.flatMap(([,rs])=>rs);
+    previewLines.push(`• Após o período analisado — ${futureRows.length} lançamento(s) — ${brl(futureRows.reduce((a,r)=>a+r.valor,0))} — MANTER COMO PREVISÃO`);
+  }
+
+  const preview=previewLines.join('\n');
+  if(!confirm(`Contas a Receber identificadas:\n\n${preview}\n\nOs títulos anteriores serão preservados como saldo anterior, mas os gráficos começarão em ${bounds.startIndex!==null?(E.data[bounds.start]||R.data[bounds.start]).label:'janeiro'}.\n\nDeseja gravar no Firebase?`))return;
   let i=0;
   for(const [key,rs] of ordered){
     receivableImportBtn.textContent=`Salvando ${++i}/${ordered.length}...`;
