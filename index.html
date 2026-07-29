@@ -44,6 +44,43 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 /* ===== ETAPA 8 — EXECUTIVO APRIMORADO ===== */
 .comparison-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.comparison-item{padding:14px;background:#0a1d2e;border:1px solid #193b55;border-radius:11px}.comparison-item small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}.comparison-item strong{display:block;margin-top:6px;font-size:18px}.comparison-item span{display:block;margin-top:4px;color:#9db4c7;font-size:11px}.action-alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.action-alert{padding:14px;cursor:pointer;transition:.18s transform,.18s border-color}.action-alert:hover{transform:translateY(-2px);border-color:#3e86cc}.action-alert .action-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.action-alert strong{font-size:20px}.action-alert p{margin:7px 0 10px;color:#a8bdce;font-size:12px}.action-link{font-size:11px;font-weight:800;color:#8fc5ff}.company-modal-card{width:min(1240px,97vw)}.company-header-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.company-section-nav{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}.company-section-nav button{background:#0a1b2b;color:#b9ccdc;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:750}.company-section-nav button.active{background:#245f9d;color:white}.company-detail-section{display:none}.company-detail-section.active{display:block}.company-assets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.company-asset-card{padding:12px;background:#0a1d2e;border:1px solid #193b55;border-radius:10px}.company-asset-card b{display:block}.company-asset-card span{display:block;color:#9db4c7;font-size:11px;margin-top:4px}.status-message{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0a1d2e;color:#c8dbea}.status-message.error{border-left:4px solid var(--red)}.status-message.loading{border-left:4px solid var(--cyan)}.loading-overlay{position:fixed;inset:0;background:rgba(3,12,20,.82);display:none;place-items:center;z-index:180}.loading-overlay.show{display:grid}.loading-card{width:min(420px,90vw);padding:22px;text-align:center;background:#0b1e30;border:1px solid var(--line);border-radius:15px}.loading-spinner{width:34px;height:34px;border:3px solid #24445e;border-top-color:#38bdf8;border-radius:50%;margin:0 auto 13px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:1000px){.comparison-strip,.action-alerts{grid-template-columns:1fr 1fr}.company-assets-grid{grid-template-columns:1fr 1fr}}@media(max-width:650px){.comparison-strip,.action-alerts,.company-assets-grid{grid-template-columns:1fr}}
+
+/* ===== ASSISTENTE PREMIUM ===== */
+.ai-box{overflow:hidden}
+.ai-premium-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border-radius:999px;background:rgba(245,130,32,.12);border:1px solid rgba(245,130,32,.38);color:#ffb36f;font-size:11px;font-weight:900}
+.ai-capabilities{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 2px}
+.ai-capability{border:1px solid var(--line);background:#0a1b2b;color:#b9ccdc;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer}
+.ai-capability:hover{border-color:#f58220;color:#fff}
+.ai-result-shell{display:none;gap:14px;margin-top:12px}
+.ai-result-shell.show{display:grid}
+.ai-answer-card,.ai-sources-card,.ai-images-card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(17,42,64,.96),rgba(9,25,40,.98));border-radius:13px;padding:17px}
+.ai-answer-card{line-height:1.65;font-size:14px}
+.ai-answer-card h2,.ai-answer-card h3{margin:16px 0 8px;color:#fff}
+.ai-answer-card h2:first-child,.ai-answer-card h3:first-child{margin-top:0}
+.ai-answer-card p{margin:0 0 12px}
+.ai-answer-card ul,.ai-answer-card ol{margin:6px 0 14px;padding-left:22px}
+.ai-answer-card li{margin:4px 0}
+.ai-answer-card strong{color:#fff}
+.ai-answer-card a{color:#62b4ff;text-decoration:none;word-break:break-word}
+.ai-answer-card a:hover{text-decoration:underline}
+.ai-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.ai-section-title h4{margin:0;font-size:13px}
+.ai-search-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:#123f36;color:#7cf3c5;font-size:10px;font-weight:900}
+.ai-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ai-source{display:block;border:1px solid var(--line);background:#0a1b2b;border-radius:10px;padding:11px;text-decoration:none;min-width:0}
+.ai-source:hover{border-color:#f58220;transform:translateY(-1px)}
+.ai-source-title{display:block;color:#fff;font-weight:900;font-size:12px;line-height:1.35}
+.ai-source-domain{display:block;color:var(--muted);font-size:10px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-image-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.ai-image-link{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#0a1b2b;aspect-ratio:16/10}
+.ai-image-link img{width:100%;height:100%;object-fit:cover;display:block}
+.ai-empty-note{color:var(--muted);font-size:12px}
+.ai-loading-bars{display:flex;gap:5px;align-items:center;justify-content:center;min-height:100px}
+.ai-loading-bars span{width:7px;height:28px;border-radius:999px;background:#f58220;animation:aiWave 1s ease-in-out infinite}
+.ai-loading-bars span:nth-child(2){animation-delay:.12s}.ai-loading-bars span:nth-child(3){animation-delay:.24s}
+@keyframes aiWave{0%,100%{transform:scaleY(.35);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+@media(max-width:800px){.ai-source-grid{grid-template-columns:1fr}.ai-image-grid{grid-template-columns:repeat(2,1fr)}}
+
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
 <div class="top"><div class="brand"><h1>Dashboard de Faturamento Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><a class="btn primary" href="despesas.html" style="text-decoration:none;display:inline-flex;align-items:center">Abrir Despesas</a><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
 <div class="tabs"><button class="tab active" data-view="monthly">Visão mensal</button><button class="tab" data-view="annual">Visão anual</button><button class="tab" data-view="management">Gestão</button><button class="tab" data-view="companies">Empresas</button><button class="tab" data-view="assets">Patrimônio</button><button class="tab" data-view="heatmap">Mapa de calor</button><button class="tab admin-only" data-view="alerts" hidden>Auditoria</button><button class="tab" data-view="report">Relatório</button></div>
@@ -88,7 +125,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
   <div class="card panel"><div class="action-row" style="margin-bottom:12px"><button class="btn primary" id="copyReportBtn">Copiar relatório</button><button class="btn" id="downloadReportBtn">Baixar TXT</button><button class="btn" onclick="window.print()">Imprimir / PDF</button></div><div id="executiveReport" class="report-box"></div></div>
   <div class="section-title"><h2>Assistente Executivo</h2><span>Analise o painel ou faça perguntas profissionais gerais</span></div>
   <div class="card panel ai-box">
-    <div class="ai-head"><div><h3 style="margin:0 0 4px">Assistente com Gemini</h3><div class="ai-status" id="aiStatus">Acesso protegido por login do Firebase e Cloudflare Worker. A chave da IA não fica no HTML.</div></div></div>
+    <div class="ai-head"><div><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><h3 style="margin:0">Assistente Executivo</h3><span class="ai-premium-badge">Pesquisa web + IA</span></div><div class="ai-status" id="aiStatus" style="margin-top:5px">Acesso protegido por login do Firebase e Cloudflare Worker.</div></div></div>
     <div class="ai-controls">
       <div class="ai-modes" role="radiogroup" aria-label="Modo do assistente">
         <label class="ai-mode"><input type="radio" name="aiMode" value="dashboard" checked> Analista do Dashboard</label>
@@ -102,9 +139,29 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
         <button class="ai-chip" type="button" data-ai-question="Compare o mês selecionado com o mês anterior e destaque os pontos principais.">Comparar períodos</button>
         <button class="ai-chip" type="button" data-ai-question="Prepare um resumo objetivo para apresentar em uma reunião de diretoria.">Resumo para reunião</button>
       </div>
+      <div class="ai-capabilities" id="aiCapabilities">
+        <button class="ai-capability" type="button" data-ai-mode="general" data-ai-question="Localize esta empresa e informe endereço, telefone, horário, site e fontes: ">📍 Localizar empresa</button>
+        <button class="ai-capability" type="button" data-ai-mode="general" data-ai-question="Pesquise as notícias mais recentes sobre: ">📰 Notícias recentes</button>
+        <button class="ai-capability" type="button" data-ai-mode="general" data-ai-question="Pesquise e compare informações atualizadas sobre: ">🌐 Pesquisa completa</button>
+        <button class="ai-capability" type="button" data-ai-mode="general" data-ai-question="Encontre o site oficial, contatos e informações públicas desta empresa: ">🏢 Consultar empresa</button>
+      </div>
       <div class="ai-footer"><div class="ai-disclaimer">Não informe senhas, dados bancários ou informações pessoais sensíveis. O contexto enviado contém somente indicadores autorizados.</div><button class="btn primary" id="askAiBtn" type="button">Perguntar</button></div>
     </div>
-    <div><div class="ai-output-head"><span class="ai-output-label">Resposta</span><button class="btn ai-copy" id="copyAiBtn" type="button">Copiar resposta</button></div><div id="aiExecutiveOutput" class="ai-output">Selecione o modo, escreva uma pergunta e clique em “Perguntar”.</div></div>
+    <div>
+      <div class="ai-output-head"><span class="ai-output-label">Resposta</span><button class="btn ai-copy" id="copyAiBtn" type="button">Copiar resposta</button></div>
+      <div id="aiExecutiveOutput" class="ai-output">Selecione o modo, escreva uma pergunta e clique em “Perguntar”.</div>
+      <div id="aiPremiumResult" class="ai-result-shell">
+        <div id="aiAnswerCard" class="ai-answer-card"></div>
+        <div id="aiImagesCard" class="ai-images-card" hidden>
+          <div class="ai-section-title"><h4>Imagens encontradas</h4><span class="ai-search-pill">Pesquisa web</span></div>
+          <div id="aiImageGrid" class="ai-image-grid"></div>
+        </div>
+        <div id="aiSourcesCard" class="ai-sources-card" hidden>
+          <div class="ai-section-title"><h4>Fontes consultadas</h4><span id="aiSourceCount" class="ai-search-pill"></span></div>
+          <div id="aiSourceGrid" class="ai-source-grid"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 <footer>Dados protegidos no Firebase</footer></main>
@@ -259,21 +316,114 @@ function buildAIDashboardContext(){
   serieMensal:P.annual.slice(-12).map(x=>({competencia:String(P.data[x.mes]?.label||x.mes).slice(0,50),faturamento:Number(x.valor||0),cacambas:Number(x.qtd||0),clientes:Number(x.clientes||0)}))
  };
 }
+
+function aiEscapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+}
+function aiSafeUrl(value){
+  try{
+    const u=new URL(String(value||''));
+    return ['http:','https:'].includes(u.protocol)?u.href:'';
+  }catch{return ''}
+}
+function aiDomain(value){
+  try{return new URL(value).hostname.replace(/^www\./,'')}catch{return 'Fonte externa'}
+}
+function aiInlineFormat(value){
+  let s=aiEscapeHtml(value);
+  s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/`([^`]+)`/g,'<code>$1</code>');
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,(m,label,url)=>{
+    const safe=aiSafeUrl(url);return safe?`<a href="${safe}" target="_blank" rel="noopener noreferrer">${label}</a>`:label;
+  });
+  return s;
+}
+function aiRenderMarkdown(text){
+  const lines=String(text||'').replace(/\r/g,'').split('\n');
+  let html='',listType='';
+  const closeList=()=>{if(listType){html+=`</${listType}>`;listType=''}};
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line){closeList();continue}
+    if(/^###\s+/.test(line)){closeList();html+=`<h3>${aiInlineFormat(line.replace(/^###\s+/,''))}</h3>`;continue}
+    if(/^##\s+/.test(line)){closeList();html+=`<h2>${aiInlineFormat(line.replace(/^##\s+/,''))}</h2>`;continue}
+    if(/^#\s+/.test(line)){closeList();html+=`<h2>${aiInlineFormat(line.replace(/^#\s+/,''))}</h2>`;continue}
+    if(/^[-*]\s+/.test(line)){
+      if(listType!=='ul'){closeList();listType='ul';html+='<ul>'}
+      html+=`<li>${aiInlineFormat(line.replace(/^[-*]\s+/,''))}</li>`;continue
+    }
+    if(/^\d+\.\s+/.test(line)){
+      if(listType!=='ol'){closeList();listType='ol';html+='<ol>'}
+      html+=`<li>${aiInlineFormat(line.replace(/^\d+\.\s+/,''))}</li>`;continue
+    }
+    closeList();
+    html+=`<p>${aiInlineFormat(line)}</p>`;
+  }
+  closeList();
+  return html||'<p>Não foi possível exibir a resposta.</p>';
+}
+function aiRenderPremiumResult(result){
+  const data=typeof result==='string'?{answer:result}:result||{};
+  const answer=String(data.answer||'A IA não retornou conteúdo.');
+  aiExecutiveOutput.hidden=true;
+  aiPremiumResult.classList.add('show');
+  aiAnswerCard.innerHTML=aiRenderMarkdown(answer);
+
+  const sources=Array.isArray(data.sources)?data.sources.filter(x=>aiSafeUrl(x?.url)).slice(0,10):[];
+  aiSourcesCard.hidden=!sources.length;
+  aiSourceCount.textContent=`${sources.length} fonte${sources.length===1?'':'s'}`;
+  aiSourceGrid.innerHTML=sources.map((source,index)=>{
+    const url=aiSafeUrl(source.url);
+    return `<a class="ai-source" href="${url}" target="_blank" rel="noopener noreferrer">
+      <span class="ai-source-title">${index+1}. ${aiEscapeHtml(source.title||'Fonte consultada')}</span>
+      <span class="ai-source-domain">${aiEscapeHtml(aiDomain(url))}</span>
+    </a>`;
+  }).join('');
+
+  const images=Array.isArray(data.images)?data.images.map(x=>typeof x==='string'?x:x?.url).filter(aiSafeUrl).slice(0,4):[];
+  aiImagesCard.hidden=!images.length;
+  aiImageGrid.innerHTML=images.map(url=>{
+    const safe=aiSafeUrl(url);
+    return `<a class="ai-image-link" href="${safe}" target="_blank" rel="noopener noreferrer"><img src="${safe}" alt="Imagem encontrada na pesquisa" loading="lazy" referrerpolicy="no-referrer"></a>`;
+  }).join('');
+
+  copyAiBtn.dataset.copyText=answer;
+  copyAiBtn.classList.add('show');
+  aiStatus.textContent=data.searchedWeb
+    ? `Resposta gerada com pesquisa na internet e ${sources.length} fonte(s).`
+    : 'Resposta gerada pela inteligência artificial.';
+}
+function aiResetPremiumResult(){
+  aiPremiumResult.classList.remove('show');
+  aiExecutiveOutput.hidden=false;
+  aiSourcesCard.hidden=true;
+  aiImagesCard.hidden=true;
+  copyAiBtn.dataset.copyText='';
+}
+
 function selectedAiMode(){return document.querySelector('input[name="aiMode"]:checked')?.value||'dashboard'}
 function syncAiMode(){const dashboard=selectedAiMode()==='dashboard';if(dashboard){aiUseContext.checked=true;aiUseContext.disabled=true;aiQuestion.placeholder='Ex.: Quais empresas exigem atenção neste mês?'}else{aiUseContext.checked=false;aiUseContext.disabled=true;aiQuestion.placeholder='Ex.: Escreva um e-mail profissional solicitando uma reunião.'}}
 document.querySelectorAll('input[name="aiMode"]').forEach(el=>el.addEventListener('change',syncAiMode));syncAiMode();
-document.querySelectorAll('[data-ai-question]').forEach(btn=>btn.onclick=()=>{aiQuestion.value=btn.dataset.aiQuestion||'';aiQuestion.focus()});
+document.querySelectorAll('[data-ai-question]').forEach(btn=>btn.onclick=()=>{
+  if(btn.dataset.aiMode){
+    const radio=document.querySelector(`input[name="aiMode"][value="${btn.dataset.aiMode}"]`);
+    if(radio){radio.checked=true;syncAiMode()}
+  }
+  aiQuestion.value=btn.dataset.aiQuestion||'';
+  aiQuestion.focus();
+  aiQuestion.setSelectionRange(aiQuestion.value.length,aiQuestion.value.length);
+});
 if(aiQuestion)aiQuestion.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')askAiBtn.click()});
 if(askAiBtn)askAiBtn.onclick=async()=>{
  const question=String(aiQuestion.value||'').trim(),mode=selectedAiMode(),useDashboardContext=mode==='dashboard';
  if(!question){aiQuestion.focus();aiStatus.textContent='Digite uma pergunta para continuar.';return}
  if(!window.firebaseAskExecutiveAI){aiStatus.textContent='Backend de IA ainda não publicado.';aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent='A interface está pronta. Publique a Firebase Function segura para ativar o assistente.';return}
- askAiBtn.disabled=true;askAiBtn.textContent='Pensando...';copyAiBtn.classList.remove('show');aiExecutiveOutput.className='ai-output loading';aiExecutiveOutput.textContent='Analisando sua solicitação com segurança...';aiStatus.textContent=useDashboardContext?'Preparando indicadores autorizados e gerando resposta...':'Gerando resposta sem enviar dados do dashboard...';
- try{const dashboardContext=useDashboardContext?buildAIDashboardContext():null;const result=await window.firebaseAskExecutiveAI({question,mode,useDashboardContext,monthKey:useDashboardContext?current:null,dashboardContext});aiExecutiveOutput.className='ai-output';aiExecutiveOutput.textContent=result;copyAiBtn.classList.add('show');aiStatus.textContent=useDashboardContext?'Resposta gerada com o contexto de '+(P.data[current]?.label||current)+'.':'Resposta geral gerada sem contexto financeiro.'}
- catch(e){console.error(e);const code=String(e?.code||'');let msg='Não foi possível obter uma resposta agora.';if(code.includes('resource-exhausted'))msg='Limite temporário de uso atingido. Aguarde alguns minutos e tente novamente.';else if(code.includes('unauthenticated'))msg='Sua sessão expirou. Entre novamente para utilizar o assistente.';else if(code.includes('failed-precondition'))msg='A verificação de segurança não foi concluída. Atualize a página e tente novamente.';else if(e?.message)msg=e.message.replace(/^FirebaseError:\s*/,'');aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent=msg;aiStatus.textContent='Solicitação não concluída.'}
+ askAiBtn.disabled=true;askAiBtn.textContent='Pesquisando...';copyAiBtn.classList.remove('show');aiResetPremiumResult();aiExecutiveOutput.className='ai-output loading';aiExecutiveOutput.innerHTML='<div class="ai-loading-bars"><span></span><span></span><span></span></div>';aiStatus.textContent=useDashboardContext?'Analisando os indicadores autorizados...':'Pesquisando e preparando uma resposta completa...';
+ try{const dashboardContext=useDashboardContext?buildAIDashboardContext():null;const result=await window.firebaseAskExecutiveAI({question,mode,useDashboardContext,monthKey:useDashboardContext?current:null,dashboardContext});aiExecutiveOutput.className='ai-output';aiRenderPremiumResult(result)}
+ catch(e){console.error(e);aiResetPremiumResult();const code=String(e?.code||'');let msg='Não foi possível obter uma resposta agora.';if(code.includes('resource-exhausted'))msg='Limite temporário de uso atingido. Aguarde alguns minutos e tente novamente.';else if(code.includes('unauthenticated'))msg='Sua sessão expirou. Entre novamente para utilizar o assistente.';else if(code.includes('failed-precondition'))msg='A verificação de segurança não foi concluída. Atualize a página e tente novamente.';else if(e?.message)msg=e.message.replace(/^FirebaseError:\s*/,'');aiExecutiveOutput.className='ai-output error';aiExecutiveOutput.textContent=msg;aiStatus.textContent='Solicitação não concluída.'}
  finally{askAiBtn.disabled=false;askAiBtn.textContent='Perguntar'}
 };
-if(copyAiBtn)copyAiBtn.onclick=async()=>{try{await navigator.clipboard.writeText(aiExecutiveOutput.textContent||'');notifyImport('Resposta copiada para a área de transferência.')}catch(e){notifyImport('Não foi possível copiar automaticamente.',true)}};
+if(copyAiBtn)copyAiBtn.onclick=async()=>{try{await navigator.clipboard.writeText(copyAiBtn.dataset.copyText||aiExecutiveOutput.textContent||'');notifyImport('Resposta copiada para a área de transferência.')}catch(e){notifyImport('Não foi possível copiar automaticamente.',true)}};
 copyReportBtn.onclick=async()=>{try{await navigator.clipboard.writeText(reportText());notifyImport('Relatório copiado para a área de transferência.')}catch(e){notifyImport('Não foi possível copiar automaticamente.',true)}};
 downloadReportBtn.onclick=()=>{const blob=new Blob([reportText()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`relatorio_executivo_${current}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 // ===== FIM DOS MÓDULOS V3 =====
@@ -539,254 +689,3 @@ window.firebaseAskExecutiveAI = async payload => {
     else error.code = "internal";
 
     throw error;
-  }
-
-  return data?.answer || "A IA não retornou conteúdo.";
-};
-
-const $ = id => document.getElementById(id);
-const dashboardShell = $("dashboardShell");
-const authBtn = $("authBtn");
-const importBtn = $("importBtn");
-const cloudStatus = $("cloudStatus");
-const userBadge = $("userBadge");
-const userBadgeEmail = $("userBadgeEmail");
-const userBadgeRole = $("userBadgeRole");
-const authModal = $("authModal");
-const authForm = $("authForm");
-const authEmail = $("authEmail");
-const authPassword = $("authPassword");
-const authError = $("authError");
-const authSubmit = $("authSubmit");
-const authCancel = $("authCancel");
-const loadingOverlay = $("loadingOverlay");
-const loadingTitle = $("loadingTitle");
-const loadingText = $("loadingText");
-
-let currentUser = null;
-let remoteLoaded = false;
-
-function setCloudStatus(text, mode = "") {
-  cloudStatus.className = "cloud-status" + (mode ? " " + mode : "");
-  cloudStatus.querySelector("span").textContent = text;
-}
-
-function isAdmin() {
-  return Boolean(currentUser && currentUser.uid === ADMIN_UID);
-}
-window.firebaseIsAdmin = isAdmin;
-
-function showDashboard(show) {
-  dashboardShell.hidden = !show;
-}
-function setLoading(show,title="Carregando dashboard",text="Aguarde enquanto os dados autorizados são preparados."){
-  if(!loadingOverlay)return; loadingTitle.textContent=title; loadingText.textContent=text; loadingOverlay.classList.toggle("show",Boolean(show));
-}
-
-function openLogin() {
-  authError.textContent = "";
-  authPassword.value = "";
-  authModal.classList.add("open");
-  authModal.setAttribute("aria-hidden", "false");
-  setTimeout(() => authEmail.focus(), 50);
-}
-function closeLogin() {
-  authModal.classList.remove("open");
-  authModal.setAttribute("aria-hidden", "true");
-}
-
-authCancel.addEventListener("click", () => {
-  if (currentUser) closeLogin();
-});
-authModal.addEventListener("click", event => {
-  if (event.target === authModal && currentUser) closeLogin();
-});
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && currentUser) closeLogin();
-});
-
-authBtn.addEventListener("click", async () => {
-  if (currentUser) {
-    if (confirm("Deseja sair do dashboard?")) {
-      setLoading(false);
-      showDashboard(false);
-      remoteLoaded = false;
-      await signOut(auth);
-    }
-    return;
-  }
-  openLogin();
-});
-
-authForm.addEventListener("submit", async event => {
-  event.preventDefault();
-  authError.textContent = "";
-  authSubmit.disabled = true;
-  authSubmit.textContent = "Entrando...";
-  try {
-    await setPersistence(auth, browserSessionPersistence);
-    await signInWithEmailAndPassword(auth, authEmail.value.trim(), authPassword.value);
-  } catch (error) {
-    console.error(error);
-    const messages = {
-      "auth/invalid-credential": "E-mail ou senha incorretos.",
-      "auth/user-disabled": "Este usuário foi desativado.",
-      "auth/too-many-requests": "Muitas tentativas. Aguarde um pouco e tente novamente.",
-      "auth/network-request-failed": "Falha de internet ao tentar entrar.",
-      "auth/unauthorized-domain": "Este domínio ainda não está autorizado no Firebase Authentication."
-    };
-    authError.textContent = messages[error.code] || "Não foi possível entrar. Confira os dados e tente novamente.";
-  } finally {
-    authSubmit.disabled = false;
-    authSubmit.textContent = "Entrar";
-  }
-});
-
-function safeMonthPayload(monthData) {
-  return JSON.parse(JSON.stringify(monthData));
-}
-
-window.firebaseSaveMonth = async function(monthKey, monthData, meta = {}) {
-  if (!isAdmin()) throw new Error("Usuário sem permissão para salvar.");
-  if (!navigator.onLine) throw new Error("Sem internet. A importação não foi gravada; tente novamente quando a conexão voltar.");
-
-  setCloudStatus("Salvando na nuvem...", "");
-  const clean = safeMonthPayload(monthData);
-  const totalValue = Number(clean?.totals?.valor || 0);
-  const rowCount = Array.isArray(clean?.rows) ? clean.rows.length : 0;
-  const clientCount = Array.isArray(clean?.clients) ? clean.clients.length : 0;
-
-  const estimatedBytes = new Blob([JSON.stringify(clean)]).size;
-  if (estimatedBytes > 900000) {
-    throw new Error("Este mês ficou grande demais para um único documento do Firebase. Reduza a planilha ou use a versão com linhas separadas.");
-  }
-
-  const batch = writeBatch(db);
-  batch.set(doc(db, "dashboard_months", monthKey), {
-    monthData: clean,
-    label: clean.label || monthKey,
-    rowCount,
-    clientCount,
-    totalValue,
-    updatedByUid: currentUser.uid,
-    updatedByEmail: currentUser.email || "",
-    updatedAt: serverTimestamp()
-  });
-
-  const importId = `${monthKey}_${Date.now()}`;
-  batch.set(doc(db, "dashboard_imports", importId), {
-    monthKey,
-    label: clean.label || monthKey,
-    rowCount,
-    clientCount,
-    totalValue,
-    sourceFile: String(meta.fileName || ""),
-    sourceSheet: String(meta.sheet || ""),
-    ignoredRows: Number(meta.ignored || 0),
-    action: window.dashboardState?.data?.[monthKey] ? "replace" : "create",
-    userUid: currentUser.uid,
-    userEmail: currentUser.email || "",
-    createdAt: serverTimestamp()
-  });
-  await batch.commit();
-  setCloudStatus("Salvo na nuvem", "online");
-};
-
-async function loadCloudMonths() {
-  if (!currentUser) return;
-  setCloudStatus("Carregando dados...", "");
-  setLoading(true,"Preparando análise executiva","Sincronizando competências, indicadores e patrimônios autorizados.");
-  showDashboard(false);
-  try {
-    const snapshot = await getDocs(collection(db, "dashboard_months"));
-    const months = {};
-    snapshot.forEach(item => {
-      const data = item.data();
-      if (data && data.monthData) months[item.id] = data.monthData;
-    });
-
-    remoteLoaded = true;
-    if (Object.keys(months).length) {
-      window.dashboardApplyCloudMonths?.(months);
-      setCloudStatus(`${Object.keys(months).length} mês(es) sincronizado(s)`, "online");
-      showDashboard(true);
-      setLoading(false);
-      closeLogin();
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        window.dashboardRenderCurrent?.();
-        window.dispatchEvent(new Event('resize'));
-      }));
-    } else {
-      setCloudStatus("Nenhum mês cadastrado", "online");
-      showDashboard(true);
-      setLoading(false);
-      closeLogin();
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        window.dashboardRenderCurrent?.();
-        window.dispatchEvent(new Event('resize'));
-      }));
-      if (typeof notifyImport === "function") notifyImport("Nenhum mês foi encontrado no Firebase. Importe a primeira planilha.");
-    }
-  } catch (error) {
-    console.error("Falha ao carregar Firestore:", error);
-    setCloudStatus("Falha ao carregar dados", "offline");
-    setLoading(false);
-    showDashboard(false);
-    openLogin();
-    authError.textContent = "Não foi possível carregar os dados autorizados. Verifique a internet e tente novamente.";
-  }
-}
-
-onAuthStateChanged(auth, async user => {
-  currentUser = user;
-  const admin = isAdmin();
-
-  importBtn.disabled = !admin;
-  importBtn.hidden = !admin;
-  importBtn.classList.toggle("viewer-only-hidden", !admin);
-
-  document.querySelectorAll(".admin-only").forEach(element => {
-    element.hidden = !admin;
-  });
-
-  if (!admin && currentView === "alerts") {
-    window.dashboardSwitchView?.("monthly");
-  }
-  importBtn.title = admin ? "Importar e salvar no Firebase" : "Importação disponível somente para o administrador";
-  authBtn.textContent = user ? "Sair" : "Entrar";
-  authBtn.classList.toggle("auth-user", admin);
-
-  userBadge.classList.toggle("show", Boolean(user));
-  userBadgeEmail.textContent = user?.email || "";
-  userBadgeRole.textContent = user ? (admin ? "Administrador" : "Diretoria • somente visualização") : "";
-  userBadge.querySelector(".user-badge-icon").textContent = admin ? "A" : "D";
-
-  if (!user) {
-    setLoading(false);
-    showDashboard(false);
-    setCloudStatus("Aguardando login", "");
-    openLogin();
-    return;
-  }
-
-  if (typeof notifyImport === "function") {
-    notifyImport(admin
-      ? `Acesso autorizado: ${user.email || "administrador"}.`
-      : `Acesso de visualização autorizado: ${user.email || "diretoria"}.`);
-  }
-  await loadCloudMonths();
-});
-
-window.addEventListener("online", () => {
-  if (currentUser && !remoteLoaded) loadCloudMonths();
-  else if (currentUser) setCloudStatus("Conectado ao Firebase", "online");
-});
-window.addEventListener("offline", () => {
-  setCloudStatus("Sem internet", "offline");
-  setLoading(false);
-  showDashboard(false);
-});
-
-await setPersistence(auth, browserSessionPersistence).catch(() => {});
-</script>
-</body></html>
