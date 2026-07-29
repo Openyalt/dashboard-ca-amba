@@ -160,6 +160,126 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
   .expense-categories-layout{grid-template-columns:1fr}
 }
 
+
+/* ===== OP A2O + DETALHES DO LANÇAMENTO ===== */
+.expense-op-link{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  border:1px solid rgba(245,130,32,.55);
+  background:rgba(245,130,32,.12);
+  color:#ffb36f;
+  border-radius:8px;
+  padding:5px 8px;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.expense-op-link:hover{
+  background:#f58220;
+  border-color:#f58220;
+  color:#fff;
+}
+.expense-op-empty{color:var(--muted)}
+.expense-drawer-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:1200;
+  background:rgba(0,0,0,.62);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s ease;
+}
+.expense-drawer-backdrop.open{
+  opacity:1;
+  pointer-events:auto;
+}
+.expense-drawer{
+  position:absolute;
+  top:0;
+  right:0;
+  width:min(460px,94vw);
+  height:100%;
+  overflow:auto;
+  background:linear-gradient(180deg,#102b43,#071827);
+  border-left:1px solid var(--line);
+  box-shadow:-22px 0 60px rgba(0,0,0,.38);
+  transform:translateX(100%);
+  transition:transform .24s ease;
+}
+.expense-drawer-backdrop.open .expense-drawer{transform:translateX(0)}
+.expense-drawer-head{
+  position:sticky;
+  top:0;
+  z-index:2;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:20px;
+  background:rgba(10,27,43,.96);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(12px);
+}
+.expense-drawer-head h2{margin:0;font-size:24px}
+.expense-drawer-head p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.expense-drawer-close{
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#0a1b2b;
+  color:#fff;
+  cursor:pointer;
+  font-size:20px;
+}
+.expense-drawer-body{padding:18px 20px 28px}
+.expense-detail-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.expense-detail{
+  border:1px solid var(--line);
+  background:#0a1b2b;
+  border-radius:11px;
+  padding:12px;
+  min-width:0;
+}
+.expense-detail.full{grid-column:1/-1}
+.expense-detail small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  margin-bottom:6px;
+}
+.expense-detail strong,.expense-detail span{
+  display:block;
+  color:var(--text);
+  line-height:1.42;
+  word-break:break-word;
+}
+.expense-detail-value{font-size:19px!important;color:#7cf3c5!important}
+.expense-drawer-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:16px;
+}
+.expense-drawer-actions .btn{
+  justify-content:center;
+  text-decoration:none;
+}
+@media(max-width:560px){
+  .expense-detail-grid{grid-template-columns:1fr}
+  .expense-detail.full{grid-column:auto}
+  .expense-drawer-actions{grid-template-columns:1fr}
+}
+
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
 <div class="top"><div class="brand"><h1>Módulo de Despesas<br>Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
 <div class="tabs">
@@ -202,13 +322,13 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
       <div class="expense-toolbar">
         <b id="expenseRecordsSummary">Nenhum lançamento carregado</b>
         <div class="expense-filters">
-          <input id="expenseSearch" placeholder="Buscar fornecedor, descrição ou histórico">
+          <input id="expenseSearch" placeholder="Buscar fornecedor, descrição, histórico ou OP">
           <select id="expenseCategoryFilter"><option value="">Todas as categorias</option></select>
           <select id="expenseCostCenterFilter"><option value="">Todos os centros de custo</option></select>
           <select id="expenseConciliationFilter"><option value="">Todos</option><option value="Sim">Conciliado</option><option value="Não">Não conciliado</option></select>
         </div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>Vencimento</th><th>Baixa</th><th>Fornecedor</th><th>Categoria</th><th>Centro de custo</th><th>Banco/Portador</th><th>Conciliação</th><th class="num">Valor</th><th>Status</th></tr></thead><tbody id="expenseRecordsBody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>Vencimento</th><th>Baixa</th><th>Fornecedor</th><th>OP</th><th>Categoria</th><th>Centro de custo</th><th>Banco/Portador</th><th>Conciliação</th><th class="num">Valor</th><th>Status</th></tr></thead><tbody id="expenseRecordsBody"></tbody></table></div>
     </div>
   </div>
 
@@ -386,6 +506,84 @@ function switchView(v){
 
 
 // ===== MÓDULO DESPESAS =====
+
+const A2O_ACCOUNTS_PAYABLE_URL='http://186.226.72.7:14279/#/cfaweb/fin/cpr';
+let selectedExpenseRecord=null;
+
+function expenseOperationText(value){
+  const raw=String(value??'').trim();
+  if(!raw)return '';
+  // O Excel exporta algumas OPs como "9.176"; no A2O o número é 9176.
+  return raw.replace(/\D/g,'');
+}
+
+function expenseDetailItem(label,value,options={}){
+  const full=options.full?' full':'';
+  const valueClass=options.value?' expense-detail-value':'';
+  return `<div class="expense-detail${full}">
+    <small>${safeText(label)}</small>
+    <strong class="${valueClass}">${safeText(value||'—')}</strong>
+  </div>`;
+}
+
+function openExpenseDrawer(record){
+  selectedExpenseRecord=record;
+  const op=expenseOperationText(record.op);
+  expenseDrawerTitle.textContent=op?`OP ${op}`:'Detalhes do lançamento';
+
+  expenseDrawerDetails.innerHTML=[
+    expenseDetailItem('Fornecedor',record.fornecedor,{full:true}),
+    expenseDetailItem('Valor',brl(record.valor),{value:true}),
+    expenseDetailItem('Status',expenseStatus(record)),
+    expenseDetailItem('Vencimento',record.data_vencimento),
+    expenseDetailItem('Data da baixa',record.data_baixa||'—'),
+    expenseDetailItem('Data de emissão',record.data_emissao||'—'),
+    expenseDetailItem('Data de previsão',record.data_previsao||'—'),
+    expenseDetailItem('Categoria',record.categoria,{full:true}),
+    expenseDetailItem('Centro de custo',record.centro_custo),
+    expenseDetailItem('Banco/Portador',record.banco),
+    expenseDetailItem('Conciliação',record.conciliado||'Não'),
+    expenseDetailItem('Filial',record.filial||'—'),
+    expenseDetailItem('Histórico',record.historico||'—',{full:true})
+  ].join('');
+
+  expenseCopyOpBtn.disabled=!op;
+  expenseCopyOpBtn.textContent=op?'Copiar OP':'OP não informada';
+  expenseCopyOpBtn.dataset.op=op;
+  expenseOpenA2OBtn.href=A2O_ACCOUNTS_PAYABLE_URL;
+
+  expenseDrawerBackdrop.classList.add('open');
+  expenseDrawerBackdrop.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+
+function closeExpenseDrawer(){
+  expenseDrawerBackdrop.classList.remove('open');
+  expenseDrawerBackdrop.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  selectedExpenseRecord=null;
+}
+
+expenseDrawerClose.onclick=closeExpenseDrawer;
+expenseDrawerBackdrop.addEventListener('click',event=>{
+  if(event.target===expenseDrawerBackdrop)closeExpenseDrawer();
+});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&expenseDrawerBackdrop.classList.contains('open'))closeExpenseDrawer();
+});
+expenseCopyOpBtn.onclick=async()=>{
+  const op=expenseCopyOpBtn.dataset.op||'';
+  if(!op)return;
+  try{
+    await navigator.clipboard.writeText(op);
+    const old=expenseCopyOpBtn.textContent;
+    expenseCopyOpBtn.textContent='OP copiada!';
+    setTimeout(()=>expenseCopyOpBtn.textContent=old,1400);
+  }catch{
+    prompt('Copie a OP:',op);
+  }
+};
+
 const E={months:[],data:{}};
 let expenseView='expenseSummary';
 
@@ -488,9 +686,23 @@ function renderExpenseSummary(){
 }
 function renderExpenseRecords(){
   const rows=expenseRows(),q=(expenseSearch.value||'').toLowerCase(),cat=expenseCategoryFilter.value,cc=expenseCostCenterFilter.value,con=expenseConciliationFilter.value;
-  const filtered=rows.filter(r=>(!q||`${r.fornecedor} ${r.categoria} ${r.historico} ${r.banco}`.toLowerCase().includes(q))&&(!cat||r.categoria===cat)&&(!cc||r.centro_custo===cc)&&(!con||r.conciliado===con));
+  const filtered=rows.filter(r=>(!q||`${r.fornecedor} ${r.op||''} ${r.categoria} ${r.historico} ${r.banco}`.toLowerCase().includes(q))&&(!cat||r.categoria===cat)&&(!cc||r.centro_custo===cc)&&(!con||r.conciliado===con));
   expenseRecordsSummary.textContent=`${filtered.length} lançamento(s) • ${brl(filtered.reduce((s,r)=>s+Number(r.valor||0),0))}`;
-  expenseRecordsBody.innerHTML=filtered.map(r=>{const st=expenseStatus(r);return `<tr><td>${safeText(r.data_vencimento)}</td><td>${safeText(r.data_baixa||'—')}</td><td><b>${safeText(r.fornecedor)}</b></td><td>${safeText(r.categoria)}</td><td>${safeText(r.centro_custo)}</td><td>${safeText(r.banco)}</td><td><span class="expense-status ${String(r.conciliado).toLowerCase()==='sim'?'conciliated':'pending'}">${safeText(r.conciliado||'Não')}</span></td><td class="num"><b>${brl(r.valor)}</b></td><td><span class="expense-status ${st==='Pago'?'paid':st==='Vencido'?'overdue':'open'}">${st}</span></td></tr>`}).join('');
+  expenseRecordsBody.innerHTML=filtered.map((r,index)=>{const st=expenseStatus(r),op=expenseOperationText(r.op);return `<tr>
+    <td>${safeText(r.data_vencimento)}</td>
+    <td>${safeText(r.data_baixa||'—')}</td>
+    <td><b>${safeText(r.fornecedor)}</b></td>
+    <td>${op?`<button class="expense-op-link" type="button" data-expense-row="${index}" title="Ver detalhes da OP ${safeText(op)}">${safeText(op)} ↗</button>`:'<span class="expense-op-empty">—</span>'}</td>
+    <td>${safeText(r.categoria)}</td>
+    <td>${safeText(r.centro_custo)}</td>
+    <td>${safeText(r.banco)}</td>
+    <td><span class="expense-status ${String(r.conciliado).toLowerCase()==='sim'?'conciliated':'pending'}">${safeText(r.conciliado||'Não')}</span></td>
+    <td class="num"><b>${brl(r.valor)}</b></td>
+    <td><span class="expense-status ${st==='Pago'?'paid':st==='Vencido'?'overdue':'open'}">${st}</span></td>
+  </tr>`}).join('');
+  expenseRecordsBody.querySelectorAll('[data-expense-row]').forEach(button=>{
+    button.onclick=()=>openExpenseDrawer(filtered[Number(button.dataset.expenseRow)]);
+  });
 }
 function updateExpenseFilters(){
   const rows=expenseRows();
@@ -580,6 +792,7 @@ const EXPENSE_ALIASES={
   baixa:['DATA BAIXA'],
   conciliado:['CONCILIADO BANCO','CONCILIADO'],
   conciliacao:['DATA CONCILIACAO BANCARIA'],
+  op:['OP','NUMERO OPERACAO','N OP','Nº OP'],
   fornecedor:['RAZAO SOCIAL PESSOA','FORNECEDOR'],
   valor:['VALOR A PAGAR','VALOR'],
   tipo:['TIPO'],
@@ -614,6 +827,7 @@ function expenseMapTable(rows){
       data_baixa:expenseDateText(g('baixa')),
       conciliado:textVal(g('conciliado'))||'Não',
       data_conciliacao:expenseDateText(g('conciliacao')),
+      op:expenseOperationText(g('op')),
       fornecedor:textVal(g('fornecedor'))||'Não informado',
       valor:value,
       tipo:textVal(g('tipo')),
@@ -1359,4 +1573,28 @@ window.addEventListener("offline", () => {
 
 await setPersistence(auth, browserSessionPersistence).catch(() => {});
 </script>
+
+<div id="expenseDrawerBackdrop" class="expense-drawer-backdrop" aria-hidden="true">
+  <aside class="expense-drawer" role="dialog" aria-modal="true" aria-labelledby="expenseDrawerTitle">
+    <div class="expense-drawer-head">
+      <div>
+        <h2 id="expenseDrawerTitle">Detalhes da OP</h2>
+        <p>Consulta rápida do lançamento importado do A2O</p>
+      </div>
+      <button id="expenseDrawerClose" class="expense-drawer-close" type="button" aria-label="Fechar">×</button>
+    </div>
+    <div class="expense-drawer-body">
+      <div id="expenseDrawerDetails" class="expense-detail-grid"></div>
+      <div class="expense-drawer-actions">
+        <button id="expenseCopyOpBtn" class="btn primary" type="button">Copiar OP</button>
+        <a id="expenseOpenA2OBtn" class="btn" href="http://186.226.72.7:14279/#/cfaweb/fin/cpr" target="_blank" rel="noopener noreferrer">Abrir Contas a Pagar</a>
+      </div>
+      <div class="desc" style="margin-top:12px;line-height:1.5">
+        O A2O abrirá em outra guia. Como a URL individual utiliza uma chave interna que não vem no relatório,
+        copie a OP e use a pesquisa do A2O para localizar o lançamento.
+      </div>
+    </div>
+  </aside>
+</div>
+
 </body></html>
