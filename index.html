@@ -689,3 +689,260 @@ window.firebaseAskExecutiveAI = async payload => {
     else error.code = "internal";
 
     throw error;
+  }
+
+  return {
+    answer: data?.answer || "A IA não retornou conteúdo.",
+    sources: Array.isArray(data?.sources) ? data.sources : [],
+    images: Array.isArray(data?.images) ? data.images : [],
+    searchedWeb: Boolean(data?.searchedWeb),
+    searchProvider: data?.searchProvider || null
+  };
+};
+
+const $ = id => document.getElementById(id);
+const dashboardShell = $("dashboardShell");
+const authBtn = $("authBtn");
+const importBtn = $("importBtn");
+const cloudStatus = $("cloudStatus");
+const userBadge = $("userBadge");
+const userBadgeEmail = $("userBadgeEmail");
+const userBadgeRole = $("userBadgeRole");
+const authModal = $("authModal");
+const authForm = $("authForm");
+const authEmail = $("authEmail");
+const authPassword = $("authPassword");
+const authError = $("authError");
+const authSubmit = $("authSubmit");
+const authCancel = $("authCancel");
+const loadingOverlay = $("loadingOverlay");
+const loadingTitle = $("loadingTitle");
+const loadingText = $("loadingText");
+
+let currentUser = null;
+let remoteLoaded = false;
+
+function setCloudStatus(text, mode = "") {
+  cloudStatus.className = "cloud-status" + (mode ? " " + mode : "");
+  cloudStatus.querySelector("span").textContent = text;
+}
+
+function isAdmin() {
+  return Boolean(currentUser && currentUser.uid === ADMIN_UID);
+}
+window.firebaseIsAdmin = isAdmin;
+
+function showDashboard(show) {
+  dashboardShell.hidden = !show;
+}
+function setLoading(show,title="Carregando dashboard",text="Aguarde enquanto os dados autorizados são preparados."){
+  if(!loadingOverlay)return; loadingTitle.textContent=title; loadingText.textContent=text; loadingOverlay.classList.toggle("show",Boolean(show));
+}
+
+function openLogin() {
+  authError.textContent = "";
+  authPassword.value = "";
+  authModal.classList.add("open");
+  authModal.setAttribute("aria-hidden", "false");
+  setTimeout(() => authEmail.focus(), 50);
+}
+function closeLogin() {
+  authModal.classList.remove("open");
+  authModal.setAttribute("aria-hidden", "true");
+}
+
+authCancel.addEventListener("click", () => {
+  if (currentUser) closeLogin();
+});
+authModal.addEventListener("click", event => {
+  if (event.target === authModal && currentUser) closeLogin();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && currentUser) closeLogin();
+});
+
+authBtn.addEventListener("click", async () => {
+  if (currentUser) {
+    if (confirm("Deseja sair do dashboard?")) {
+      setLoading(false);
+      showDashboard(false);
+      remoteLoaded = false;
+      await signOut(auth);
+    }
+    return;
+  }
+  openLogin();
+});
+
+authForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  authError.textContent = "";
+  authSubmit.disabled = true;
+  authSubmit.textContent = "Entrando...";
+  try {
+    await setPersistence(auth, browserSessionPersistence);
+    await signInWithEmailAndPassword(auth, authEmail.value.trim(), authPassword.value);
+  } catch (error) {
+    console.error(error);
+    const messages = {
+      "auth/invalid-credential": "E-mail ou senha incorretos.",
+      "auth/user-disabled": "Este usuário foi desativado.",
+      "auth/too-many-requests": "Muitas tentativas. Aguarde um pouco e tente novamente.",
+      "auth/network-request-failed": "Falha de internet ao tentar entrar.",
+      "auth/unauthorized-domain": "Este domínio ainda não está autorizado no Firebase Authentication."
+    };
+    authError.textContent = messages[error.code] || "Não foi possível entrar. Confira os dados e tente novamente.";
+  } finally {
+    authSubmit.disabled = false;
+    authSubmit.textContent = "Entrar";
+  }
+});
+
+function safeMonthPayload(monthData) {
+  return JSON.parse(JSON.stringify(monthData));
+}
+
+window.firebaseSaveMonth = async function(monthKey, monthData, meta = {}) {
+  if (!isAdmin()) throw new Error("Usuário sem permissão para salvar.");
+  if (!navigator.onLine) throw new Error("Sem internet. A importação não foi gravada; tente novamente quando a conexão voltar.");
+
+  setCloudStatus("Salvando na nuvem...", "");
+  const clean = safeMonthPayload(monthData);
+  const totalValue = Number(clean?.totals?.valor || 0);
+  const rowCount = Array.isArray(clean?.rows) ? clean.rows.length : 0;
+  const clientCount = Array.isArray(clean?.clients) ? clean.clients.length : 0;
+
+  const estimatedBytes = new Blob([JSON.stringify(clean)]).size;
+  if (estimatedBytes > 900000) {
+    throw new Error("Este mês ficou grande demais para um único documento do Firebase. Reduza a planilha ou use a versão com linhas separadas.");
+  }
+
+  const batch = writeBatch(db);
+  batch.set(doc(db, "dashboard_months", monthKey), {
+    monthData: clean,
+    label: clean.label || monthKey,
+    rowCount,
+    clientCount,
+    totalValue,
+    updatedByUid: currentUser.uid,
+    updatedByEmail: currentUser.email || "",
+    updatedAt: serverTimestamp()
+  });
+
+  const importId = `${monthKey}_${Date.now()}`;
+  batch.set(doc(db, "dashboard_imports", importId), {
+    monthKey,
+    label: clean.label || monthKey,
+    rowCount,
+    clientCount,
+    totalValue,
+    sourceFile: String(meta.fileName || ""),
+    sourceSheet: String(meta.sheet || ""),
+    ignoredRows: Number(meta.ignored || 0),
+    action: window.dashboardState?.data?.[monthKey] ? "replace" : "create",
+    userUid: currentUser.uid,
+    userEmail: currentUser.email || "",
+    createdAt: serverTimestamp()
+  });
+  await batch.commit();
+  setCloudStatus("Salvo na nuvem", "online");
+};
+
+async function loadCloudMonths() {
+  if (!currentUser) return;
+  setCloudStatus("Carregando dados...", "");
+  setLoading(true,"Preparando análise executiva","Sincronizando competências, indicadores e patrimônios autorizados.");
+  showDashboard(false);
+  try {
+    const snapshot = await getDocs(collection(db, "dashboard_months"));
+    const months = {};
+    snapshot.forEach(item => {
+      const data = item.data();
+      if (data && data.monthData) months[item.id] = data.monthData;
+    });
+
+    remoteLoaded = true;
+    if (Object.keys(months).length) {
+      window.dashboardApplyCloudMonths?.(months);
+      setCloudStatus(`${Object.keys(months).length} mês(es) sincronizado(s)`, "online");
+      showDashboard(true);
+      setLoading(false);
+      closeLogin();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dashboardRenderCurrent?.();
+        window.dispatchEvent(new Event('resize'));
+      }));
+    } else {
+      setCloudStatus("Nenhum mês cadastrado", "online");
+      showDashboard(true);
+      setLoading(false);
+      closeLogin();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dashboardRenderCurrent?.();
+        window.dispatchEvent(new Event('resize'));
+      }));
+      if (typeof notifyImport === "function") notifyImport("Nenhum mês foi encontrado no Firebase. Importe a primeira planilha.");
+    }
+  } catch (error) {
+    console.error("Falha ao carregar Firestore:", error);
+    setCloudStatus("Falha ao carregar dados", "offline");
+    setLoading(false);
+    showDashboard(false);
+    openLogin();
+    authError.textContent = "Não foi possível carregar os dados autorizados. Verifique a internet e tente novamente.";
+  }
+}
+
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  const admin = isAdmin();
+
+  importBtn.disabled = !admin;
+  importBtn.hidden = !admin;
+  importBtn.classList.toggle("viewer-only-hidden", !admin);
+
+  document.querySelectorAll(".admin-only").forEach(element => {
+    element.hidden = !admin;
+  });
+
+  if (!admin && currentView === "alerts") {
+    window.dashboardSwitchView?.("monthly");
+  }
+  importBtn.title = admin ? "Importar e salvar no Firebase" : "Importação disponível somente para o administrador";
+  authBtn.textContent = user ? "Sair" : "Entrar";
+  authBtn.classList.toggle("auth-user", admin);
+
+  userBadge.classList.toggle("show", Boolean(user));
+  userBadgeEmail.textContent = user?.email || "";
+  userBadgeRole.textContent = user ? (admin ? "Administrador" : "Diretoria • somente visualização") : "";
+  userBadge.querySelector(".user-badge-icon").textContent = admin ? "A" : "D";
+
+  if (!user) {
+    setLoading(false);
+    showDashboard(false);
+    setCloudStatus("Aguardando login", "");
+    openLogin();
+    return;
+  }
+
+  if (typeof notifyImport === "function") {
+    notifyImport(admin
+      ? `Acesso autorizado: ${user.email || "administrador"}.`
+      : `Acesso de visualização autorizado: ${user.email || "diretoria"}.`);
+  }
+  await loadCloudMonths();
+});
+
+window.addEventListener("online", () => {
+  if (currentUser && !remoteLoaded) loadCloudMonths();
+  else if (currentUser) setCloudStatus("Conectado ao Firebase", "online");
+});
+window.addEventListener("offline", () => {
+  setCloudStatus("Sem internet", "offline");
+  setLoading(false);
+  showDashboard(false);
+});
+
+await setPersistence(auth, browserSessionPersistence).catch(() => {});
+</script>
+</body></html>
