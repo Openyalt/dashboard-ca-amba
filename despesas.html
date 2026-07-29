@@ -529,9 +529,20 @@ function expenseDetailItem(label,value,options={}){
 function openExpenseDrawer(record){
   selectedExpenseRecord=record;
   const op=expenseOperationText(record.op);
-  expenseDrawerTitle.textContent=op?`OP ${op}`:'Detalhes do lançamento';
+  const drawerTitle=document.getElementById('expenseDrawerTitle');
+  const drawerDetails=document.getElementById('expenseDrawerDetails');
+  const copyButton=document.getElementById('expenseCopyOpBtn');
+  const openButton=document.getElementById('expenseOpenA2OBtn');
+  const backdrop=document.getElementById('expenseDrawerBackdrop');
 
-  expenseDrawerDetails.innerHTML=[
+  if(!drawerTitle||!drawerDetails||!copyButton||!openButton||!backdrop){
+    console.error('Componentes do painel de OP não foram carregados.');
+    return;
+  }
+
+  drawerTitle.textContent=op?`OP ${op}`:'Detalhes do lançamento';
+
+  drawerDetails.innerHTML=[
     expenseDetailItem('Fornecedor',record.fornecedor,{full:true}),
     expenseDetailItem('Valor',brl(record.valor),{value:true}),
     expenseDetailItem('Status',expenseStatus(record)),
@@ -547,42 +558,69 @@ function openExpenseDrawer(record){
     expenseDetailItem('Histórico',record.historico||'—',{full:true})
   ].join('');
 
-  expenseCopyOpBtn.disabled=!op;
-  expenseCopyOpBtn.textContent=op?'Copiar OP':'OP não informada';
-  expenseCopyOpBtn.dataset.op=op;
-  expenseOpenA2OBtn.href=A2O_ACCOUNTS_PAYABLE_URL;
+  copyButton.disabled=!op;
+  copyButton.textContent=op?'Copiar OP':'OP não informada';
+  copyButton.dataset.op=op;
+  openButton.href=A2O_ACCOUNTS_PAYABLE_URL;
 
-  expenseDrawerBackdrop.classList.add('open');
-  expenseDrawerBackdrop.setAttribute('aria-hidden','false');
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
 }
 
 function closeExpenseDrawer(){
-  expenseDrawerBackdrop.classList.remove('open');
-  expenseDrawerBackdrop.setAttribute('aria-hidden','true');
+  const backdrop=document.getElementById('expenseDrawerBackdrop');
+  if(backdrop){
+    backdrop.classList.remove('open');
+    backdrop.setAttribute('aria-hidden','true');
+  }
   document.body.style.overflow='';
   selectedExpenseRecord=null;
 }
 
-expenseDrawerClose.onclick=closeExpenseDrawer;
-expenseDrawerBackdrop.addEventListener('click',event=>{
-  if(event.target===expenseDrawerBackdrop)closeExpenseDrawer();
-});
-document.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&expenseDrawerBackdrop.classList.contains('open'))closeExpenseDrawer();
-});
-expenseCopyOpBtn.onclick=async()=>{
-  const op=expenseCopyOpBtn.dataset.op||'';
-  if(!op)return;
-  try{
-    await navigator.clipboard.writeText(op);
-    const old=expenseCopyOpBtn.textContent;
-    expenseCopyOpBtn.textContent='OP copiada!';
-    setTimeout(()=>expenseCopyOpBtn.textContent=old,1400);
-  }catch{
-    prompt('Copie a OP:',op);
+function initializeExpenseDrawer(){
+  const closeButton=document.getElementById('expenseDrawerClose');
+  const backdrop=document.getElementById('expenseDrawerBackdrop');
+  const copyButton=document.getElementById('expenseCopyOpBtn');
+
+  if(!closeButton||!backdrop||!copyButton){
+    console.error('Não foi possível inicializar o painel de detalhes da OP.');
+    return;
   }
-};
+
+  closeButton.addEventListener('click',closeExpenseDrawer);
+
+  backdrop.addEventListener('click',event=>{
+    if(event.target===backdrop)closeExpenseDrawer();
+  });
+
+  copyButton.addEventListener('click',async()=>{
+    const op=copyButton.dataset.op||'';
+    if(!op)return;
+
+    try{
+      await navigator.clipboard.writeText(op);
+      const old=copyButton.textContent;
+      copyButton.textContent='OP copiada!';
+      setTimeout(()=>copyButton.textContent=old,1400);
+    }catch{
+      prompt('Copie a OP:',op);
+    }
+  });
+}
+
+document.addEventListener('keydown',event=>{
+  const backdrop=document.getElementById('expenseDrawerBackdrop');
+  if(event.key==='Escape'&&backdrop?.classList.contains('open')){
+    closeExpenseDrawer();
+  }
+});
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initializeExpenseDrawer,{once:true});
+}else{
+  initializeExpenseDrawer();
+}
 
 const E={months:[],data:{}};
 let expenseView='expenseSummary';
