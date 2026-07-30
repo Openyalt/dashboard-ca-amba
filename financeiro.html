@@ -315,6 +315,158 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 @media(max-width:950px){.finance-grid,.finance-grid.equal{grid-template-columns:1fr}}
 @media(max-width:650px){.finance-kpis{grid-template-columns:1fr 1fr}.finance-filters input{min-width:100%;width:100%}}
 
+
+/* ===== FINANCEIRO EXECUTIVO V2 ===== */
+.director-hero{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+.director-result{
+  padding:22px;
+  min-height:190px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  background:
+    radial-gradient(circle at 85% 15%,rgba(56,189,248,.18),transparent 34%),
+    linear-gradient(145deg,#12314c,#091b2b);
+}
+.director-result small{
+  color:var(--muted);
+  text-transform:uppercase;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.6px;
+}
+.director-result strong{
+  display:block;
+  font-size:38px;
+  line-height:1.1;
+  margin:10px 0 5px;
+}
+.director-result p{margin:0;color:#b9ccdc;line-height:1.55}
+.director-health{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.health-card{
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#0a1b2b;
+}
+.health-card small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:900}
+.health-card strong{display:block;font-size:21px;margin-top:6px}
+.health-meter{
+  height:7px;
+  margin-top:10px;
+  background:#071827;
+  border-radius:999px;
+  overflow:hidden;
+}
+.health-meter span{display:block;height:100%;border-radius:999px}
+.health-meter.good span{background:#22c991}
+.health-meter.warn span{background:#f5b942}
+.health-meter.bad span{background:#ff6b7d}
+.executive-grid{
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:14px;
+}
+.executive-grid.equal{grid-template-columns:1fr 1fr}
+.executive-list{display:flex;flex-direction:column;gap:9px}
+.executive-item{
+  padding:13px 14px;
+  border:1px solid var(--line);
+  border-left:4px solid #38bdf8;
+  background:#0a1b2b;
+  border-radius:10px;
+  line-height:1.45;
+}
+.executive-item.good{border-left-color:#22c991}
+.executive-item.warn{border-left-color:#f5b942}
+.executive-item.bad{border-left-color:#ff6b7d}
+.executive-item b{display:block;margin-bottom:3px}
+.alert-count{
+  display:inline-flex;
+  min-width:26px;
+  height:26px;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  font-weight:900;
+  background:#4a1c26;
+  color:#ffb8c1;
+}
+.dre-table td,.dre-table th{padding:13px 15px}
+.dre-row-total{background:#102d46;font-weight:900}
+.dre-row-result{background:rgba(34,201,145,.11);font-size:16px;font-weight:900}
+.dre-row-result.negative{background:rgba(255,107,125,.12)}
+.projection-cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.projection-card{
+  padding:17px;
+  position:relative;
+  overflow:hidden;
+}
+.projection-card:before{
+  content:'';
+  position:absolute;
+  left:0;right:0;top:0;height:4px;
+  background:#38bdf8;
+}
+.projection-card h3{margin:0 0 12px}
+.projection-line{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.projection-line:last-child{border-bottom:0}
+.projection-line span{color:var(--muted)}
+.projection-line b{white-space:nowrap}
+.projection-balance{
+  font-size:22px;
+  margin-top:12px;
+  font-weight:900;
+}
+.risk-bucket-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.risk-bucket{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:#0a1b2b;
+}
+.risk-bucket small{color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:900}
+.risk-bucket strong{display:block;font-size:18px;margin-top:7px}
+.decision-banner{
+  padding:15px 17px;
+  border:1px solid #31516a;
+  background:linear-gradient(90deg,rgba(56,189,248,.12),rgba(34,201,145,.08));
+  border-radius:12px;
+  margin-bottom:14px;
+  line-height:1.55;
+}
+@media(max-width:1000px){
+  .director-hero,.executive-grid,.executive-grid.equal{grid-template-columns:1fr}
+  .projection-cards{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .director-health,.risk-bucket-grid{grid-template-columns:1fr 1fr}
+  .director-result strong{font-size:30px}
+}
+
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
 <div class="top"><div class="brand"><h1>Financeiro Executivo<br>Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
 <div class="tabs">
@@ -332,17 +484,55 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
   <div class="section-title"><h2>Centro Financeiro</h2><span id="financePeriodLabel">Entradas e saídas consolidadas</span></div>
 
   <div class="finance-nav">
-    <button class="finance-tab active" data-finance-view="financeSummary">Resumo</button>
+    <button class="finance-tab active" data-finance-view="financeDirector">Diretoria</button>
+    <button class="finance-tab" data-finance-view="financeSummary">Resumo</button>
     <button class="finance-tab" data-finance-view="financeIncome">Entradas</button>
     <button class="finance-tab" data-finance-view="financeExpenses">Saídas</button>
     <button class="finance-tab" data-finance-view="financeCashflow">Fluxo de Caixa</button>
     <button class="finance-tab" data-finance-view="financeComparison">Comparativos</button>
+    <button class="finance-tab" data-finance-view="financeDre">DRE Gerencial</button>
+    <button class="finance-tab" data-finance-view="financeProjection">Projeções</button>
     <button class="finance-tab" data-finance-view="financeClients">Clientes</button>
     <button class="finance-tab" data-finance-view="financeSuppliers">Fornecedores</button>
     <button class="finance-tab admin-only" data-finance-view="financeImport" hidden>Importação Recebíveis</button>
   </div>
 
-  <div id="financeSummary" class="finance-panel active">
+
+  <div id="financeDirector" class="finance-panel active">
+    <div id="directorDecisionBanner" class="decision-banner"></div>
+
+    <div class="director-hero">
+      <div id="directorMainResult" class="card director-result"></div>
+      <div id="directorHealth" class="director-health"></div>
+    </div>
+
+    <div class="section-title"><h2>Fluxo e resultado</h2><span>Leitura rápida para decisão</span></div>
+    <div class="executive-grid">
+      <div class="card panel">
+        <h3>Entradas, saídas e resultado mensal</h3>
+        <div class="desc">Realizado financeiro por competência.</div>
+        <div id="directorFlowChart" class="chart tall"></div>
+      </div>
+      <div class="card panel">
+        <div class="section-title" style="margin:0 0 12px"><h3 style="margin:0">Diagnóstico automático</h3><span id="directorDiagnosisStatus"></span></div>
+        <div id="directorDiagnosis" class="executive-list"></div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Riscos e concentração</h2><span>Alertas que exigem atenção da diretoria</span></div>
+    <div class="executive-grid equal">
+      <div class="card panel">
+        <h3>Alertas financeiros <span id="directorAlertCount" class="alert-count">0</span></h3>
+        <div id="directorAlerts" class="executive-list"></div>
+      </div>
+      <div class="card panel">
+        <h3>Concentração da carteira</h3>
+        <div id="directorConcentration" class="executive-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="financeSummary" class="finance-panel">
     <div id="financeKpis" class="finance-kpis"></div>
     <div class="section-title"><h2>Visão executiva</h2><span>Realizado, pendências e resultado mensal</span></div>
     <div class="finance-grid">
@@ -405,6 +595,48 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
         <tbody id="comparisonBody"></tbody>
       </table></div>
     </div>
+  </div>
+
+
+  <div id="financeDre" class="finance-panel">
+    <div class="section-title"><h2>DRE Gerencial Simplificada</h2><span>Visão de caixa, não substitui a DRE contábil</span></div>
+    <div id="dreKpis" class="finance-kpis"></div>
+    <div class="executive-grid">
+      <div class="card table-card">
+        <div class="finance-toolbar"><b id="dreTitle">Demonstrativo do mês</b><span class="desc">Base caixa: recebimentos e pagamentos realizados</span></div>
+        <div class="table-wrap"><table class="dre-table">
+          <tbody id="dreBody"></tbody>
+        </table></div>
+      </div>
+      <div class="card panel">
+        <h3>Composição do resultado</h3>
+        <div id="dreCompositionChart" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="finance-note" style="margin-top:14px">
+      Esta visão é gerencial e utiliza entradas efetivamente recebidas e despesas efetivamente pagas. Não contempla competência contábil, impostos provisionados, depreciação ou ajustes de estoque.
+    </div>
+  </div>
+
+
+  <div id="financeProjection" class="finance-panel">
+    <div class="section-title"><h2>Projeção de Caixa</h2><span>Estimativa para 30, 60 e 90 dias</span></div>
+    <div id="projectionCards" class="projection-cards"></div>
+
+    <div class="section-title"><h2>Agenda financeira futura</h2><span>Recebíveis em aberto por vencimento</span></div>
+    <div class="executive-grid">
+      <div class="card panel">
+        <h3>Entradas previstas</h3>
+        <div id="projectionReceivableChart" class="chart tall"></div>
+      </div>
+      <div class="card panel">
+        <h3>Premissas da projeção</h3>
+        <div id="projectionAssumptions" class="executive-list"></div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Envelhecimento da carteira</h2><span>Recebíveis vencidos por faixa de atraso</span></div>
+    <div id="projectionRiskBuckets" class="risk-bucket-grid"></div>
   </div>
 
   <div id="financeClients" class="finance-panel">
@@ -656,7 +888,7 @@ function switchView(v){
 
 // ===== CENTRO FINANCEIRO =====
 const R={months:[],data:{}};
-let financeView='financeSummary';
+let financeView='financeDirector';
 
 function financeSwitchView(id){
   financeView=id;
@@ -762,6 +994,221 @@ function financeAggregateRows(rows,key,status=null){
 function renderFinanceEmpty(){
   financeKpis.innerHTML='<div class="card expense-empty" style="grid-column:1/-1">Importe o relatório de Contas a Receber para cruzar entradas e saídas.</div>';
 }
+
+function financeSum(rows){
+  return rows.reduce((sum,row)=>sum+Number(row.valor||0),0);
+}
+function financeTopShare(items,count,total){
+  return total ? items.slice(0,count).reduce((sum,item)=>sum+Number(item.value||item.received||0),0)/total*100 : 0;
+}
+function financeDaysBetween(a,b){
+  const d1=expenseDateObject(a),d2=expenseDateObject(b);
+  if(!d1||!d2)return null;
+  return Math.round((d2-d1)/86400000);
+}
+function financeReferenceDate(){
+  const key=financeCurrentKey(),m=E.data[key]||R.data[key];
+  if(!m)return new Date();
+  return new Date(Date.UTC(m.year,m.month,0,23,59,59));
+}
+function financeOpenPortfolio(){
+  return allReceivableRows().filter(r=>!r.data_baixa);
+}
+function financeOverdueBuckets(){
+  const ref=financeReferenceDate();
+  const buckets={d0_30:0,d31_60:0,d61_90:0,d90:0};
+  financeOpenPortfolio().forEach(r=>{
+    const due=expenseDateObject(r.data_vencimento);
+    if(!due||due>ref)return;
+    const days=Math.max(0,Math.floor((ref-due)/86400000));
+    const value=Number(r.valor||0);
+    if(days<=30)buckets.d0_30+=value;
+    else if(days<=60)buckets.d31_60+=value;
+    else if(days<=90)buckets.d61_90+=value;
+    else buckets.d90+=value;
+  });
+  return buckets;
+}
+function financeProjectionWindow(days){
+  const ref=financeReferenceDate(),end=new Date(ref.getTime()+days*86400000);
+  return financeOpenPortfolio().filter(r=>{
+    const due=expenseDateObject(r.data_vencimento);
+    return due&&due>ref&&due<=end;
+  });
+}
+function financeAverageExpense(){
+  const series=financeSeries().filter(x=>x.expenses>0).slice(-3);
+  return series.length?series.reduce((s,x)=>s+x.expenses,0)/series.length:0;
+}
+function financeProjectionData(days){
+  const receivables=financeSum(financeProjectionWindow(days));
+  const avgExpense=financeAverageExpense();
+  const estimatedExpenses=avgExpense*(days/30);
+  return {days,receivables,estimatedExpenses,balance:receivables-estimatedExpenses};
+}
+function financeBuildDirectorAlerts(stats,series,clients,suppliers){
+  const alerts=[];
+  const top3Clients=financeTopShare(clients,3,stats.received);
+  const top5Suppliers=financeTopShare(suppliers,5,stats.expenses);
+  const buckets=financeOverdueBuckets();
+  const oldDebt=buckets.d61_90+buckets.d90;
+  const currentIndex=series.findIndex(x=>x.key===stats.key);
+  const previous=currentIndex>0?series[currentIndex-1]:null;
+
+  if(stats.balance<0)alerts.push({level:'bad',title:'Caixa mensal negativo',text:`As saídas superaram as entradas em ${brl(Math.abs(stats.balance))}.`});
+  if(stats.overdue>0)alerts.push({level:stats.overdue>stats.received*.15?'bad':'warn',title:'Carteira vencida',text:`Há ${brl(stats.overdue)} em títulos vencidos até a competência.`});
+  if(oldDebt>0)alerts.push({level:'bad',title:'Atrasos acima de 60 dias',text:`${brl(oldDebt)} permanecem vencidos há mais de 60 dias.`});
+  if(top3Clients>=60)alerts.push({level:'warn',title:'Concentração de clientes',text:`Os 3 maiores clientes representam ${pct(top3Clients)} das entradas do mês.`});
+  if(top5Suppliers>=60)alerts.push({level:'warn',title:'Concentração de fornecedores',text:`Os 5 maiores fornecedores concentram ${pct(top5Suppliers)} das saídas do mês.`});
+  if(previous&&stats.received<previous.received*.85)alerts.push({level:'warn',title:'Queda de entradas',text:`As entradas caíram ${pct(Math.abs(percentChange(stats.received,previous.received)))} em relação ao mês anterior.`});
+  if(previous&&stats.expenses>previous.expenses*1.15)alerts.push({level:'warn',title:'Aumento de despesas',text:`As saídas cresceram ${pct(percentChange(stats.expenses,previous.expenses))} em relação ao mês anterior.`});
+  if(!alerts.length)alerts.push({level:'good',title:'Nenhum alerta crítico',text:'Os principais indicadores do período estão dentro de uma faixa administrável.'});
+  return alerts;
+}
+function renderDirectorFlow(series){
+  if(!series.length){directorFlowChart.innerHTML='';return}
+  const max=Math.max(...series.flatMap(x=>[x.received,x.expenses,Math.abs(x.balance)]),1);
+  const width=760,height=330,left=45,bottom=282,plot=235,group=680/series.length;
+  const balancePoints=[];
+  const bars=series.map((x,i)=>{
+    const base=left+i*group+group*.18,w=Math.min(24,group*.22);
+    const inH=x.received/max*plot,outH=x.expenses/max*plot;
+    const y=bottom-(Math.max(0,x.balance)/max*plot);
+    balancePoints.push(`${base+w},${y}`);
+    return `<rect x="${base}" y="${bottom-inH}" width="${w}" height="${inH}" rx="5" fill="#22c991"/>
+      <rect x="${base+w+5}" y="${bottom-outH}" width="${w}" height="${outH}" rx="5" fill="#ff6b7d"/>
+      <text x="${base+w}" y="307" text-anchor="middle" fill="#9bb4c8" font-size="11">${safeText(x.label.split(' ')[0].slice(0,3))}</text>`;
+  }).join('');
+  directorFlowChart.innerHTML=`<svg viewBox="0 0 ${width} ${height}">
+    <line x1="35" y1="${bottom}" x2="735" y2="${bottom}" stroke="#31516a"/>
+    ${bars}
+    <polyline points="${balancePoints.join(' ')}" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    ${balancePoints.map(p=>{const [x,y]=p.split(',');return `<circle cx="${x}" cy="${y}" r="5" fill="#38bdf8" stroke="#071827" stroke-width="2"/>`}).join('')}
+    <text x="45" y="22" fill="#7cf3c5" font-size="11">■ Entradas</text>
+    <text x="130" y="22" fill="#ff9aaa" font-size="11">■ Saídas</text>
+    <text x="205" y="22" fill="#78d7ff" font-size="11">● Resultado</text>
+  </svg>`;
+}
+function renderFinanceDirector(){
+  const key=financeCurrentKey();if(!key)return;
+  const stats=financeMonthStats(key),series=financeSeries();
+  const clients=financeAggregateRows(stats.receivedRows,'cliente');
+  const suppliers=expenseAggregate(stats.expenseRows,'fornecedor');
+  const margin=stats.received?stats.balance/stats.received*100:0;
+  const receivedRate=(stats.received+stats.open+stats.overdue)?stats.received/(stats.received+stats.open+stats.overdue)*100:0;
+  const top3=financeTopShare(clients,3,stats.received);
+  const top5Sup=financeTopShare(suppliers,5,stats.expenses);
+  const projection30=financeProjectionData(30);
+  const alerts=financeBuildDirectorAlerts(stats,series,clients,suppliers);
+  const label=(E.data[key]||R.data[key])?.label||key;
+
+  directorDecisionBanner.innerHTML=`<b>${safeText(label)}:</b> ${stats.balance>=0
+    ? `a operação gerou saldo positivo de <b>${brl(stats.balance)}</b>, com margem de <b>${pct(margin)}</b>.`
+    : `a operação apresentou déficit de <b>${brl(Math.abs(stats.balance))}</b>.`}
+    ${stats.overdue?` A carteira vencida soma <b>${brl(stats.overdue)}</b>.`:''}`;
+
+  directorMainResult.innerHTML=`<div><small>Resultado financeiro do mês</small><strong class="${stats.balance>=0?'finance-positive':'finance-negative'}">${brl(stats.balance)}</strong><p>${stats.balance>=0?'Entradas superaram as saídas.':'Saídas superaram as entradas.'} A margem de caixa foi de ${pct(margin)}.</p></div><span class="finance-status ${stats.balance>=0?'received':'overdue'}">${stats.balance>=0?'Situação positiva':'Atenção necessária'}</span>`;
+
+  const health=[
+    ['Entradas recebidas',brl(stats.received),100,'good'],
+    ['Saídas realizadas',brl(stats.expenses),stats.received?Math.min(stats.expenses/stats.received*100,100):100,stats.expenses<=stats.received?'good':'bad'],
+    ['Taxa de recebimento',pct(receivedRate),receivedRate,receivedRate>=85?'good':receivedRate>=70?'warn':'bad'],
+    ['Caixa projetado 30 dias',brl(projection30.balance),projection30.receivables?Math.max(0,Math.min(100,(projection30.balance/projection30.receivables*50)+50)):50,projection30.balance>=0?'good':'bad']
+  ];
+  directorHealth.innerHTML=health.map(([labelText,value,width,state])=>`<div class="health-card"><small>${labelText}</small><strong>${value}</strong><div class="health-meter ${state}"><span style="width:${Math.max(4,Number(width)||0)}%"></span></div></div>`).join('');
+
+  renderDirectorFlow(series);
+
+  const currentIndex=series.findIndex(x=>x.key===key),prev=currentIndex>0?series[currentIndex-1]:null;
+  const diagnosis=[
+    {level:stats.balance>=0?'good':'bad',title:'Resultado',text:stats.balance>=0?`Saldo positivo de ${brl(stats.balance)} no mês.`:`Déficit de ${brl(Math.abs(stats.balance))} no mês.`},
+    {level:margin>=20?'good':margin>=10?'warn':'bad',title:'Margem de caixa',text:`A margem foi de ${pct(margin)} sobre as entradas recebidas.`},
+    {level:stats.overdue===0?'good':stats.overdue<stats.received*.1?'warn':'bad',title:'Inadimplência',text:stats.overdue?`${brl(stats.overdue)} estão vencidos.`:'Nenhum título vencido na carteira analisada.'},
+    {level:prev?(stats.received>=prev.received?'good':'warn'):'good',title:'Tendência das entradas',text:prev?`Variação de ${pct(percentChange(stats.received,prev.received))} contra ${prev.label}.`:'Primeiro mês disponível para comparação.'},
+    {level:projection30.balance>=0?'good':'bad',title:'Próximos 30 dias',text:`Projeção de saldo ${projection30.balance>=0?'positivo':'negativo'} em ${brl(Math.abs(projection30.balance))}.`}
+  ];
+  directorDiagnosisStatus.textContent='Gerado pelos dados do painel';
+  directorDiagnosis.innerHTML=diagnosis.map(x=>`<div class="executive-item ${x.level}"><b>${x.title}</b>${x.text}</div>`).join('');
+
+  directorAlertCount.textContent=alerts.filter(x=>x.level!=='good').length;
+  directorAlerts.innerHTML=alerts.map(x=>`<div class="executive-item ${x.level}"><b>${x.title}</b>${x.text}</div>`).join('');
+
+  directorConcentration.innerHTML=[
+    `<div class="executive-item ${top3>=60?'warn':'good'}"><b>Top 3 clientes</b>${pct(top3)} das entradas do mês.</div>`,
+    `<div class="executive-item ${top5Sup>=60?'warn':'good'}"><b>Top 5 fornecedores</b>${pct(top5Sup)} das saídas do mês.</div>`,
+    `<div class="executive-item"><b>Maior cliente</b>${safeText(clients[0]?.name||'Sem recebimentos')} ${clients[0]?`• ${brl(clients[0].value)}`:''}</div>`,
+    `<div class="executive-item"><b>Maior fornecedor</b>${safeText(suppliers[0]?.name||'Sem despesas')} ${suppliers[0]?`• ${brl(suppliers[0].value)}`:''}</div>`
+  ].join('');
+}
+function renderFinanceDre(){
+  const key=financeCurrentKey();if(!key)return;
+  const stats=financeMonthStats(key),rows=stats.expenseRows;
+  const categories=expenseAggregate(rows,'categoria');
+  const directWords=['combustivel','pecas','manutencao','motorista','soldador','operacional','equipamento','frete','transporte'];
+  let direct=0,administrative=0,financial=0,other=0;
+  rows.forEach(r=>{
+    const textKey=normKey(`${r.categoria} ${r.centro_custo}`);
+    const value=Number(r.valor||0);
+    if(/JUROS|FINANCIAMENTO|AMORTIZACAO|IOF|BANCO/.test(textKey))financial+=value;
+    else if(directWords.some(word=>textKey.includes(normKey(word))))direct+=value;
+    else if(/ADM|ADMINISTRAT|PRO LABORE|SALARIO|JUDICIA|CONTABIL|ALUGUEL/.test(textKey))administrative+=value;
+    else other+=value;
+  });
+  const operating=stats.received-direct-administrative-other;
+  const finalResult=operating-financial;
+  const margin=stats.received?finalResult/stats.received*100:0;
+  const label=(E.data[key]||R.data[key])?.label||key;
+  dreTitle.textContent=`DRE Gerencial — ${label}`;
+  dreKpis.innerHTML=[
+    financeKpi('Receita recebida',brl(stats.received),'Entradas realizadas','income'),
+    financeKpi('Custos diretos',brl(direct),'Classificação gerencial','expense'),
+    financeKpi('Despesas administrativas',brl(administrative),'Classificação gerencial','expense'),
+    financeKpi('Resultado operacional',brl(operating),operating>=0?'Positivo':'Negativo','balance'),
+    financeKpi('Resultado final',brl(finalResult),finalResult>=0?'Positivo':'Negativo',finalResult>=0?'income':'expense'),
+    financeKpi('Margem gerencial',pct(margin),'Resultado final ÷ receita','balance')
+  ].join('');
+  const rowsDre=[
+    ['Receita recebida',stats.received,'dre-row-total'],
+    ['(-) Custos diretos',-direct,''],
+    ['(-) Despesas administrativas',-administrative,''],
+    ['(-) Outras despesas operacionais',-other,''],
+    ['Resultado operacional',operating,'dre-row-total'],
+    ['(-) Despesas financeiras',-financial,''],
+    ['Resultado gerencial do mês',finalResult,`dre-row-result ${finalResult<0?'negative':''}`],
+    ['Margem gerencial',margin,'dre-row-total',true]
+  ];
+  dreBody.innerHTML=rowsDre.map(([labelText,value,className,isPct])=>`<tr class="${className}"><td>${labelText}</td><td class="num ${value>=0?'finance-positive':'finance-negative'}">${isPct?pct(value):brl(value)}</td></tr>`).join('');
+  vbars('dreCompositionChart',[
+    {label:'Receita',valor:stats.received},
+    {label:'Custos',valor:direct},
+    {label:'Administrativo',valor:administrative},
+    {label:'Financeiro',valor:financial},
+    {label:'Resultado',valor:Math.max(finalResult,0)}
+  ],'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil');
+}
+function renderFinanceProjection(){
+  const p30=financeProjectionData(30),p60=financeProjectionData(60),p90=financeProjectionData(90);
+  const projections=[p30,p60,p90];
+  projectionCards.innerHTML=projections.map(p=>`<div class="card projection-card"><h3>Próximos ${p.days} dias</h3><div class="projection-line"><span>Receber previsto</span><b class="finance-positive">${brl(p.receivables)}</b></div><div class="projection-line"><span>Saídas estimadas</span><b class="finance-negative">${brl(p.estimatedExpenses)}</b></div><div class="projection-balance ${p.balance>=0?'finance-positive':'finance-negative'}">${brl(p.balance)}</div><div class="desc">Saldo projetado</div></div>`).join('');
+
+  vbars('projectionReceivableChart',projections.map(p=>({label:`${p.days} dias`,valor:p.receivables})),'valor','#22c991',v=>'R$ '+Math.round(v/1000)+' mil');
+
+  const avgExpense=financeAverageExpense();
+  projectionAssumptions.innerHTML=[
+    `<div class="executive-item"><b>Recebíveis considerados</b>Títulos sem Data de Baixa e com vencimento dentro de cada janela.</div>`,
+    `<div class="executive-item"><b>Saída mensal estimada</b>Média dos últimos 3 meses: ${brl(avgExpense)}.</div>`,
+    `<div class="executive-item warn"><b>Natureza da projeção</b>Estimativa gerencial. Não substitui orçamento financeiro nem contas a pagar futuras ainda não importadas.</div>`
+  ].join('');
+
+  const buckets=financeOverdueBuckets();
+  projectionRiskBuckets.innerHTML=[
+    ['Até 30 dias',buckets.d0_30],
+    ['31 a 60 dias',buckets.d31_60],
+    ['61 a 90 dias',buckets.d61_90],
+    ['Acima de 90 dias',buckets.d90]
+  ].map(([labelText,value])=>`<div class="risk-bucket"><small>${labelText}</small><strong class="${value?'finance-negative':''}">${brl(value)}</strong></div>`).join('');
+}
+
 function renderFinanceSummary(){
   const key=financeCurrentKey();if(!key)return renderFinanceEmpty();
   const s=financeMonthStats(key),series=financeSeries(),idx=series.findIndex(x=>x.key===key),prev=idx>0?series[idx-1]:null;
@@ -899,11 +1346,14 @@ function renderFinanceSuppliers(){
   financeSuppliersBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num">${brl(x.value)}</td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
 }
 function renderFinance(){
+  if(financeView==='financeDirector')renderFinanceDirector();
   if(financeView==='financeSummary')renderFinanceSummary();
   if(financeView==='financeIncome')renderFinanceIncome();
   if(financeView==='financeExpenses')renderFinanceExpenses();
   if(financeView==='financeCashflow')renderFinanceCashflow();
   if(financeView==='financeComparison')renderFinanceComparison();
+  if(financeView==='financeDre')renderFinanceDre();
+  if(financeView==='financeProjection')renderFinanceProjection();
   if(financeView==='financeClients')renderFinanceClients();
   if(financeView==='financeSuppliers')renderFinanceSuppliers();
 }
