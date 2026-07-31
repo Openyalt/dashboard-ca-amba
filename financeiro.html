@@ -889,18 +889,20 @@ function switchView(v){
 // ===== CENTRO FINANCEIRO =====
 
 function syncFinanceMonthSelect(preferredKey=null){
-  const keys=[...new Set([
-    ...Object.keys(P.data||{}),
-    ...Object.keys(E.data||{}),
-    ...Object.keys(R.data||{})
-  ])].sort((a,b)=>{
-    const A=P.data[a]||E.data[a]||R.data[a];
-    const B=P.data[b]||E.data[b]||R.data[b];
+  // O seletor representa somente as competências operacionais do painel.
+  // Recebíveis antigos ou futuros permanecem na carteira, mas não criam
+  // meses soltos no topo (ex.: maio/2025 e dezembro/2025).
+  const sourceKeys=E.months.length
+    ? [...E.months]
+    : (P.months.length ? [...P.months] : [...R.months]);
+  const keys=[...new Set(sourceKeys)].sort((a,b)=>{
+    const A=E.data[a]||P.data[a]||R.data[a];
+    const B=E.data[b]||P.data[b]||R.data[b];
     return monthOrdinal(a,A)-monthOrdinal(b,B);
   });
 
   monthSelect.innerHTML=keys.map(key=>{
-    const data=P.data[key]||E.data[key]||R.data[key];
+    const data=E.data[key]||P.data[key]||R.data[key];
     return `<option value="${key}">${safeText(data?.label||key)}</option>`;
   }).join('');
 
@@ -908,8 +910,8 @@ function syncFinanceMonthSelect(preferredKey=null){
     (preferredKey&&keys.includes(preferredKey)&&preferredKey)||
     (current&&keys.includes(current)&&current)||
     E.months[E.months.length-1]||
-    R.months[R.months.length-1]||
     P.months[P.months.length-1]||
+    keys[keys.length-1]||
     '';
 
   current=next;
@@ -1139,12 +1141,12 @@ function renderFinanceDirector(){
   directorMainResult.innerHTML=`<div><small>Resultado financeiro do mês</small><strong class="${stats.balance>=0?'finance-positive':'finance-negative'}">${brl(stats.balance)}</strong><p>${stats.balance>=0?'Entradas superaram as saídas.':'Saídas superaram as entradas.'} A margem de caixa foi de ${pct(margin)}.</p></div><span class="finance-status ${stats.balance>=0?'received':'overdue'}">${stats.balance>=0?'Situação positiva':'Atenção necessária'}</span>`;
 
   const health=[
-    ['Entradas recebidas',brl(stats.received),100,'good'],
-    ['Saídas realizadas',brl(stats.expenses),stats.received?Math.min(stats.expenses/stats.received*100,100):100,stats.expenses<=stats.received?'good':'bad'],
-    ['Taxa de recebimento',pct(receivedRate),receivedRate,receivedRate>=85?'good':receivedRate>=70?'warn':'bad'],
-    ['Caixa projetado 30 dias',brl(projection30.balance),projection30.receivables?Math.max(0,Math.min(100,(projection30.balance/projection30.receivables*50)+50)):50,projection30.balance>=0?'good':'bad']
+    ['Entradas recebidas',brl(stats.received),100,'good','Valor efetivamente baixado no mês'],
+    ['Saídas realizadas',brl(stats.expenses),stats.received?Math.min(stats.expenses/stats.received*100,100):100,stats.expenses<=stats.received?'good':'bad','Pagamentos efetivamente realizados no mês'],
+    ['Taxa de recebimento',pct(receivedRate),receivedRate,receivedRate>=85?'good':receivedRate>=70?'warn':'bad','Recebido ÷ recebido, aberto e vencido'],
+    ['Previsão líquida — 30 dias',brl(projection30.balance),projection30.receivables?Math.max(0,Math.min(100,(projection30.balance/projection30.receivables*50)+50)):50,projection30.balance>=0?'good':'bad',`${brl(projection30.receivables)} a vencer − ${brl(projection30.estimatedExpenses)} de saídas estimadas`]
   ];
-  directorHealth.innerHTML=health.map(([labelText,value,width,state])=>`<div class="health-card"><small>${labelText}</small><strong>${value}</strong><div class="health-meter ${state}"><span style="width:${Math.max(4,Number(width)||0)}%"></span></div></div>`).join('');
+  directorHealth.innerHTML=health.map(([labelText,value,width,state,note])=>`<div class="health-card"><small>${labelText}</small><strong>${value}</strong><em style="display:block;margin:4px 0 8px;color:#8fa8bd;font-size:10px;font-style:normal;line-height:1.35">${note}</em><div class="health-meter ${state}"><span style="width:${Math.max(4,Number(width)||0)}%"></span></div></div>`).join('');
 
   renderDirectorFlow(series);
 
@@ -1154,7 +1156,7 @@ function renderFinanceDirector(){
     {level:margin>=20?'good':margin>=10?'warn':'bad',title:'Margem de caixa',text:`A margem foi de ${pct(margin)} sobre as entradas recebidas.`},
     {level:stats.overdue===0?'good':stats.overdue<stats.received*.1?'warn':'bad',title:'Inadimplência',text:stats.overdue?`${brl(stats.overdue)} estão vencidos.`:'Nenhum título vencido na carteira analisada.'},
     {level:prev?(stats.received>=prev.received?'good':'warn'):'good',title:'Tendência das entradas',text:prev?`Variação de ${pct(percentChange(stats.received,prev.received))} contra ${prev.label}.`:'Primeiro mês disponível para comparação.'},
-    {level:projection30.balance>=0?'good':'bad',title:'Próximos 30 dias',text:`Projeção de saldo ${projection30.balance>=0?'positivo':'negativo'} em ${brl(Math.abs(projection30.balance))}.`}
+    {level:projection30.balance>=0?'good':'bad',title:'Próximos 30 dias',text:`Há ${brl(projection30.receivables)} em títulos com vencimento futuro dentro de 30 dias. As saídas estimadas pela média dos últimos 3 meses são ${brl(projection30.estimatedExpenses)}. Diferença projetada: ${brl(projection30.balance)}. Títulos já vencidos ficam na carteira vencida e não entram como recebimento garantido nesta previsão.`}
   ];
   directorDiagnosisStatus.textContent='Gerado pelos dados do painel';
   directorDiagnosis.innerHTML=diagnosis.map(x=>`<div class="executive-item ${x.level}"><b>${x.title}</b>${x.text}</div>`).join('');
@@ -1489,8 +1491,9 @@ async function importReceivables(file){
     R.data[key]=data;
   }
   rebuildReceivableMonths();
-  const latestImported=ordered[ordered.length-1]?.[0]||current;
-  syncFinanceMonthSelect(latestImported);
+  // Não muda o mês selecionado para uma competência criada apenas pelo
+  // relatório de recebíveis. O período do painel continua sendo o operacional.
+  syncFinanceMonthSelect(current);
   renderFinance();
   notifyImport(`${ordered.length} competência(s) de recebíveis sincronizada(s).`);
 }
