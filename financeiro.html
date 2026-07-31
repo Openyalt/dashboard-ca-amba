@@ -467,6 +467,21 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
   .director-result strong{font-size:30px}
 }
 
+
+/* ===== TABELA DE TÍTULOS VENCIDOS — VISUAL COMPACTO ===== */
+.overdue-table{table-layout:fixed;min-width:1280px}
+.overdue-table th,.overdue-table td{padding:8px 7px;vertical-align:middle}
+.overdue-table th{white-space:normal;line-height:1.15}
+.overdue-table td{font-size:11px}
+.overdue-table .col-date{width:92px;white-space:nowrap}
+.overdue-table .col-days{width:72px;text-align:right;white-space:nowrap}
+.overdue-table .col-client{width:250px}
+.overdue-table .col-op{width:82px;text-align:center;white-space:nowrap}
+.overdue-table .col-category{width:150px}
+.overdue-table .col-history{width:auto;line-height:1.35;overflow-wrap:anywhere}
+.overdue-table .col-value{width:112px;text-align:right;white-space:nowrap}
+.overdue-table .col-aging{width:108px;white-space:nowrap}
+@media(max-width:900px){.overdue-table{min-width:1180px}.overdue-table .col-client{width:210px}.overdue-table .col-category{width:135px}}
 </style></head><body><div id="tip" class="tooltip"></div><div id="importNote" class="import-note"></div><main class="shell" id="dashboardShell" hidden>
 <div class="top"><div class="brand"><h1>Financeiro Executivo<br>Rapido Transportes</h1><p id="subtitle">Painel anual consolidado • Operação de caçambas • Base processada</p></div><div class="top-actions"><select id="monthSelect" class="select"></select><input id="importFile" class="file-input" type="file" accept=".xlsx,.xlsm,.csv,.txt"><button class="btn primary" id="importBtn" disabled title="Entre como administrador para importar">Importar Excel / TXT</button><span id="cloudStatus" class="cloud-status"><i></i><span>Conectando...</span></span><span id="userBadge" class="user-badge" aria-live="polite"><span class="user-badge-icon">U</span><span class="user-badge-text"><strong id="userBadgeEmail"></strong><small id="userBadgeRole"></small></span></span><button class="btn" id="authBtn">Entrar</button><button class="btn" id="fullscreenBtn">Tela cheia</button><button class="btn primary" onclick="window.print()">Imprimir / PDF</button></div></div>
 <div class="tabs">
@@ -653,9 +668,9 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
           </select>
         </div>
       </div>
-      <div class="table-wrap" style="max-height:620px"><table>
+      <div class="table-wrap" style="max-height:620px"><table class="overdue-table">
         <thead><tr>
-          <th>Vencimento</th><th class="num">Dias em atraso</th><th>Cliente</th><th>OP / ID</th><th>Categoria</th><th>Histórico</th><th class="num">Valor</th><th>Faixa</th>
+          <th class="col-date">Data de emissão</th><th class="col-date">Vencimento</th><th class="col-days">Dias em atraso</th><th class="col-client">Cliente</th><th class="col-op">OP</th><th class="col-category">Categoria</th><th class="col-history">Histórico</th><th class="col-value">Valor</th><th class="col-aging">Faixa</th>
         </tr></thead>
         <tbody id="overdueTableBody"></tbody>
       </table></div>
@@ -1267,20 +1282,21 @@ function renderOverdueTable(rows,ref){
   const filtered=unique.filter(r=>{
     if(aging!=='all'&&r._aging.key!==aging)return false;
     if(!q)return true;
-    return normKey([r.cliente,r.id_cpr,r.categoria,r.historico,r.tipo,r.data_vencimento].join(' ')).includes(q);
+    return normKey([r.cliente,r.id_cpr,r.categoria,r.historico,r.tipo,r.data_emissao,r.data_vencimento].join(' ')).includes(q);
   }).sort((a,b)=>b._aging.days-a._aging.days||Number(b.valor||0)-Number(a.valor||0));
   const total=financeSum(filtered);
   overdueTableSummary.textContent=`${filtered.length} título(s) • ${brl(total)}`;
   overdueTableBody.innerHTML=filtered.length?filtered.map(r=>`<tr>
-    <td>${safeText(r.data_vencimento||'—')}</td>
-    <td class="num"><b>${r._aging.days}</b></td>
-    <td><b>${safeText(r.cliente||'Não informado')}</b></td>
-    <td>${safeText(r.id_cpr||'—')}</td>
-    <td>${safeText(r.categoria||r.tipo||'Não informado')}</td>
-    <td>${safeText(r.historico||r.tipo||'—')}</td>
-    <td class="num"><b>${brl(Number(r.valor||0))}</b></td>
-    <td><span class="pill ${r._aging.cls}">${r._aging.label}</span></td>
-  </tr>`).join(''):'<tr><td colspan="8" class="empty">Nenhum título encontrado com os filtros selecionados.</td></tr>';
+    <td class="col-date">${safeText(r.data_emissao||'—')}</td>
+    <td class="col-date">${safeText(r.data_vencimento||'—')}</td>
+    <td class="col-days"><b>${r._aging.days}</b></td>
+    <td class="col-client"><b>${safeText(r.cliente||'Não informado')}</b></td>
+    <td class="col-op"><b>${safeText(r.id_cpr||'—')}</b></td>
+    <td class="col-category">${safeText(r.categoria||r.tipo||'Não informado')}</td>
+    <td class="col-history" title="${safeText(r.historico||r.tipo||'—')}">${safeText(r.historico||r.tipo||'—')}</td>
+    <td class="col-value"><b>${brl(Number(r.valor||0))}</b></td>
+    <td class="col-aging"><span class="pill ${r._aging.cls}">${r._aging.label}</span></td>
+  </tr>`).join(''):'<tr><td colspan="9" class="empty">Nenhum título encontrado com os filtros selecionados.</td></tr>';
 }
 
 function renderFinanceProjection(){
@@ -1484,7 +1500,7 @@ const RECEIVABLE_ALIASES={
   previsao:['DATA PREVISAO'],
   baixa:['DATA BAIXA'],
   conciliado:['CONCILIADO BANCO','CONCILIADO'],
-  id_cpr:['ID CPR','ID','NUMERO OPERACAO'],
+  id_cpr:['OP','ID CPR','ID','NUMERO OPERACAO','NUMERO DA OPERACAO','OPERACAO'],
   cliente:['RAZAO SOCIAL PESSOA','CLIENTE'],
   valor:['VALOR A RECEBER','VALOR'],
   tipo:['TIPO'],
