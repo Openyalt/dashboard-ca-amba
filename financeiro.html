@@ -887,6 +887,38 @@ function switchView(v){
 
 
 // ===== CENTRO FINANCEIRO =====
+
+function syncFinanceMonthSelect(preferredKey=null){
+  const keys=[...new Set([
+    ...Object.keys(P.data||{}),
+    ...Object.keys(E.data||{}),
+    ...Object.keys(R.data||{})
+  ])].sort((a,b)=>{
+    const A=P.data[a]||E.data[a]||R.data[a];
+    const B=P.data[b]||E.data[b]||R.data[b];
+    if(!A&&!B)return String(a).localeCompare(String(b));
+    if(!A)return 1;
+    if(!B)return -1;
+    return (Number(A.year)*12+Number(A.month))-(Number(B.year)*12+Number(B.month));
+  });
+
+  monthSelect.innerHTML=keys.map(key=>{
+    const data=P.data[key]||E.data[key]||R.data[key];
+    return `<option value="${key}">${safeText(data?.label||key)}</option>`;
+  }).join('');
+
+  const next=
+    (preferredKey&&keys.includes(preferredKey)&&preferredKey)||
+    (current&&keys.includes(current)&&current)||
+    E.months[E.months.length-1]||
+    R.months[R.months.length-1]||
+    P.months[P.months.length-1]||
+    '';
+
+  current=next;
+  monthSelect.value=next;
+}
+
 const R={months:[],data:{}};
 let financeView='financeDirector';
 
@@ -1459,7 +1491,11 @@ async function importReceivables(file){
     await window.firebaseSaveReceivableMonth(key,data,{fileName:file.name});
     R.data[key]=data;
   }
-  rebuildReceivableMonths();renderFinance();notifyImport(`${ordered.length} competência(s) de recebíveis sincronizada(s).`);
+  rebuildReceivableMonths();
+  const latestImported=ordered[ordered.length-1]?.[0]||current;
+  syncFinanceMonthSelect(latestImported);
+  renderFinance();
+  notifyImport(`${ordered.length} competência(s) de recebíveis sincronizada(s).`);
 }
 function rebuildReceivableMonths(){
   R.months=Object.keys(R.data).sort((a,b)=>{
@@ -1477,7 +1513,9 @@ receivableImportFile.onchange=async()=>{
 window.receivableDashboardState=R;
 window.receivableApplyCloudMonths=function(months){
   R.data={};Object.entries(months||{}).forEach(([key,value])=>{if(value?.records)R.data[key]=value});
-  rebuildReceivableMonths();if(currentView==='finance')renderFinance();
+  rebuildReceivableMonths();
+  syncFinanceMonthSelect(current);
+  if(currentView==='finance')renderFinance();
 };
 setTimeout(()=>renderFinance(),0);
 // ===== FIM CENTRO FINANCEIRO =====
@@ -2087,7 +2125,7 @@ function workbookTargetMonth(tables,fileName){
 function rowMonth(r){return monthFromText(r.mes)||parseDateParts(r.inicio)||parseDateParts(r.fim)}
 function inferMonth(rows,fileName,sheetName){for(const r of rows){const p=rowMonth(r);if(p&&p[0]>=1&&p[0]<=12)return p}let p=monthFromText(`${sheetName} ${fileName}`);if(p)return p;const ans=prompt('Não consegui identificar o mês. Informe mês e ano, por exemplo: 08/2026');p=parseDateParts(ans);if(!p||p[0]<1||p[0]>12)throw new Error('Mês/ano não informado corretamente.');return p}
 function makeMonth(rows,m,y){const key=monthKey(m,y);rows.forEach(r=>{r.mes=key;r.ano=y;r.mes_num=m});const groups=new Map();for(const r of rows){const k=r.cliente;let c=groups.get(k);if(!c)c={cliente:r.cliente,cod:r.cod,cnpj:r.cnpj,vencimento:r.vencimento,qtd:0,valor:0,patrimonios:[],contratos:[],obs:[],corrigir:[]};c.qtd+=r.qt||1;c.valor+=r.valor||0;if(r.patrimonio&&!c.patrimonios.includes(r.patrimonio))c.patrimonios.push(r.patrimonio);if(r.contrato&&!c.contratos.includes(r.contrato))c.contratos.push(r.contrato);if(r.obs&&!c.obs.includes(r.obs))c.obs.push(r.obs);if(r.pat_corrigir&&!c.corrigir.includes(r.pat_corrigir))c.corrigir.push(r.pat_corrigir);if(!c.cod&&r.cod)c.cod=r.cod;if(!c.cnpj&&r.cnpj)c.cnpj=r.cnpj;if(!c.vencimento&&r.vencimento)c.vencimento=r.vencimento;groups.set(k,c)}const clients=[...groups.values()].map(c=>({...c,ticket:c.qtd?c.valor/c.qtd:0})).sort((a,b)=>b.valor-a.valor);const valor=clients.reduce((s,c)=>s+c.valor,0),qtd=clients.reduce((s,c)=>s+c.qtd,0);let ac=0;const pareto=clients.map(c=>{ac+=c.valor;return{cliente:c.cliente,valor:c.valor,acumulado:valor?ac/valor*100:0}});const dm=new Map();clients.forEach(c=>{const k=c.vencimento||'Não informado',d=dm.get(k)||{label:k,valor:0,qtd:0,clientes:0};d.valor+=c.valor;d.qtd+=c.qtd;d.clientes++;dm.set(k,d)});const due=[...dm.values()].sort((a,b)=>(parseInt(a.label)||99)-(parseInt(b.label)||99));const alerts=[];clients.forEach(c=>{if(c.corrigir.length)alerts.push({tipo:'Patrimônio',nivel:'alto',cliente:c.cliente,texto:c.corrigir.join(' | ')});if(c.obs.length)alerts.push({tipo:'Observação',nivel:'médio',cliente:c.cliente,texto:c.obs.join(' | ')})});const top=n=>valor?clients.slice(0,n).reduce((s,c)=>s+c.valor,0)/valor*100:0;return{label:monthLabel(m,y),rows,clients,pareto,due,alerts,totals:{valor,qtd,clientes:clients.length,ticket:qtd?valor/qtd:0,media:clients.length?valor/clients.length:0,top3:top(3),top5:top(5)}}}
-function rebuildGlobal(){P.months.sort((a,b)=>{const A=P.data[a].rows[0],B=P.data[b].rows[0];return(A.ano*12+A.mes_num)-(B.ano*12+B.mes_num)});P.annual=P.months.map(m=>({mes:m,label:P.data[m].label.slice(0,3),valor:P.data[m].totals.valor,qtd:P.data[m].totals.qtd,clientes:P.data[m].totals.clientes}));P.grand={valor:P.annual.reduce((s,x)=>s+x.valor,0),qtd:P.annual.reduce((s,x)=>s+x.qtd,0),clientes_unicos:new Set(P.months.flatMap(m=>P.data[m].clients.map(c=>c.cnpj||c.cliente))).size};monthSelect.innerHTML=P.months.map(m=>`<option value="${m}">${P.data[m].label}</option>`).join('');monthSelect.value=current}
+function rebuildGlobal(){P.months.sort((a,b)=>{const A=P.data[a].rows[0],B=P.data[b].rows[0];return(A.ano*12+A.mes_num)-(B.ano*12+B.mes_num)});P.annual=P.months.map(m=>({mes:m,label:P.data[m].label.slice(0,3),valor:P.data[m].totals.valor,qtd:P.data[m].totals.qtd,clientes:P.data[m].totals.clientes}));P.grand={valor:P.annual.reduce((s,x)=>s+x.valor,0),qtd:P.annual.reduce((s,x)=>s+x.qtd,0),clientes_unicos:new Set(P.months.flatMap(m=>P.data[m].clients.map(c=>c.cnpj||c.cliente))).size};syncFinanceMonthSelect(current)}
 async function importDashboardFile(file){
  let tables=[];const ext=(file.name.split('.').pop()||'').toLowerCase();
  if(ext==='csv'||ext==='txt')tables=[{name:'Arquivo',rows:csvRows(await file.text())}];
@@ -2163,7 +2201,7 @@ async function importDashboardFile(file){
 importBtn.onclick=()=>importFile.click();importFile.onchange=async()=>{const f=importFile.files&&importFile.files[0];if(!f)return;importBtn.disabled=true;importBtn.textContent='Importando...';try{await importDashboardFile(f)}catch(e){console.error(e);notifyImport(e&&e.message?e.message:'Falha ao importar o arquivo.',true)}finally{importBtn.disabled=false;importBtn.textContent='Importar Excel / TXT';importFile.value=''}};
 // ===== FIM DO IMPORTADOR =====
 
-P.months.forEach(m=>monthSelect.insertAdjacentHTML('beforeend',`<option value="${m}">${P.data[m].label}</option>`));monthSelect.value=current;monthSelect.onchange=e=>{current=e.target.value;renderMonthly();if(currentView==='management')renderManagement();if(currentView==='finance')renderFinance();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();if(currentView==='heatmap')renderHeatmap();if(currentView==='report')renderReport()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));searchClient.oninput=renderMonthlyTable;dueFilter.onchange=renderMonthlyTable;searchCompany.oninput=renderCompanies;closeModal.onclick=()=>companyModal.classList.remove('open');companyModal.onclick=e=>{if(e.target===companyModal)companyModal.classList.remove('open')};fullscreenBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();let rt;window.onresize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!P.months.length)return;if(currentView==='monthly')renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='finance')renderFinance();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();},180)};
+syncFinanceMonthSelect(current);monthSelect.onchange=e=>{current=e.target.value;if(P.data[current])renderMonthly();if(currentView==='management'&&P.data[current])renderManagement();if(currentView==='finance')renderFinance();if(currentView==='expenses'&&E.data[current])renderExpenses();if(currentView==='assets'&&P.data[current])renderAssets();if(currentView==='heatmap'&&P.data[current])renderHeatmap();if(currentView==='report'&&P.data[current])renderReport()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));searchClient.oninput=renderMonthlyTable;dueFilter.onchange=renderMonthlyTable;searchCompany.oninput=renderCompanies;closeModal.onclick=()=>companyModal.classList.remove('open');companyModal.onclick=e=>{if(e.target===companyModal)companyModal.classList.remove('open')};fullscreenBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();let rt;window.onresize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!P.months.length)return;if(currentView==='monthly')renderMonthly();if(currentView==='annual')renderAnnual();if(currentView==='finance')renderFinance();if(currentView==='expenses')renderExpenses();if(currentView==='assets')renderAssets();},180)};
 
 setTimeout(()=>{ if(currentView==='expenses') renderExpenses(); }, 0);
 
@@ -2172,17 +2210,21 @@ window.expenseApplyCloudMonths=function(cloudMonths){
   E.data={};
   Object.entries(cloudMonths||{}).forEach(([key,value])=>{if(value?.records)E.data[key]=value});
   rebuildExpenseMonths();
-  if(currentView==='expenses')renderExpenses();
+  syncFinanceMonthSelect(current);
+  if(currentView==='finance')renderFinance();
+  if(currentView==='expenses'&&E.data[current])renderExpenses();
 };
 
 window.dashboardState=P;
 window.dashboardApplyCloudMonths=function(cloudMonths){
  if(!cloudMonths||typeof cloudMonths!=='object')return;
  Object.entries(cloudMonths).forEach(([key,value])=>{if(value&&value.rows&&value.totals)P.data[key]=value});
- P.months=Object.keys(P.data);
+ P.months=Object.keys(P.data).sort((a,b)=>{
+   const A=P.data[a],B=P.data[b];
+   return (Number(A.year)*12+Number(A.month))-(Number(B.year)*12+Number(B.month));
+ });
  rebuildGlobal();
- if(!P.data[current])current=P.months[P.months.length-1];
- monthSelect.value=current;
+ syncFinanceMonthSelect(current);
 };
 window.dashboardRenderCurrent=function(){
  if(!P.months.length||!P.data[current])return;
