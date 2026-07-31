@@ -637,6 +637,29 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 
     <div class="section-title"><h2>Envelhecimento da carteira</h2><span>Valores vencidos por faixa de atraso</span></div>
     <div id="projectionRiskBuckets" class="risk-bucket-grid"></div>
+
+    <div class="section-title"><h2>Títulos vencidos</h2><span>Relação detalhada, sem duplicidades, que compõe a carteira vencida</span></div>
+    <div class="card table-card">
+      <div class="finance-toolbar">
+        <b id="overdueTableSummary">0 título(s)</b>
+        <div class="filters">
+          <input id="overdueSearch" type="search" placeholder="Buscar cliente, OP, categoria ou histórico">
+          <select id="overdueAgingFilter">
+            <option value="all">Todas as faixas</option>
+            <option value="0-30">Até 30 dias</option>
+            <option value="31-60">31 a 60 dias</option>
+            <option value="61-90">61 a 90 dias</option>
+            <option value="90+">Acima de 90 dias</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap" style="max-height:620px"><table>
+        <thead><tr>
+          <th>Vencimento</th><th class="num">Dias em atraso</th><th>Cliente</th><th>OP / ID</th><th>Categoria</th><th>Histórico</th><th class="num">Valor</th><th>Faixa</th>
+        </tr></thead>
+        <tbody id="overdueTableBody"></tbody>
+      </table></div>
+    </div>
   </div>
 
   <div id="financeClients" class="finance-panel">
@@ -928,6 +951,8 @@ function financeSwitchView(id){
   renderFinance();
 }
 document.querySelectorAll('.finance-tab').forEach(b=>b.addEventListener('click',()=>financeSwitchView(b.dataset.financeView)));
+document.addEventListener('input',e=>{if(e.target?.id==='overdueSearch'&&financeView==='financeProjection')renderFinanceProjection()});
+document.addEventListener('change',e=>{if(e.target?.id==='overdueAgingFilter'&&financeView==='financeProjection')renderFinanceProjection()});
 
 function financeMonthKeyFromDate(v){
   const d=expenseDateObject(v);
@@ -984,11 +1009,11 @@ function financeMonthStats(key){
 
   // Carteira em aberto até o fim da competência selecionada.
   // Aqui entram também títulos antigos que ainda não foram baixados.
-  const portfolioRows=allIncome.filter(r=>{
+  const portfolioRows=financeUniqueOverdueRows(allIncome.filter(r=>{
     if(r.data_baixa)return false;
     const dueIndex=financeRecordDueIndex(r);
     return dueIndex!==null && selectedIndex!==null && dueIndex<=selectedIndex;
-  });
+  }));
 
   const received=receivedRows.reduce((s,r)=>s+Number(r.valor||0),0);
   const expenses=expenseRows.reduce((s,r)=>s+Number(r.valor||0),0);
@@ -1043,8 +1068,9 @@ function financeReferenceDate(){
   return new Date(Date.UTC(m.year,m.month,0,23,59,59));
 }
 function financeOpenPortfolio(){
-  return allReceivableRows().filter(r=>!r.data_baixa);
+  return financeUniqueOverdueRows(allReceivableRows().filter(r=>!r.data_baixa));
 }
+
 function financeOverdueBuckets(){
   const ref=financeReferenceDate();
   const buckets={d0_30:0,d31_60:0,d61_90:0,d90:0};
@@ -1216,11 +1242,52 @@ function renderFinanceDre(){
     {label:'Resultado',valor:Math.max(finalResult,0)}
   ],'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil');
 }
+function financeUniqueOverdueRows(rows){
+  const seen=new Set(),unique=[];
+  rows.forEach(r=>{
+    const key=[r.id_cpr,r.data_emissao,r.data_vencimento,r.cliente,Number(r.valor||0).toFixed(2),r.tipo,r.categoria,r.historico]
+      .map(v=>normKey(String(v??''))).join('|');
+    if(seen.has(key))return;
+    seen.add(key);unique.push(r);
+  });
+  return unique;
+}
+function financeAgingInfo(row,ref){
+  const due=expenseDateObject(row.data_vencimento);
+  const days=due?Math.max(0,Math.floor((ref-due)/86400000)):0;
+  if(days<=30)return {days,key:'0-30',label:'Até 30 dias',cls:'alert-med'};
+  if(days<=60)return {days,key:'31-60',label:'31 a 60 dias',cls:'alert-med'};
+  if(days<=90)return {days,key:'61-90',label:'61 a 90 dias',cls:'alert-high'};
+  return {days,key:'90+',label:'Acima de 90 dias',cls:'alert-high'};
+}
+function renderOverdueTable(rows,ref){
+  const unique=financeUniqueOverdueRows(rows).map(r=>({...r,_aging:financeAgingInfo(r,ref)}));
+  const q=normKey(overdueSearch?.value||'');
+  const aging=overdueAgingFilter?.value||'all';
+  const filtered=unique.filter(r=>{
+    if(aging!=='all'&&r._aging.key!==aging)return false;
+    if(!q)return true;
+    return normKey([r.cliente,r.id_cpr,r.categoria,r.historico,r.tipo,r.data_vencimento].join(' ')).includes(q);
+  }).sort((a,b)=>b._aging.days-a._aging.days||Number(b.valor||0)-Number(a.valor||0));
+  const total=financeSum(filtered);
+  overdueTableSummary.textContent=`${filtered.length} título(s) • ${brl(total)}`;
+  overdueTableBody.innerHTML=filtered.length?filtered.map(r=>`<tr>
+    <td>${safeText(r.data_vencimento||'—')}</td>
+    <td class="num"><b>${r._aging.days}</b></td>
+    <td><b>${safeText(r.cliente||'Não informado')}</b></td>
+    <td>${safeText(r.id_cpr||'—')}</td>
+    <td>${safeText(r.categoria||r.tipo||'Não informado')}</td>
+    <td>${safeText(r.historico||r.tipo||'—')}</td>
+    <td class="num"><b>${brl(Number(r.valor||0))}</b></td>
+    <td><span class="pill ${r._aging.cls}">${r._aging.label}</span></td>
+  </tr>`).join(''):'<tr><td colspan="8" class="empty">Nenhum título encontrado com os filtros selecionados.</td></tr>';
+}
+
 function renderFinanceProjection(){
   const key=financeCurrentKey();if(!key)return;
   const stats=financeMonthStats(key);
   const ref=financeReferenceDate();
-  const overdueRows=stats.portfolioRows;
+  const overdueRows=financeUniqueOverdueRows(stats.portfolioRows);
   const overdueTotal=financeSum(overdueRows);
   const overdueClients=financeAggregateRows(overdueRows,'cliente');
   const oldestDays=overdueRows.reduce((max,r)=>{
@@ -1259,6 +1326,7 @@ function renderFinanceProjection(){
     ['61 a 90 dias',buckets.d61_90],
     ['Acima de 90 dias',buckets.d90]
   ].map(([labelText,value])=>`<div class="risk-bucket"><small>${labelText}</small><strong class="${value?'finance-negative':''}">${brl(value)}</strong></div>`).join('');
+  renderOverdueTable(overdueRows,ref);
 }
 
 function renderFinanceSummary(){
