@@ -508,6 +508,23 @@ function parseDateParts(v){if(v instanceof Date&&!isNaN(v))return [v.getMonth()+
 function monthFromText(v){const x=normKey(v);const ab=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];let mi=ab.findIndex(a=>x.includes(a));let yr=(x.match(/20\d{2}/)||[])[0];if(mi>=0&&yr)return[mi+1,+yr];const p=parseDateParts(v);return p}
 function monthKey(m,y){return `${['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][m-1]}_${y}`}
 function monthLabel(m,y){return `${MONTH_NAMES[m-1]} ${y}`}
+
+function monthOrdinal(key,data){
+  const months={JAN:1,FEV:2,MAR:3,ABR:4,MAI:5,JUN:6,JUL:7,AGO:8,SET:9,OUT:10,NOV:11,DEZ:12};
+  const d=data||{};
+  let m=Number(d.month||d.mes_num||d.rows?.[0]?.mes_num||0);
+  let y=Number(d.year||d.ano||d.rows?.[0]?.ano||0);
+  if(!m||!y){
+    const match=String(key||'').toUpperCase().match(/^(JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ)[_\-\s]?(\d{4})$/);
+    if(match){m=months[match[1]];y=Number(match[2]);}
+  }
+  if(!m||!y){
+    const label=String(d.label||'');
+    const p=monthFromText(label);
+    if(p){m=p[0];y=p[1];}
+  }
+  return y&&m ? y*12+m : Number.MAX_SAFE_INTEGER;
+}
 function csvRows(text){text=text.replace(/^\uFEFF/,'');const first=(text.split(/\r?\n/).find(x=>x.trim())||'');const candidates=[';','\t',',','|'];const delim=candidates.sort((a,b)=>(first.split(b).length-first.split(a).length))[0];let rows=[],row=[],cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'&&text[i+1]==='"'){cell+='"';i++}else if(c==='"')q=false;else cell+=c}else if(c==='"')q=true;else if(c===delim){row.push(cell);cell=''}else if(c==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=c}if(cell||row.length){row.push(cell);rows.push(row)}return rows.filter(r=>r.some(x=>textVal(x)))}
 function u16(a,o){return a[o]|a[o+1]<<8} function u32(a,o){return (a[o]|a[o+1]<<8|a[o+2]<<16|a[o+3]<<24)>>>0}
 async function unzipXlsx(buf){const a=new Uint8Array(buf);let e=-1;for(let i=a.length-22;i>=Math.max(0,a.length-66000);i--)if(u32(a,i)===0x06054b50){e=i;break}if(e<0)throw new Error('Arquivo XLSX inválido.');const count=u16(a,e+10),cd=u32(a,e+16);let p=cd,files={};for(let n=0;n<count;n++){if(u32(a,p)!==0x02014b50)break;const method=u16(a,p+10),cs=u32(a,p+20),ns=u16(a,p+28),es=u16(a,p+30),cm=u16(a,p+32),lo=u32(a,p+42),name=new TextDecoder().decode(a.slice(p+46,p+46+ns));if(u32(a,lo)===0x04034b50){const ln=u16(a,lo+26),le=u16(a,lo+28),start=lo+30+ln+le,raw=a.slice(start,start+cs);let data;if(method===0)data=raw;else if(method===8){const ds=new DecompressionStream('deflate-raw');data=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer())}if(data)files[name]=data}p+=46+ns+es+cm}return files}
@@ -576,14 +593,13 @@ function workbookTargetMonth(tables,fileName){
 }
 function rowMonth(r){return monthFromText(r.mes)||parseDateParts(r.inicio)||parseDateParts(r.fim)}
 function inferMonth(rows,fileName,sheetName){for(const r of rows){const p=rowMonth(r);if(p&&p[0]>=1&&p[0]<=12)return p}let p=monthFromText(`${sheetName} ${fileName}`);if(p)return p;const ans=prompt('Não consegui identificar o mês. Informe mês e ano, por exemplo: 08/2026');p=parseDateParts(ans);if(!p||p[0]<1||p[0]>12)throw new Error('Mês/ano não informado corretamente.');return p}
-function makeMonth(rows,m,y){const key=monthKey(m,y);rows.forEach(r=>{r.mes=key;r.ano=y;r.mes_num=m});const groups=new Map();for(const r of rows){const k=r.cliente;let c=groups.get(k);if(!c)c={cliente:r.cliente,cod:r.cod,cnpj:r.cnpj,vencimento:r.vencimento,qtd:0,valor:0,patrimonios:[],contratos:[],obs:[],corrigir:[]};c.qtd+=r.qt||1;c.valor+=r.valor||0;if(r.patrimonio&&!c.patrimonios.includes(r.patrimonio))c.patrimonios.push(r.patrimonio);if(r.contrato&&!c.contratos.includes(r.contrato))c.contratos.push(r.contrato);if(r.obs&&!c.obs.includes(r.obs))c.obs.push(r.obs);if(r.pat_corrigir&&!c.corrigir.includes(r.pat_corrigir))c.corrigir.push(r.pat_corrigir);if(!c.cod&&r.cod)c.cod=r.cod;if(!c.cnpj&&r.cnpj)c.cnpj=r.cnpj;if(!c.vencimento&&r.vencimento)c.vencimento=r.vencimento;groups.set(k,c)}const clients=[...groups.values()].map(c=>({...c,ticket:c.qtd?c.valor/c.qtd:0})).sort((a,b)=>b.valor-a.valor);const valor=clients.reduce((s,c)=>s+c.valor,0),qtd=clients.reduce((s,c)=>s+c.qtd,0);let ac=0;const pareto=clients.map(c=>{ac+=c.valor;return{cliente:c.cliente,valor:c.valor,acumulado:valor?ac/valor*100:0}});const dm=new Map();clients.forEach(c=>{const k=c.vencimento||'Não informado',d=dm.get(k)||{label:k,valor:0,qtd:0,clientes:0};d.valor+=c.valor;d.qtd+=c.qtd;d.clientes++;dm.set(k,d)});const due=[...dm.values()].sort((a,b)=>(parseInt(a.label)||99)-(parseInt(b.label)||99));const alerts=[];clients.forEach(c=>{if(c.corrigir.length)alerts.push({tipo:'Patrimônio',nivel:'alto',cliente:c.cliente,texto:c.corrigir.join(' | ')});if(c.obs.length)alerts.push({tipo:'Observação',nivel:'médio',cliente:c.cliente,texto:c.obs.join(' | ')})});const top=n=>valor?clients.slice(0,n).reduce((s,c)=>s+c.valor,0)/valor*100:0;return{label:monthLabel(m,y),rows,clients,pareto,due,alerts,totals:{valor,qtd,clientes:clients.length,ticket:qtd?valor/qtd:0,media:clients.length?valor/clients.length:0,top3:top(3),top5:top(5)}}}
-function rebuildGlobal(){P.months.sort((a,b)=>{const A=P.data[a].rows[0],B=P.data[b].rows[0];return(A.ano*12+A.mes_num)-(B.ano*12+B.mes_num)});P.annual=P.months.map(m=>({mes:m,label:P.data[m].label.slice(0,3),valor:P.data[m].totals.valor,qtd:P.data[m].totals.qtd,clientes:P.data[m].totals.clientes}));P.grand={valor:P.annual.reduce((s,x)=>s+x.valor,0),qtd:P.annual.reduce((s,x)=>s+x.qtd,0),clientes_unicos:new Set(P.months.flatMap(m=>P.data[m].clients.map(c=>c.cnpj||c.cliente))).size};syncDashboardMonthSelect(current)}
+function makeMonth(rows,m,y){const key=monthKey(m,y);rows.forEach(r=>{r.mes=key;r.ano=y;r.mes_num=m});const groups=new Map();for(const r of rows){const k=r.cliente;let c=groups.get(k);if(!c)c={cliente:r.cliente,cod:r.cod,cnpj:r.cnpj,vencimento:r.vencimento,qtd:0,valor:0,patrimonios:[],contratos:[],obs:[],corrigir:[]};c.qtd+=r.qt||1;c.valor+=r.valor||0;if(r.patrimonio&&!c.patrimonios.includes(r.patrimonio))c.patrimonios.push(r.patrimonio);if(r.contrato&&!c.contratos.includes(r.contrato))c.contratos.push(r.contrato);if(r.obs&&!c.obs.includes(r.obs))c.obs.push(r.obs);if(r.pat_corrigir&&!c.corrigir.includes(r.pat_corrigir))c.corrigir.push(r.pat_corrigir);if(!c.cod&&r.cod)c.cod=r.cod;if(!c.cnpj&&r.cnpj)c.cnpj=r.cnpj;if(!c.vencimento&&r.vencimento)c.vencimento=r.vencimento;groups.set(k,c)}const clients=[...groups.values()].map(c=>({...c,ticket:c.qtd?c.valor/c.qtd:0})).sort((a,b)=>b.valor-a.valor);const valor=clients.reduce((s,c)=>s+c.valor,0),qtd=clients.reduce((s,c)=>s+c.qtd,0);let ac=0;const pareto=clients.map(c=>{ac+=c.valor;return{cliente:c.cliente,valor:c.valor,acumulado:valor?ac/valor*100:0}});const dm=new Map();clients.forEach(c=>{const k=c.vencimento||'Não informado',d=dm.get(k)||{label:k,valor:0,qtd:0,clientes:0};d.valor+=c.valor;d.qtd+=c.qtd;d.clientes++;dm.set(k,d)});const due=[...dm.values()].sort((a,b)=>(parseInt(a.label)||99)-(parseInt(b.label)||99));const alerts=[];clients.forEach(c=>{if(c.corrigir.length)alerts.push({tipo:'Patrimônio',nivel:'alto',cliente:c.cliente,texto:c.corrigir.join(' | ')});if(c.obs.length)alerts.push({tipo:'Observação',nivel:'médio',cliente:c.cliente,texto:c.obs.join(' | ')})});const top=n=>valor?clients.slice(0,n).reduce((s,c)=>s+c.valor,0)/valor*100:0;return{label:monthLabel(m,y),month:m,year:y,rows,clients,pareto,due,alerts,totals:{valor,qtd,clientes:clients.length,ticket:qtd?valor/qtd:0,media:clients.length?valor/clients.length:0,top3:top(3),top5:top(5)}}}
+function rebuildGlobal(){P.months.sort((a,b)=>monthOrdinal(a,P.data[a])-monthOrdinal(b,P.data[b]));P.annual=P.months.map(m=>({mes:m,label:P.data[m].label.slice(0,3),valor:P.data[m].totals.valor,qtd:P.data[m].totals.qtd,clientes:P.data[m].totals.clientes}));P.grand={valor:P.annual.reduce((s,x)=>s+x.valor,0),qtd:P.annual.reduce((s,x)=>s+x.qtd,0),clientes_unicos:new Set(P.months.flatMap(m=>P.data[m].clients.map(c=>c.cnpj||c.cliente))).size};syncDashboardMonthSelect(current)}
 
 function sortMonthKeys(keys,dataSource){
-  return [...new Set(keys||[])].filter(key=>dataSource?.[key]).sort((a,b)=>{
-    const A=dataSource[a],B=dataSource[b];
-    return (Number(A.year)*12+Number(A.month))-(Number(B.year)*12+Number(B.month));
-  });
+  return [...new Set(keys||[])].filter(key=>dataSource?.[key]).sort((a,b)=>
+    monthOrdinal(a,dataSource[a])-monthOrdinal(b,dataSource[b])
+  );
 }
 function syncDashboardMonthSelect(preferredKey=null){
   P.months=sortMonthKeys(Object.keys(P.data||{}),P.data);
