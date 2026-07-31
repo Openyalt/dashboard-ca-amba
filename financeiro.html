@@ -491,7 +491,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
     <button class="finance-tab" data-finance-view="financeCashflow">Fluxo de Caixa</button>
     <button class="finance-tab" data-finance-view="financeComparison">Comparativos</button>
     <button class="finance-tab" data-finance-view="financeDre">DRE Gerencial</button>
-    <button class="finance-tab" data-finance-view="financeProjection">Projeções</button>
+    <button class="finance-tab" data-finance-view="financeProjection">Carteira e Cobrança</button>
     <button class="finance-tab" data-finance-view="financeClients">Clientes</button>
     <button class="finance-tab" data-finance-view="financeSuppliers">Fornecedores</button>
     <button class="finance-tab admin-only" data-finance-view="financeImport" hidden>Importação Recebíveis</button>
@@ -620,22 +620,22 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 
 
   <div id="financeProjection" class="finance-panel">
-    <div class="section-title"><h2>Projeção de Caixa</h2><span>Estimativa para 30, 60 e 90 dias</span></div>
+    <div class="section-title"><h2>Carteira e Cobrança</h2><span>Dados reais dos títulos ainda não baixados</span></div>
     <div id="projectionCards" class="projection-cards"></div>
 
-    <div class="section-title"><h2>Agenda financeira futura</h2><span>Recebíveis em aberto por vencimento</span></div>
+    <div class="section-title"><h2>Prioridades de cobrança</h2><span>Clientes com maior valor vencido</span></div>
     <div class="executive-grid">
       <div class="card panel">
-        <h3>Entradas previstas</h3>
+        <h3>Maiores devedores</h3>
         <div id="projectionReceivableChart" class="chart tall"></div>
       </div>
       <div class="card panel">
-        <h3>Premissas da projeção</h3>
+        <h3>Leitura para ação</h3>
         <div id="projectionAssumptions" class="executive-list"></div>
       </div>
     </div>
 
-    <div class="section-title"><h2>Envelhecimento da carteira</h2><span>Recebíveis vencidos por faixa de atraso</span></div>
+    <div class="section-title"><h2>Envelhecimento da carteira</h2><span>Valores vencidos por faixa de atraso</span></div>
     <div id="projectionRiskBuckets" class="risk-bucket-grid"></div>
   </div>
 
@@ -1129,7 +1129,6 @@ function renderFinanceDirector(){
   const receivedRate=(stats.received+stats.open+stats.overdue)?stats.received/(stats.received+stats.open+stats.overdue)*100:0;
   const top3=financeTopShare(clients,3,stats.received);
   const top5Sup=financeTopShare(suppliers,5,stats.expenses);
-  const projection30=financeProjectionData(30);
   const alerts=financeBuildDirectorAlerts(stats,series,clients,suppliers);
   const label=(E.data[key]||R.data[key])?.label||key;
 
@@ -1144,7 +1143,7 @@ function renderFinanceDirector(){
     ['Entradas recebidas',brl(stats.received),100,'good','Valor efetivamente baixado no mês'],
     ['Saídas realizadas',brl(stats.expenses),stats.received?Math.min(stats.expenses/stats.received*100,100):100,stats.expenses<=stats.received?'good':'bad','Pagamentos efetivamente realizados no mês'],
     ['Taxa de recebimento',pct(receivedRate),receivedRate,receivedRate>=85?'good':receivedRate>=70?'warn':'bad','Recebido ÷ recebido, aberto e vencido'],
-    ['Previsão líquida — 30 dias',brl(projection30.balance),projection30.receivables?Math.max(0,Math.min(100,(projection30.balance/projection30.receivables*50)+50)):50,projection30.balance>=0?'good':'bad',`${brl(projection30.receivables)} a vencer − ${brl(projection30.estimatedExpenses)} de saídas estimadas`]
+    ['Carteira vencida',brl(stats.overdue),stats.received?Math.min(stats.overdue/stats.received*100,100):100,stats.overdue===0?'good':stats.overdue<stats.received*.1?'warn':'bad',`${stats.portfolioRows.length} título(s) sem baixa até o fim da competência`]
   ];
   directorHealth.innerHTML=health.map(([labelText,value,width,state,note])=>`<div class="health-card"><small>${labelText}</small><strong>${value}</strong><em style="display:block;margin:4px 0 8px;color:#8fa8bd;font-size:10px;font-style:normal;line-height:1.35">${note}</em><div class="health-meter ${state}"><span style="width:${Math.max(4,Number(width)||0)}%"></span></div></div>`).join('');
 
@@ -1156,7 +1155,7 @@ function renderFinanceDirector(){
     {level:margin>=20?'good':margin>=10?'warn':'bad',title:'Margem de caixa',text:`A margem foi de ${pct(margin)} sobre as entradas recebidas.`},
     {level:stats.overdue===0?'good':stats.overdue<stats.received*.1?'warn':'bad',title:'Inadimplência',text:stats.overdue?`${brl(stats.overdue)} estão vencidos.`:'Nenhum título vencido na carteira analisada.'},
     {level:prev?(stats.received>=prev.received?'good':'warn'):'good',title:'Tendência das entradas',text:prev?`Variação de ${pct(percentChange(stats.received,prev.received))} contra ${prev.label}.`:'Primeiro mês disponível para comparação.'},
-    {level:projection30.balance>=0?'good':'bad',title:'Próximos 30 dias',text:`Há ${brl(projection30.receivables)} em títulos com vencimento futuro dentro de 30 dias. As saídas estimadas pela média dos últimos 3 meses são ${brl(projection30.estimatedExpenses)}. Diferença projetada: ${brl(projection30.balance)}. Títulos já vencidos ficam na carteira vencida e não entram como recebimento garantido nesta previsão.`}
+    {level:stats.overdue===0?'good':'bad',title:'Prioridade de cobrança',text:stats.overdue?`${stats.portfolioRows.length} título(s) vencido(s), totalizando ${brl(stats.overdue)}. Consulte Carteira e Cobrança para priorizar os maiores devedores.`:'Não há títulos vencidos até o fim da competência selecionada.'}
   ];
   directorDiagnosisStatus.textContent='Gerado pelos dados do painel';
   directorDiagnosis.innerHTML=diagnosis.map(x=>`<div class="executive-item ${x.level}"><b>${x.title}</b>${x.text}</div>`).join('');
@@ -1218,17 +1217,39 @@ function renderFinanceDre(){
   ],'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil');
 }
 function renderFinanceProjection(){
-  const p30=financeProjectionData(30),p60=financeProjectionData(60),p90=financeProjectionData(90);
-  const projections=[p30,p60,p90];
-  projectionCards.innerHTML=projections.map(p=>`<div class="card projection-card"><h3>Próximos ${p.days} dias</h3><div class="projection-line"><span>Receber previsto</span><b class="finance-positive">${brl(p.receivables)}</b></div><div class="projection-line"><span>Saídas estimadas</span><b class="finance-negative">${brl(p.estimatedExpenses)}</b></div><div class="projection-balance ${p.balance>=0?'finance-positive':'finance-negative'}">${brl(p.balance)}</div><div class="desc">Saldo projetado</div></div>`).join('');
+  const key=financeCurrentKey();if(!key)return;
+  const stats=financeMonthStats(key);
+  const ref=financeReferenceDate();
+  const overdueRows=stats.portfolioRows;
+  const overdueTotal=financeSum(overdueRows);
+  const overdueClients=financeAggregateRows(overdueRows,'cliente');
+  const oldestDays=overdueRows.reduce((max,r)=>{
+    const due=expenseDateObject(r.data_vencimento);
+    return due?Math.max(max,Math.max(0,Math.floor((ref-due)/86400000))):max;
+  },0);
+  const largest=overdueClients[0]||null;
+  const avgTicket=overdueRows.length?overdueTotal/overdueRows.length:0;
 
-  vbars('projectionReceivableChart',projections.map(p=>({label:`${p.days} dias`,valor:p.receivables})),'valor','#22c991',v=>'R$ '+Math.round(v/1000)+' mil');
+  projectionCards.innerHTML=[
+    ['Carteira vencida',brl(overdueTotal),`${overdueRows.length} título(s) sem baixa`,'finance-negative'],
+    ['Maior devedor',largest?safeText(largest.name):'Sem pendências',largest?brl(largest.value):'Carteira regular',largest?'finance-negative':'finance-positive'],
+    ['Maior atraso',oldestDays?`${oldestDays} dias`:'0 dias',oldestDays?'Título mais antigo da carteira':'Nenhum título vencido',oldestDays?'finance-negative':'finance-positive'],
+    ['Ticket médio vencido',brl(avgTicket),overdueRows.length?'Valor médio por título':'Sem títulos vencidos','']
+  ].map(([title,value,note,cls])=>`<div class="card projection-card"><h3>${title}</h3><div class="projection-balance ${cls}">${value}</div><div class="desc">${note}</div></div>`).join('');
 
-  const avgExpense=financeAverageExpense();
+  const top=overdueClients.slice(0,10).map(x=>({label:x.name,valor:x.value}));
+  if(top.length)vbars('projectionReceivableChart',top,'valor','#ff6b7d',v=>'R$ '+Math.round(v/1000)+' mil');
+  else projectionReceivableChart.innerHTML='<div class="expense-empty">Nenhum título vencido na competência selecionada.</div>';
+
+  const top3Share=overdueTotal?financeTopShare(overdueClients,3,overdueTotal):0;
+  const over90=financeOverdueBuckets().d90;
   projectionAssumptions.innerHTML=[
-    `<div class="executive-item"><b>Recebíveis considerados</b>Títulos sem Data de Baixa e com vencimento dentro de cada janela.</div>`,
-    `<div class="executive-item"><b>Saída mensal estimada</b>Média dos últimos 3 meses: ${brl(avgExpense)}.</div>`,
-    `<div class="executive-item warn"><b>Natureza da projeção</b>Estimativa gerencial. Não substitui orçamento financeiro nem contas a pagar futuras ainda não importadas.</div>`
+    overdueTotal
+      ? `<div class="executive-item bad"><b>Ação imediata</b>Cobrar primeiro ${safeText(largest?.name||'o maior devedor')}, responsável por ${pct(largest?largest.value/overdueTotal*100:0)} da carteira vencida.</div>`
+      : `<div class="executive-item good"><b>Carteira regular</b>Nenhum título vencido até o fim da competência selecionada.</div>`,
+    `<div class="executive-item ${top3Share>=60?'warn':'good'}"><b>Concentração do risco</b>Os 3 maiores devedores representam ${pct(top3Share)} da carteira vencida.</div>`,
+    `<div class="executive-item ${over90?'bad':'good'}"><b>Atrasos críticos</b>${over90?`${brl(over90)} estão vencidos há mais de 90 dias.`:'Não há valores vencidos há mais de 90 dias.'}</div>`,
+    `<div class="executive-item"><b>Critério</b>Somente títulos sem Data de Baixa e vencidos até o fim do mês selecionado. Não há estimativas de despesas ou caixa futuro.</div>`
   ].join('');
 
   const buckets=financeOverdueBuckets();
