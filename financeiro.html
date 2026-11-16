@@ -980,14 +980,17 @@ function financeRecordStatus(r){
 }
 function allReceivableRows(){return R.months.flatMap(k=>R.data[k]?.records||[])}
 function financeAvailableKeys(){
-  // O período executivo acompanha as competências operacionais já importadas
-  // em Despesas. Recebíveis antigos continuam na carteira, mas não viram
-  // meses extras nos gráficos de janeiro a junho.
-  const baseKeys=E.months.length ? [...E.months] : [...R.months];
-  return baseKeys.sort((a,b)=>{
-    const A=E.data[a]||R.data[a],B=E.data[b]||R.data[b];
-    return (A.year*12+A.month)-(B.year*12+B.month);
+  // O mês exibido vem da emissão, não do vencimento de parcelas futuras.
+  const keys=new Map();
+  [...E.months.flatMap(k=>E.data[k]?.records||[]),...allReceivableRows()].forEach(r=>{
+    const d=expenseDateObject(r.data_emissao);
+    if(d)keys.set(monthKey(d.getUTCMonth()+1,d.getUTCFullYear()),d.getUTCFullYear()*12+d.getUTCMonth()+1);
   });
+  return [...keys].sort((a,b)=>a[1]-b[1]).map(([key])=>key);
+}
+function financeKeyIndex(key){
+  const m=String(key).match(/^(JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ)_(\d{4})$/);
+  return m?Number(m[2])*12+['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'].indexOf(m[1])+1:null;
 }
 function financePeriodBounds(){
   const keys=financeAvailableKeys();
@@ -997,8 +1000,8 @@ function financePeriodBounds(){
   return {
     start:keys[0],
     end:keys[keys.length-1],
-    startIndex:first.year*12+first.month,
-    endIndex:last.year*12+last.month
+    startIndex:financeKeyIndex(keys[0]),
+    endIndex:financeKeyIndex(keys[keys.length-1])
   };
 }
 function financeRecordDueIndex(record){
@@ -1015,30 +1018,26 @@ function financeCurrentKey(){
   return keys[keys.length-1]||null;
 }
 function financeMonthStats(key){
-  const expenseRows=E.data[key]?.records||[];
+  const allExpense=E.months.flatMap(k=>E.data[k]?.records||[]);
   const allIncome=allReceivableRows();
+  // Listagem por emissão; realizado financeiro EXCLUSIVAMENTE por baixa.
+  const issuedExpenseRows=allExpense.filter(r=>financeMonthKeyFromDate(r.data_emissao)===key);
+  const expenseRows=allExpense.filter(r=>financeMonthKeyFromDate(r.data_baixa)===key);
   const receivedRows=allIncome.filter(r=>financeMonthKeyFromDate(r.data_baixa)===key);
-  const dueRows=R.data[key]?.records||[];
+  const dueRows=allIncome.filter(r=>financeMonthKeyFromDate(r.data_emissao)===key);
   const selected=E.data[key]||R.data[key];
-  const selectedIndex=selected ? selected.year*12+selected.month : null;
-
-  // Carteira em aberto até o fim da competência selecionada.
-  // Aqui entram também títulos antigos que ainda não foram baixados.
+  const selectedIndex=financeKeyIndex(key);
   const portfolioRows=financeUniqueOverdueRows(allIncome.filter(r=>{
     if(r.data_baixa)return false;
     const dueIndex=financeRecordDueIndex(r);
-    return dueIndex!==null && selectedIndex!==null && dueIndex<=selectedIndex;
+    return dueIndex!==null&&selectedIndex!==null&&dueIndex<=selectedIndex;
   }));
-
   const received=receivedRows.reduce((s,r)=>s+Number(r.valor||0),0);
   const expenses=expenseRows.reduce((s,r)=>s+Number(r.valor||0),0);
   const open=dueRows.filter(r=>financeRecordStatus(r)==='Em aberto').reduce((s,r)=>s+Number(r.valor||0),0);
   const overdue=portfolioRows.reduce((s,r)=>s+Number(r.valor||0),0);
-
-  return {
-    key,received,expenses,balance:received-expenses,open,overdue,
-    receivedRows,expenseRows,dueRows,portfolioRows
-  };
+  return {key,received,expenses,balance:received-expenses,open,overdue,
+    receivedRows,expenseRows,issuedExpenseRows,dueRows,portfolioRows};
 }
 function financeSeries(){
   return financeAvailableKeys().map(key=>{
@@ -1525,7 +1524,7 @@ function receivableMapTable(rows){
   for(const row of rows.slice(header.index+1)){
     const g=f=>row[header.map[f]],value=numBR(g('valor'));
     if(!value)continue;
-    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('vencimento'));
+    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('emissao'));
     if(!p)continue;
     out.push({
       data_emissao:expenseDateText(g('emissao')),
@@ -1950,7 +1949,7 @@ const EXPENSE_ALIASES={
   baixa:['DATA BAIXA'],
   conciliado:['CONCILIADO BANCO','CONCILIADO'],
   conciliacao:['DATA CONCILIACAO BANCARIA'],
-  op:['OP','NUMERO OPERACAO','N OP','Nº OP'],
+  op:['OP','ID CPR','NUMERO OPERACAO','N OP','Nº OP'],
   fornecedor:['RAZAO SOCIAL PESSOA','FORNECEDOR'],
   valor:['VALOR A PAGAR','VALOR'],
   tipo:['TIPO'],
@@ -1976,7 +1975,7 @@ function expenseMapTable(rows){
     const g=f=>row[header.map[f]];
     const value=numBR(g('valor'));
     if(!value)continue;
-    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('vencimento'));
+    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('emissao'));
     if(!p)continue;
     out.push({
       data_emissao:expenseDateText(g('emissao')),
