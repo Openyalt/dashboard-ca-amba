@@ -856,7 +856,7 @@ const EXPENSE_ALIASES={
   baixa:['DATA BAIXA'],
   conciliado:['CONCILIADO BANCO','CONCILIADO'],
   conciliacao:['DATA CONCILIACAO BANCARIA'],
-  op:['OP','NUMERO OPERACAO','N OP','Nº OP'],
+  op:['OP','ID CPR','NUMERO OPERACAO','N OP','Nº OP'],
   fornecedor:['RAZAO SOCIAL PESSOA','FORNECEDOR'],
   valor:['VALOR A PAGAR','VALOR'],
   tipo:['TIPO'],
@@ -882,7 +882,7 @@ function expenseMapTable(rows){
     const g=f=>row[header.map[f]];
     const value=numBR(g('valor'));
     if(!value)continue;
-    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('vencimento'));
+    const due=expenseDateText(g('vencimento')),p=expenseMonthFromDate(g('emissao'));
     if(!p)continue;
     out.push({
       data_emissao:expenseDateText(g('emissao')),
