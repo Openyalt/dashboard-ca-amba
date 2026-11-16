@@ -930,28 +930,31 @@ function syncFinanceMonthSelect(preferredKey=null){
   // O seletor representa somente as competências operacionais do painel.
   // Recebíveis antigos ou futuros permanecem na carteira, mas não criam
   // meses soltos no topo (ex.: maio/2025 e dezembro/2025).
-  const sourceKeys=E.months.length
-    ? [...E.months]
-    : (P.months.length ? [...P.months] : [...R.months]);
-  const keys=[...new Set(sourceKeys)].sort((a,b)=>{
-    const A=E.data[a]||P.data[a]||R.data[a];
-    const B=E.data[b]||P.data[b]||R.data[b];
-    return monthOrdinal(a,A)-monthOrdinal(b,B);
+  // A seleção principal não usa as parcelas futuras como meses de operação.
+  // O financeiro continua considerando seus vencimentos na carteira.
+  const sourceKeys=financeAvailableKeys();
+  const yearFromDashboard=P.months.map(k=>Number(P.data[k]?.year||0)).filter(Boolean);
+  const referenceYear=yearFromDashboard.length
+    ? Math.max(...yearFromDashboard)
+    : new Date().getFullYear();
+  const keys=sourceKeys.filter(key=>financeKeyIndex(key)!==null &&
+    Math.floor((financeKeyIndex(key)-1)/12)===referenceYear);
+  const effectiveKeys=keys.length ? keys : sourceKeys.filter(key=>{
+    const ord=financeKeyIndex(key);
+    return ord!==null && ord<=new Date().getFullYear()*12+new Date().getMonth()+1;
   });
 
-  monthSelect.innerHTML=keys.map(key=>{
+  effectiveKeys.sort((a,b)=>financeKeyIndex(a)-financeKeyIndex(b));
+  monthSelect.innerHTML=effectiveKeys.map(key=>{
     const data=E.data[key]||P.data[key]||R.data[key];
-    return `<option value="${key}">${safeText(data?.label||key)}</option>`;
+    return `<option value="${key}">${safeText(data?.label||monthLabel(Number((financeKeyIndex(key)-1)%12)+1,Math.floor((financeKeyIndex(key)-1)/12)) )}</option>`;
   }).join('');
 
-  const next=
-    (preferredKey&&keys.includes(preferredKey)&&preferredKey)||
-    (current&&keys.includes(current)&&current)||
-    E.months[E.months.length-1]||
-    P.months[P.months.length-1]||
-    keys[keys.length-1]||
-    '';
-
+  const todayIndex=new Date().getFullYear()*12+new Date().getMonth()+1;
+  const latestPast=effectiveKeys.filter(k=>financeKeyIndex(k)<=todayIndex).at(-1);
+  const next=(preferredKey&&effectiveKeys.includes(preferredKey)&&preferredKey)||
+    (current&&effectiveKeys.includes(current)&&current)||
+    latestPast||effectiveKeys[effectiveKeys.length-1]||'';
   current=next;
   monthSelect.value=next;
 }
@@ -1172,12 +1175,15 @@ function renderFinanceDirector(){
   const alerts=financeBuildDirectorAlerts(stats,series,clients,suppliers);
   const label=(E.data[key]||R.data[key])?.label||key;
 
-  directorDecisionBanner.innerHTML=`<b>${safeText(label)}:</b> ${stats.balance>=0
+  const noCashMovement=stats.received===0&&stats.expenses===0;
+  directorDecisionBanner.innerHTML=noCashMovement
+    ? `<b>${safeText(label)}:</b> não há entradas ou saídas baixadas nesta competência. Consulte a carteira para vencimentos.`
+    : `<b>${safeText(label)}:</b> ${stats.balance>=0
     ? `a operação gerou saldo positivo de <b>${brl(stats.balance)}</b>, com margem de <b>${pct(margin)}</b>.`
     : `a operação apresentou déficit de <b>${brl(Math.abs(stats.balance))}</b>.`}
     ${stats.overdue?` A carteira vencida soma <b>${brl(stats.overdue)}</b>.`:''}`;
 
-  directorMainResult.innerHTML=`<div><small>Resultado financeiro do mês</small><strong class="${stats.balance>=0?'finance-positive':'finance-negative'}">${brl(stats.balance)}</strong><p>${stats.balance>=0?'Entradas superaram as saídas.':'Saídas superaram as entradas.'} A margem de caixa foi de ${pct(margin)}.</p></div><span class="finance-status ${stats.balance>=0?'received':'overdue'}">${stats.balance>=0?'Situação positiva':'Atenção necessária'}</span>`;
+  directorMainResult.innerHTML=`<div><small>Resultado financeiro do mês</small><strong class="${noCashMovement?'':stats.balance>=0?'finance-positive':'finance-negative'}">${brl(stats.balance)}</strong><p>${noCashMovement?'Sem movimentação de caixa registrada nesta competência.':`${stats.balance>=0?'Entradas superaram as saídas.':'Saídas superaram as entradas.'} A margem de caixa foi de ${pct(margin)}.`}</p></div><span class="finance-status ${noCashMovement?'':stats.balance>=0?'received':'overdue'}">${noCashMovement?'Sem movimentação':stats.balance>=0?'Situação positiva':'Atenção necessária'}</span>`;
 
   const health=[
     ['Entradas recebidas',brl(stats.received),100,'good','Valor efetivamente baixado no mês'],
