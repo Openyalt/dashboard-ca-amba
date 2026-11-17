@@ -903,6 +903,37 @@ function showTip(e,html){tip.innerHTML=html;tip.style.display='block';tip.style.
 function svg(tag,a={},t=''){const x=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(a).forEach(([k,v])=>x.setAttribute(k,v));x.textContent=t;return x}function base(id){const c=document.getElementById(id),w=Math.max(320,c.clientWidth),h=c.clientHeight;c.innerHTML='';const s=svg('svg',{viewBox:`0 0 ${w} ${h}`,width:'100%',height:'100%'});c.appendChild(s);return[s,w,h]}
 function hbars(id,data,key,color,fmt,clickable=true){const[s,w,h]=base(id),l=215,r=82,t=16,b=18,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x[key]),1),row=ph/data.length;data.forEach((x,i)=>{const y=t+i*row+row*.18,bh=row*.62,bw=x[key]/max*pw;s.appendChild(svg('text',{x:l-8,y:y+bh*.72,'text-anchor':'end','font-size':Math.max(8,Math.min(11,row*.36)),fill:'#afc3d4'},x.cliente.length>31?x.cliente.slice(0,31)+'…':x.cliente));const q=svg('rect',{x:l,y,width:bw,height:bh,rx:5,fill:color,style:clickable?'cursor:pointer':''});q.onmousemove=e=>showTip(e,`<b>${x.cliente}</b><br>${fmt(x[key])}`);q.onmouseleave=hideTip;if(clickable)q.onclick=()=>openCompany(x.cliente);s.appendChild(q);s.appendChild(svg('text',{x:l+bw+7,y:y+bh*.72,'font-size':10,fill:'#b8cad9'},fmt(x[key])))});}
 function vbars(id,data,key,color,fmt,labelKey='label'){const[s,w,h]=base(id),l=62,r=18,t=18,b=65,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x[key]),1),bw=Math.max(20,pw/data.length*.56);for(let i=0;i<5;i++){let y=t+ph-i*ph/4;s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));s.appendChild(svg('text',{x:l-7,y:y+4,'text-anchor':'end','font-size':9,fill:'#7f98ad'},fmt(max*i/4)))}data.forEach((x,i)=>{const xx=l+(i+.5)*pw/data.length-bw/2,bh=Math.max(0,x[key]/max*ph),y=t+ph-bh,q=svg('rect',{x:xx,y,width:bw,height:bh,rx:5,fill:color});q.onmousemove=e=>showTip(e,`<b>${x[labelKey]}</b><br>${fmt(x[key])}`);q.onmouseleave=hideTip;s.appendChild(q);s.appendChild(svg('text',{x:xx+bw/2,y:h-15,'text-anchor':'middle','font-size':10,fill:'#9bb0c2'},x[labelKey]))})}
+// Exclusivo do saldo mensal: desenha barras positivas e negativas em torno de zero.
+// Não altera os gráficos comuns, os cálculos ou os registros no Firestore.
+function financeSignedBalanceBars(id,data){
+  const [s,w,h]=base(id),l=76,r=18,t=18,b=65,pw=w-l-r,ph=h-t-b;
+  if(!data.length)return;
+  const values=data.map(x=>Number(x.valor)||0);
+  const maxPositive=Math.max(0,...values),minNegative=Math.min(0,...values);
+  const upper=maxPositive>0?maxPositive*1.06:(minNegative<0?Math.abs(minNegative)*.08:1);
+  const lower=minNegative<0?minNegative*1.10:0;
+  const span=upper-lower||1;
+  const yFor=v=>t+(upper-v)/span*ph;
+  const zeroY=yFor(0),step=pw/data.length,bw=Math.max(7,Math.min(48,step*.56));
+  for(let i=0;i<=5;i++){
+    const v=lower+span*i/5,y=yFor(v);
+    s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));
+    s.appendChild(svg('text',{x:l-8,y:y+4,'text-anchor':'end','font-size':10,fill:'#8fa8bd'},
+      'R$ '+(Math.abs(v)<500?'0':Math.round(v/1000)+' mil')));
+  }
+  // Linha zero: a posição correta para separar saldo negativo de positivo.
+  s.appendChild(svg('line',{x1:l,y1:zeroY,x2:w-r,y2:zeroY,stroke:'#8ca9be','stroke-width':1.5,'stroke-dasharray':'4 4'}));
+  data.forEach((x,i)=>{
+    const value=Number(x.valor)||0,xx=l+(i+.5)*step-bw/2,yy=yFor(value),
+      barTop=Math.min(zeroY,yy),bh=Math.abs(zeroY-yy);
+    const q=svg('rect',{x:xx,y:barTop,width:bw,height:Math.max(0,bh),rx:Math.min(5,bh/2),
+      fill:value<0?'#ff6b7d':'#38bdf8'});
+    q.onmousemove=e=>showTip(e,`<b>${safeText(x.label)}</b><br>Saldo: ${brl(value)}`);
+    q.onmouseleave=hideTip;
+    s.appendChild(q);
+    s.appendChild(svg('text',{x:xx+bw/2,y:h-15,'text-anchor':'middle','font-size':10,fill:'#9bb0c2'},x.label));
+  });
+}
 function lineChart(id,data,key,color,fmt,labelKey='label'){const[s,w,h]=base(id),l=62,r=20,t=20,b=50,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x[key]),1);for(let i=0;i<5;i++){let y=t+ph-i*ph/4;s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));s.appendChild(svg('text',{x:l-7,y:y+4,'text-anchor':'end','font-size':9,fill:'#7f98ad'},fmt(max*i/4)))}const pts=data.map((x,i)=>[l+i*pw/Math.max(1,data.length-1),t+ph-x[key]/max*ph]);s.appendChild(svg('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:color,'stroke-width':3}));pts.forEach((p,i)=>{const c=svg('circle',{cx:p[0],cy:p[1],r:5,fill:color,stroke:'#071421','stroke-width':2});c.onmousemove=e=>showTip(e,`<b>${data[i][labelKey]}</b><br>${fmt(data[i][key])}`);c.onmouseleave=hideTip;s.appendChild(c);s.appendChild(svg('text',{x:p[0],y:h-14,'text-anchor':'middle','font-size':10,fill:'#9bb0c2'},data[i][labelKey]))})}
 function pie(id,data){const[s,w,h]=base(id),cx=w*.48,cy=h*.47,r=Math.min(w,h)*.34,inn=r*.56,total=data.reduce((a,x)=>a+x.valor,0);let a=-Math.PI/2;data.forEach((x,i)=>{const da=x.valor/total*Math.PI*2,a2=a+da,L=da>Math.PI?1:0,p1=[cx+r*Math.cos(a),cy+r*Math.sin(a)],p2=[cx+r*Math.cos(a2),cy+r*Math.sin(a2)],q1=[cx+inn*Math.cos(a2),cy+inn*Math.sin(a2)],q2=[cx+inn*Math.cos(a),cy+inn*Math.sin(a)],d=`M${p1} A${r} ${r} 0 ${L} 1 ${p2} L${q1} A${inn} ${inn} 0 ${L} 0 ${q2} Z`,p=svg('path',{d,fill:COLORS[i%COLORS.length],stroke:'#071421','stroke-width':2,style:'cursor:pointer'});p.onmousemove=e=>showTip(e,`<b>${x.cliente}</b><br>${brl(x.valor)}<br>${pct(x.valor/total*100)}`);p.onmouseleave=hideTip;p.onclick=()=>x.cliente!=='Demais clientes'&&openCompany(x.cliente);s.appendChild(p);a=a2});s.appendChild(svg('text',{x:cx,y:cy-4,'text-anchor':'middle','font-size':22,'font-weight':800,fill:'#edf6ff'},brl(total)));s.appendChild(svg('text',{x:cx,y:cy+16,'text-anchor':'middle','font-size':11,fill:'#8fa8bd'},'Faturamento'))}
 function pareto(id,data){const[s,w,h]=base(id),l=62,r=48,t=18,b=105,pw=w-l-r,ph=h-t-b,max=Math.max(...data.map(x=>x.valor),1),bw=Math.max(7,pw/data.length*.55),pts=[];for(let i=0;i<5;i++){const y=t+ph-i*ph/4;s.appendChild(svg('line',{x1:l,y1:y,x2:w-r,y2:y,stroke:'#1d3d58'}));s.appendChild(svg('text',{x:l-7,y:y+4,'text-anchor':'end','font-size':9,fill:'#7f98ad'},'R$ '+Math.round(max*i/4/1000)+' mil'));s.appendChild(svg('text',{x:w-r+7,y:y+4,'font-size':9,fill:'#cfa64d'},i*25+'%'))}data.forEach((x,i)=>{const xx=l+(i+.5)*pw/data.length,bh=Math.max(0,x.valor/max*ph),y=t+ph-bh,q=svg('rect',{x:xx-bw/2,y,width:bw,height:bh,rx:3,fill:'#2f80ed',style:'cursor:pointer'});q.onmousemove=e=>showTip(e,`<b>${x.cliente}</b><br>${brl(x.valor)}<br>Acumulado: ${pct(x.acumulado)}`);q.onmouseleave=hideTip;q.onclick=()=>openCompany(x.cliente);s.appendChild(q);pts.push(`${xx},${t+ph-x.acumulado/100*ph}`);s.appendChild(svg('text',{x:xx,y:h-10,'text-anchor':'end','font-size':8,fill:'#9bb0c2',transform:`rotate(-55 ${xx} ${h-10})`},x.cliente.slice(0,13)))});s.appendChild(svg('polyline',{points:pts.join(' '),fill:'none',stroke:'#f2b84b','stroke-width':3}));const y80=t+ph-.8*ph;s.appendChild(svg('line',{x1:l,y1:y80,x2:w-r,y2:y80,stroke:'#ff6478','stroke-dasharray':'6 5'}))}
@@ -1506,7 +1537,7 @@ function renderFinanceCashflow(){
     financeKpi('Melhor mês',series.slice().sort((a,b)=>b.balance-a.balance)[0]?.label||'—',brl(series.slice().sort((a,b)=>b.balance-a.balance)[0]?.balance||0)),
     financeKpi('Pior mês',series.slice().sort((a,b)=>a.balance-b.balance)[0]?.label||'—',brl(series.slice().sort((a,b)=>a.balance-b.balance)[0]?.balance||0))
   ].join('');
-  vbars('financeBalanceChart',series.map(x=>({label:x.label.split(' ')[0].slice(0,3),valor:x.balance})),'valor','#38bdf8',v=>'R$ '+Math.round(v/1000)+' mil');
+  financeSignedBalanceBars('financeBalanceChart',series.map(x=>({label:x.label.split(' ')[0].slice(0,3),valor:x.balance})));
   let accumulated=0;const acc=series.map(x=>({label:x.label.split(' ')[0].slice(0,3),valor:(accumulated+=x.balance)}));
   lineChart('financeAccumulatedChart',acc,'valor','#22c991',v=>'R$ '+Math.round(v/1000)+' mil');
 }
@@ -2967,45 +2998,4 @@ onAuthStateChanged(auth, async user => {
   if (typeof notifyImport === "function") {
     notifyImport(admin
       ? `Acesso autorizado: ${user.email || "administrador"}.`
-      : `Acesso de visualização autorizado: ${user.email || "diretoria"}.`);
-  }
-  await loadCloudMonths();
-});
-
-window.addEventListener("online", () => {
-  if (currentUser && !remoteLoaded) loadCloudMonths();
-  else if (currentUser) setCloudStatus("Conectado ao Firebase", "online");
-});
-window.addEventListener("offline", () => {
-  setCloudStatus("Sem internet", "offline");
-  setLoading(false);
-  showDashboard(false);
-});
-
-await setPersistence(auth, browserSessionPersistence).catch(() => {});
-</script>
-
-<div id="expenseDrawerBackdrop" class="expense-drawer-backdrop" aria-hidden="true">
-  <aside class="expense-drawer" role="dialog" aria-modal="true" aria-labelledby="expenseDrawerTitle">
-    <div class="expense-drawer-head">
-      <div>
-        <h2 id="expenseDrawerTitle">Detalhes da OP</h2>
-        <p>Consulta rápida do lançamento importado do A2O</p>
-      </div>
-      <button id="expenseDrawerClose" class="expense-drawer-close" type="button" aria-label="Fechar">×</button>
-    </div>
-    <div class="expense-drawer-body">
-      <div id="expenseDrawerDetails" class="expense-detail-grid"></div>
-      <div class="expense-drawer-actions">
-        <button id="expenseCopyOpBtn" class="btn primary" type="button">Copiar OP</button>
-        <a id="expenseOpenA2OBtn" class="btn" href="http://186.226.72.7:14279/#/cfaweb/fin/cpr" target="_blank" rel="noopener noreferrer">Abrir Contas a Pagar</a>
-      </div>
-      <div class="desc" style="margin-top:12px;line-height:1.5">
-        O A2O abrirá em outra guia. Como a URL individual utiliza uma chave interna que não vem no relatório,
-        copie a OP e use a pesquisa do A2O para localizar o lançamento.
-      </div>
-    </div>
-  </aside>
-</div>
-
-</body></html>
+      : `Acesso d
