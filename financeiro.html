@@ -390,6 +390,20 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 .executive-item.warn{border-left-color:#f5b942}
 .executive-item.bad{border-left-color:#ff6b7d}
 .executive-item b{display:block;margin-bottom:3px}
+/* Direcionamentos contextuais: mantém a identidade visual original dos alertas. */
+.executive-item.director-link{position:relative;cursor:pointer;padding-right:104px;transition:border-color .15s,background .15s}
+.executive-item.director-link:hover{border-color:#5884a5;background:#102a40}
+.executive-item.director-link:focus-visible{outline:2px solid #f58220;outline-offset:3px}
+.executive-item.director-link::after{content:'↗ Detalhar';position:absolute;right:13px;top:13px;color:#a8c6dc;font-size:11px;font-weight:750}
+.finance-drill-panel{margin:0 0 16px;border-left:4px solid #f58220}
+.finance-drill-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.finance-drill-header h3{margin:0 0 5px;font-size:16px}
+.finance-drill-header p{margin:0;color:#91adc2;font-size:12px;line-height:1.55}
+.finance-drill-total{font-size:20px;font-weight:900;margin:5px 0 10px;color:#edf6ff}
+.finance-drill-panel .table-wrap{max-height:380px}
+.finance-drill-panel table{min-width:750px}
+.finance-drill-panel th,.finance-drill-panel td{font-size:11px}
+@media(max-width:700px){.executive-item.director-link{padding-right:14px;padding-top:32px}.executive-item.director-link::after{left:13px;right:auto;top:9px}.finance-drill-header{flex-direction:column}}
 .alert-count{
   display:inline-flex;
   min-width:26px;
@@ -664,6 +678,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
             <option value="all">Todas as faixas</option>
             <option value="0-30">Até 30 dias</option>
             <option value="31-60">31 a 60 dias</option>
+            <option value="60+">Acima de 60 dias</option>
             <option value="61-90">61 a 90 dias</option>
             <option value="90+">Acima de 90 dias</option>
           </select>
@@ -680,6 +695,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 
   <div id="financeClients" class="finance-panel">
     <div class="section-title"><h2>Clientes e recebimentos</h2><span>Realizado, aberto, vencido e concentração</span></div>
+    <div id="financeClientsDrill" class="card panel finance-drill-panel" hidden></div>
     <div class="finance-grid equal">
       <div class="card panel"><h3>Top clientes por valor recebido</h3><div id="financeClientsChart" class="chart tall"></div></div>
       <div class="card table-card"><div class="table-wrap"><table>
@@ -691,6 +707,7 @@ button,input,select{font:inherit}.shell{max-width:1600px;margin:auto;padding:24p
 
   <div id="financeSuppliers" class="finance-panel">
     <div class="section-title"><h2>Fornecedores e pagamentos</h2><span>Concentração das principais saídas</span></div>
+    <div id="financeSuppliersDrill" class="card panel finance-drill-panel" hidden></div>
     <div class="finance-grid equal">
       <div class="card panel"><h3>Top fornecedores</h3><div id="financeSuppliersChart" class="chart tall"></div></div>
       <div class="card table-card"><div class="table-wrap"><table>
@@ -949,14 +966,55 @@ function syncFinanceMonthSelect(preferredKey=null){
 
 const R={months:[],data:{}};
 let financeView='financeDirector';
+let directorDrillAction=null;
 
-function financeSwitchView(id){
+function financeSwitchView(id,fromDirector=false){
+  if(!fromDirector)directorDrillAction=null;
   financeView=id;
   document.querySelectorAll('.finance-panel').forEach(x=>x.classList.toggle('active',x.id===id));
   document.querySelectorAll('.finance-tab').forEach(x=>x.classList.toggle('active',x.dataset.financeView===id));
   renderFinance();
 }
 document.querySelectorAll('.finance-tab').forEach(b=>b.addEventListener('click',()=>financeSwitchView(b.dataset.financeView)));
+// Event delegation: os cartões são recriados quando o mês muda.
+['directorAlerts','directorConcentration'].forEach(id=>{
+  const holder=document.getElementById(id);
+  if(!holder)return;
+  holder.addEventListener('click',e=>{
+    const card=e.target.closest('[data-director-action]');
+    if(card&&holder.contains(card))financeDirectorJump(card.dataset.directorAction);
+  });
+  holder.addEventListener('keydown',e=>{
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    const card=e.target.closest('[data-director-action]');
+    if(!card||!holder.contains(card))return;
+    e.preventDefault();financeDirectorJump(card.dataset.directorAction);
+  });
+});
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-return-director]')){
+    financeSwitchView('financeDirector');
+    requestAnimationFrame(()=>document.getElementById('directorAlerts')?.scrollIntoView({behavior:'smooth',block:'center'}));
+  }
+});
+function directorCard(html,action){
+  return `<div class="executive-item director-link" role="button" tabindex="0" title="Clique para ver os lançamentos" data-director-action="${action}">${html}</div>`;
+}
+function financeDirectorJump(action){
+  const valid=['overdue','over60','top3clients','top5suppliers','largestClient','largestSupplier'];
+  if(!valid.includes(action))return;
+  directorDrillAction=action;
+  if(action==='overdue'||action==='over60'){
+    document.getElementById('overdueSearch').value='';
+    document.getElementById('overdueAgingFilter').value=action==='over60'?'60+':'all';
+    financeSwitchView('financeProjection',true);
+    requestAnimationFrame(()=>document.getElementById('overdueTableSummary')?.scrollIntoView({behavior:'smooth',block:'center'}));
+  }else{
+    const id=action==='top3clients'||action==='largestClient'?'financeClients':'financeSuppliers';
+    financeSwitchView(id,true);
+    requestAnimationFrame(()=>document.getElementById(id==='financeClients'?'financeClientsDrill':'financeSuppliersDrill')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  }
+}
 document.addEventListener('input',e=>{if(e.target?.id==='overdueSearch'&&financeView==='financeProjection')renderFinanceProjection()});
 document.addEventListener('change',e=>{if(e.target?.id==='overdueAgingFilter'&&financeView==='financeProjection')renderFinanceProjection()});
 
@@ -1207,13 +1265,19 @@ function renderFinanceDirector(){
   directorDiagnosis.innerHTML=diagnosis.map(x=>`<div class="executive-item ${x.level}"><b>${x.title}</b>${x.text}</div>`).join('');
 
   directorAlertCount.textContent=alerts.filter(x=>x.level!=='good').length;
-  directorAlerts.innerHTML=alerts.map(x=>`<div class="executive-item ${x.level}"><b>${x.title}</b>${x.text}</div>`).join('');
+  const actionsByAlert={'Carteira vencida':'overdue','Atrasos acima de 60 dias':'over60','Concentração de clientes':'top3clients','Concentração de fornecedores':'top5suppliers'};
+  directorAlerts.innerHTML=alerts.map(x=>{
+    const html=`<b>${safeText(x.title)}</b>${x.text}`;
+    const action=actionsByAlert[x.title];
+    return action?directorCard(html,action).replace('executive-item director-link',`executive-item ${x.level} director-link`)
+      :`<div class="executive-item ${x.level}">${html}</div>`;
+  }).join('');
 
   directorConcentration.innerHTML=[
-    `<div class="executive-item ${top3>=60?'warn':'good'}"><b>Top 3 clientes</b>${pct(top3)} das entradas do mês.</div>`,
-    `<div class="executive-item ${top5Sup>=60?'warn':'good'}"><b>Top 5 fornecedores</b>${pct(top5Sup)} das saídas do mês.</div>`,
-    `<div class="executive-item"><b>Maior cliente</b>${safeText(clients[0]?.name||'Sem recebimentos')} ${clients[0]?`• ${brl(clients[0].value)}`:''}</div>`,
-    `<div class="executive-item"><b>Maior fornecedor</b>${safeText(suppliers[0]?.name||'Sem despesas')} ${suppliers[0]?`• ${brl(suppliers[0].value)}`:''}</div>`
+    directorCard(`<b>Top 3 clientes</b>${pct(top3)} das entradas do mês.`,'top3clients').replace('executive-item director-link',`executive-item ${top3>=60?'warn':'good'} director-link`),
+    directorCard(`<b>Top 5 fornecedores</b>${pct(top5Sup)} das saídas do mês.`,'top5suppliers').replace('executive-item director-link',`executive-item ${top5Sup>=60?'warn':'good'} director-link`),
+    clients.length?directorCard(`<b>Maior cliente</b>${safeText(clients[0].name)} • ${brl(clients[0].value)}`,'largestClient'):'<div class="executive-item"><b>Maior cliente</b>Sem recebimentos</div>',
+    suppliers.length?directorCard(`<b>Maior fornecedor</b>${safeText(suppliers[0].name)} • ${brl(suppliers[0].value)}`,'largestSupplier'):'<div class="executive-item"><b>Maior fornecedor</b>Sem despesas</div>'
   ].join('');
 }
 function renderFinanceDre(){
@@ -1285,7 +1349,7 @@ function renderOverdueTable(rows,ref){
   const q=normKey(overdueSearch?.value||'');
   const aging=overdueAgingFilter?.value||'all';
   const filtered=unique.filter(r=>{
-    if(aging!=='all'&&r._aging.key!==aging)return false;
+    if(aging==='60+'?r._aging.days<=60:(aging!=='all'&&r._aging.key!==aging))return false;
     if(!q)return true;
     return normKey([r.cliente,r.id_cpr,r.categoria,r.historico,r.tipo,r.data_emissao,r.data_vencimento].join(' ')).includes(q);
   }).sort((a,b)=>b._aging.days-a._aging.days||Number(b.valor||0)-Number(a.valor||0));
@@ -1470,6 +1534,41 @@ function renderFinanceComparison(){
     return `<tr><td><b>${label}</b></td><td class="num">${isMargin?pct(a):brl(a)}</td><td class="num">${isMargin?pct(b):brl(b)}</td><td class="num ${variation>=0?'finance-positive':'finance-negative'}">${variation===null?'—':`${variation>=0?'▲':'▼'} ${pct(Math.abs(variation))}`}</td></tr>`;
   }).join('');
 }
+function renderFinanceDirectorDetail(kind){
+  const el=document.getElementById(kind==='client'?'financeClientsDrill':'financeSuppliersDrill');
+  if(!el)return;
+  const action=directorDrillAction;
+  const active=kind==='client'?['top3clients','largestClient'].includes(action):['top5suppliers','largestSupplier'].includes(action);
+  if(!active){el.hidden=true;el.innerHTML='';return;}
+  const key=financeCurrentKey();
+  if(!key){el.hidden=true;return;}
+  const stats=financeMonthStats(key);
+  const rows=kind==='client'?stats.receivedRows:stats.expenseRows;
+  const ranked=kind==='client'?financeAggregateRows(rows,'cliente'):expenseAggregate(rows,'fornecedor');
+  const firstOnly=action==='largestClient'||action==='largestSupplier';
+  const limit=firstOnly?1:kind==='client'?3:5;
+  const chosen=ranked.slice(0,limit);
+  const names=new Set(chosen.map(x=>x.name));
+  const keyName=kind==='client'?'cliente':'fornecedor';
+  const filtered=rows.filter(r=>names.has(String(r[keyName]||'Não informado').trim()||'Não informado'));
+  const total=financeSum(filtered);
+  const month=(E.data[key]||R.data[key])?.label||key;
+  const title=kind==='client'
+    ?firstOnly?'Maior cliente recebido':'Top 3 clientes — recebimentos'
+    :firstOnly?'Maior fornecedor pago':'Top 5 fornecedores — pagamentos';
+  const overall=kind==='client'?stats.received:stats.expenses;
+  const labelKey=kind==='client'?'Cliente':'Fornecedor';
+  el.hidden=false;
+  el.innerHTML=`<div class="finance-drill-header"><div><h3>${title} • ${safeText(month)}</h3>
+    <p>Lançamentos efetivamente ${kind==='client'?'recebidos':'pagos'} pela data de baixa no mês selecionado. ${chosen.length} ${kind==='client'?'cliente(s)':'fornecedor(es)'} no detalhamento.</p></div>
+    <button class="btn" type="button" data-return-director>← Voltar à Diretoria</button></div>
+    <div class="finance-drill-total">${brl(total)} <small style="font-size:12px;font-weight:600;color:#8fa8bd">• ${pct(overall?total/overall*100:0)} do mês • ${filtered.length} lançamento(s)</small></div>
+    <div class="table-wrap"><table><thead><tr><th>Baixa</th><th>${labelKey}</th><th>${kind==='client'?'ID CPR':'OP'}</th><th>Categoria</th><th>Histórico</th><th class="num">Valor</th></tr></thead>
+    <tbody>${filtered.length?filtered.slice().sort((a,b)=>Number(b.valor||0)-Number(a.valor||0)).map(r=>`<tr>
+    <td>${safeText(r.data_baixa||'—')}</td><td><b>${safeText(r[keyName]||'Não informado')}</b></td>
+    <td>${safeText(kind==='client'?r.id_cpr||'—':r.op||'—')}</td><td>${safeText(r.categoria||'—')}</td>
+    <td>${safeText(r.historico||'—')}</td><td class="num"><b>${brl(Number(r.valor||0))}</b></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Nenhum lançamento encontrado para este mês.</td></tr>'}</tbody></table></div>`;
+}
 function renderFinanceClients(){
   const rows=allReceivableRows(),map=new Map();
   rows.forEach(r=>{
@@ -1480,11 +1579,13 @@ function renderFinanceClients(){
   const arr=[...map.values()].sort((a,b)=>b.received-a.received);
   if(arr.length)hbars('financeClientsChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.received})),'valor','#22c991',brl,false);else financeClientsChart.innerHTML='';
   financeClientsBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${brl(x.received)}</td><td class="num">${brl(x.open)}</td><td class="num">${brl(x.overdue)}</td></tr>`).join('');
+  renderFinanceDirectorDetail('client');
 }
 function renderFinanceSuppliers(){
   const rows=[...E.months.flatMap(k=>E.data[k]?.records||[]),...(E.futureRecords||[])],arr=expenseAggregate(rows,'fornecedor'),total=rows.reduce((a,r)=>a+Number(r.valor||0),0);
   if(arr.length)hbars('financeSuppliersChart',arr.slice(0,20).map(x=>({cliente:x.name,valor:x.value})),'valor','#ff6b7d',brl,false);else financeSuppliersChart.innerHTML='';
   financeSuppliersBody.innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeText(x.name)}</b></td><td class="num">${n0(x.count)}</td><td class="num">${brl(x.value)}</td><td class="num">${pct(total?x.value/total*100:0)}</td></tr>`).join('');
+  renderFinanceDirectorDetail('supplier');
 }
 const financeSources={expenses:{state:'pending',message:''},receivables:{state:'pending',message:''}};
 function financeUpdateNotice(){
